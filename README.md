@@ -1,11 +1,10 @@
-# TaskFlow Pro 🚀
-
+# TaskFlow Pro 
 Plataforma empresarial de productividad y automatización de flujos de trabajo.
 Construida con Next.js 14, PostgreSQL, Redis, WebSockets, Docker y más.
 
 ---
 
-## 📦 Stack Tecnológico
+## Stack Tecnológico
 
 | Capa | Tecnología |
 |------|-----------|
@@ -29,7 +28,7 @@ Construida con Next.js 14, PostgreSQL, Redis, WebSockets, Docker y más.
 
 ---
 
-## 🗂️ Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 taskflow-pro/
@@ -93,9 +92,9 @@ taskflow-pro/
 
 ---
 
-## 🗓️ Roadmap de Fases
+## Roadmap de Fases
 
-### ✅ FASE 1 — Fundamentos (ACTUAL)
+### FASE 1 — Fundamentos (ACTUAL)
 Base sólida del proyecto.
 
 - [x] Estructura de carpetas completa
@@ -114,7 +113,7 @@ Base sólida del proyecto.
 
 ---
 
-### 🔐 FASE 2 — Autenticación
+### FASE 2 — Autenticación
 Sistema de auth completo y seguro.
 
 **Paso 2.1** — Prisma client singleton + logger (Pino)
@@ -132,7 +131,7 @@ Sistema de auth completo y seguro.
 
 ---
 
-### 📋 FASE 3 — Core: Kanban en Tiempo Real
+### FASE 3 — Core: Kanban en Tiempo Real
 El corazón de la aplicación.
 
 **Paso 3.1** — Socket.io server setup
@@ -149,7 +148,7 @@ El corazón de la aplicación.
 
 ---
 
-### ⚡ FASE 4 — Motor de Automatizaciones
+### FASE 4 — Motor de Automatizaciones
 La feature más compleja e impresionante.
 
 **Paso 4.1** — BullMQ setup (queues + workers)
@@ -164,7 +163,7 @@ La feature más compleja e impresionante.
 
 ---
 
-### 📊 FASE 5 — APIs Externas + Dashboard Analytics
+### FASE 5 — APIs Externas + Dashboard Analytics
 Integraciones y visualización de datos.
 
 **Paso 5.1** — Integración NewsAPI (widget de noticias)
@@ -177,7 +176,7 @@ Integraciones y visualización de datos.
 
 ---
 
-### 🔭 FASE 6 — Observabilidad
+### FASE 6 — Observabilidad
 Monitoreo production-grade.
 
 **Paso 6.1** — Endpoint /api/metrics (prom-client)
@@ -189,7 +188,7 @@ Monitoreo production-grade.
 
 ---
 
-### 🧪 FASE 7 — Testing
+### FASE 7 — Testing
 Cobertura completa de pruebas.
 
 **Paso 7.1** — Jest config + setup
@@ -204,7 +203,7 @@ Cobertura completa de pruebas.
 
 ---
 
-### 🚀 FASE 8 — Producción
+### FASE 8 — Producción
 Preparación para deploy real.
 
 **Paso 8.1** — Variables de entorno de producción
@@ -216,7 +215,7 @@ Preparación para deploy real.
 
 ---
 
-## 🚀 Inicio rápido
+## Inicio rápido
 
 ```bash
 # 1. Clonar e instalar
@@ -246,7 +245,7 @@ npm run worker:dev
 
 ---
 
-## 🌐 Puertos
+## Puertos
 
 | Servicio | Puerto |
 |---------|--------|
@@ -259,6 +258,6 @@ npm run worker:dev
 
 ---
 
-## 📝 Licencia
+## Licencia
 
 MIT — Libre para uso en portafolio y proyectos personales.

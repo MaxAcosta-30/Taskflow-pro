@@ -14,7 +14,7 @@ import { workerLogger } from '@/lib/logger'
 // import { notificationProcessor } from './processors/notification'
 // import { cleanupProcessor } from './processors/cleanup'
 
-workerLogger.info('🔧 TaskFlow Worker iniciando...')
+workerLogger.info('TaskFlow Worker iniciando...')
 
 // ── Worker de Automatizaciones ────────────────────────────────
 const automationsWorker = new Worker(
@@ -60,13 +60,13 @@ const workers = [automationsWorker, notificationsWorker, cleanupWorker]
 
 workers.forEach((worker) => {
   worker.on('completed', (job) => {
-    workerLogger.info({ jobId: job.id, queue: worker.name }, 'Job completed ✅')
+    workerLogger.info({ jobId: job.id, queue: worker.name }, 'Job completed')
   })
 
   worker.on('failed', (job, err) => {
     workerLogger.error(
       { jobId: job?.id, queue: worker.name, error: err.message },
-      'Job failed ❌',
+      'Job failed',
     )
   })
 
@@ -75,7 +75,7 @@ workers.forEach((worker) => {
   })
 })
 
-workerLogger.info('✅ Workers activos y escuchando colas')
+workerLogger.info('Workers activos y escuchando colas')
 
 // ── Graceful Shutdown ─────────────────────────────────────────
 async function shutdown() {

@@ -1,0 +1,205 @@
+version: '3.9'
+
+# =============================================================
+#  TaskFlow Pro — Docker Compose
+#  Levanta TODOS los servicios con un solo comando:
+#  docker compose up -d
+# =============================================================
+
+networks:
+  taskflow-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:
+
+services:
+
+  # ────────────────────────────────────────
+  #  NGINX — Reverse Proxy
+  # ────────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: taskflow-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - app
+    networks:
+      - taskflow-network
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ────────────────────────────────────────
+  #  NEXT.JS — Aplicación principal
+  # ────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+      target: runner
+    container_name: taskflow-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - taskflow-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ────────────────────────────────────────
+  #  WORKER — BullMQ Job Processor
+  # ────────────────────────────────────────
+  worker:
+    build:
+      context: .
+      dockerfile: ./docker/worker/Dockerfile
+    container_name: taskflow-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - taskflow-network
+
+  # ────────────────────────────────────────
+  #  POSTGRESQL — Base de datos
+  # ────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: taskflow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-taskflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-taskflow_password}
+      POSTGRES_DB: ${POSTGRES_DB:-taskflow_db}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - taskflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-taskflow} -d ${POSTGRES_DB:-taskflow_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ────────────────────────────────────────
+  #  REDIS — Cache + Queues + Pub/Sub
+  # ────────────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: taskflow-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - taskflow-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ────────────────────────────────────────
+  #  PROMETHEUS — Recolección de métricas
+  # ────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: taskflow-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - taskflow-network
+    depends_on:
+      - app
+
+  # ────────────────────────────────────────
+  #  GRAFANA — Visualización de métricas
+  # ────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: taskflow-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin123}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: "http://localhost:3002"
+      GF_INSTALL_PLUGINS: "redis-datasource"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3002:3000"
+    networks:
+      - taskflow-network
+    depends_on:
+      - prometheus
+
+  # ────────────────────────────────────────
+  #  REDIS COMMANDER — UI para Redis (dev)
+  # ────────────────────────────────────────
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: taskflow-redis-ui
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: "local:redis:6379"
+    ports:
+      - "8081:8081"
+    networks:
+      - taskflow-network
+    depends_on:
+      - redis
+    profiles:
+      - dev  # Solo levanta con: docker compose --profile dev up

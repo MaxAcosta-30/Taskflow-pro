@@ -1,0 +1,411 @@
+// =============================================================
+//  TaskFlow Pro — Prisma Schema
+//  Modelos completos para toda la aplicación
+// =============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+//  AUTH & USUARIOS
+// ─────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?  @map("password_hash")
+  name         String
+  avatarUrl    String?  @map("avatar_url")
+  role         Role     @default(MEMBER)
+  isVerified   Boolean  @default(false) @map("is_verified")
+  isActive     Boolean  @default(true)  @map("is_active")
+  timezone     String   @default("UTC")
+  locale       String   @default("es")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt      @map("updated_at")
+  lastLoginAt  DateTime?               @map("last_login_at")
+
+  // Relaciones
+  sessions          Session[]
+  oauthAccounts     OAuthAccount[]
+  teamMemberships   TeamMember[]
+  createdTasks      Task[]         @relation("TaskCreator")
+  assignedTasks     Task[]         @relation("TaskAssignee")
+  taskComments      TaskComment[]
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+  createdAutomations Automation[]
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  refreshToken String   @unique @map("refresh_token")
+  userAgent    String?  @map("user_agent")
+  ipAddress    String?  @map("ip_address")
+  country      String?
+  city         String?
+  isRevoked    Boolean  @default(false) @map("is_revoked")
+  createdAt    DateTime @default(now()) @map("created_at")
+  expiresAt    DateTime @map("expires_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model OAuthAccount {
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  provider       String   // "github" | "google"
+  providerUserId String   @map("provider_user_id")
+  accessToken    String?  @map("access_token")
+  refreshToken   String?  @map("refresh_token")
+  expiresAt      DateTime? @map("expires_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+  @@map("oauth_accounts")
+}
+
+// ─────────────────────────────────────────────
+//  EQUIPOS
+// ─────────────────────────────────────────────
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  avatarUrl   String?  @map("avatar_url")
+  plan        TeamPlan @default(FREE)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt      @map("updated_at")
+
+  members     TeamMember[]
+  boards      Board[]
+  automations Automation[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id       String     @id @default(cuid())
+  teamId   String     @map("team_id")
+  userId   String     @map("user_id")
+  teamRole TeamRole   @default(MEMBER) @map("team_role")
+  joinedAt DateTime   @default(now()) @map("joined_at")
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([userId])
+  @@map("team_members")
+}
+
+// ─────────────────────────────────────────────
+//  TABLEROS & KANBAN
+// ─────────────────────────────────────────────
+
+model Board {
+  id          String   @id @default(cuid())
+  teamId      String   @map("team_id")
+  name        String
+  description String?
+  color       String   @default("#3B82F6")
+  isArchived  Boolean  @default(false) @map("is_archived")
+  position    Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt      @map("updated_at")
+
+  team    Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  columns Column[]
+
+  @@index([teamId])
+  @@map("boards")
+}
+
+model Column {
+  id        String   @id @default(cuid())
+  boardId   String   @map("board_id")
+  name      String
+  color     String   @default("#6B7280")
+  position  Int      @default(0)
+  isDefault Boolean  @default(false) @map("is_default")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt      @map("updated_at")
+
+  board Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tasks Task[]
+
+  @@index([boardId])
+  @@map("columns")
+}
+
+model Task {
+  id          String       @id @default(cuid())
+  columnId    String       @map("column_id")
+  creatorId   String       @map("creator_id")
+  assigneeId  String?      @map("assignee_id")
+  title       String
+  description String?
+  priority    Priority     @default(MEDIUM)
+  status      TaskStatus   @default(TODO)
+  position    Int          @default(0)
+  dueDate     DateTime?    @map("due_date")
+  startedAt   DateTime?    @map("started_at")
+  completedAt DateTime?    @map("completed_at")
+  estimatedHours Float?    @map("estimated_hours")
+  actualHours    Float?    @map("actual_hours")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt      @map("updated_at")
+
+  column    Column        @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  creator   User          @relation("TaskCreator", fields: [creatorId], references: [id])
+  assignee  User?         @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  comments  TaskComment[]
+  labels    TaskLabel[]
+
+  @@index([columnId])
+  @@index([assigneeId])
+  @@index([creatorId])
+  @@map("tasks")
+}
+
+model TaskComment {
+  id        String   @id @default(cuid())
+  taskId    String   @map("task_id")
+  authorId  String   @map("author_id")
+  content   String
+  isEdited  Boolean  @default(false) @map("is_edited")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt      @map("updated_at")
+
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([taskId])
+  @@map("task_comments")
+}
+
+model Label {
+  id        String      @id @default(cuid())
+  name      String
+  color     String
+  teamId    String      @map("team_id")
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  tasks TaskLabel[]
+
+  @@unique([name, teamId])
+  @@map("labels")
+}
+
+model TaskLabel {
+  taskId    String @map("task_id")
+  labelId   String @map("label_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  task  Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  label Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, labelId])
+  @@map("task_labels")
+}
+
+// ─────────────────────────────────────────────
+//  AUTOMATIZACIONES
+// ─────────────────────────────────────────────
+
+model Automation {
+  id          String           @id @default(cuid())
+  teamId      String           @map("team_id")
+  creatorId   String           @map("creator_id")
+  name        String
+  description String?
+  isActive    Boolean          @default(true) @map("is_active")
+  triggerType AutomationTrigger @map("trigger_type")
+  triggerConfig Json           @map("trigger_config")
+  // Ejemplo triggerConfig:
+  // { "daysStale": 3 }           → para TASK_STALE
+  // { "fromColumn": "id1" }      → para TASK_MOVED
+  // { "weatherCondition": "rain" } → para WEATHER
+  // { "cronExpression": "0 9 * * 1" } → para SCHEDULE
+  actions     AutomationAction[]
+  runs        AutomationRun[]
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt      @map("updated_at")
+  lastRunAt   DateTime?        @map("last_run_at")
+
+  team    Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  creator User @relation(fields: [creatorId], references: [id])
+
+  @@index([teamId])
+  @@map("automations")
+}
+
+model AutomationAction {
+  id             String     @id @default(cuid())
+  automationId   String     @map("automation_id")
+  position       Int        @default(0)
+  actionType     ActionType @map("action_type")
+  config         Json
+  // Ejemplo config:
+  // { "toColumnId": "id2" }          → para MOVE_TASK
+  // { "userId": "id1" }              → para ASSIGN_USER
+  // { "url": "https://...", "method": "POST" } → para WEBHOOK
+
+  automation Automation @relation(fields: [automationId], references: [id], onDelete: Cascade)
+
+  @@index([automationId])
+  @@map("automation_actions")
+}
+
+model AutomationRun {
+  id           String        @id @default(cuid())
+  automationId String        @map("automation_id")
+  status       RunStatus     @default(PENDING)
+  triggeredBy  String?       @map("triggered_by")
+  taskId       String?       @map("task_id")
+  logs         Json?
+  error        String?
+  startedAt    DateTime      @default(now()) @map("started_at")
+  completedAt  DateTime?     @map("completed_at")
+
+  automation Automation @relation(fields: [automationId], references: [id], onDelete: Cascade)
+
+  @@index([automationId])
+  @@map("automation_runs")
+}
+
+// ─────────────────────────────────────────────
+//  NOTIFICACIONES
+// ─────────────────────────────────────────────
+
+model Notification {
+  id         String           @id @default(cuid())
+  userId     String           @map("user_id")
+  type       NotificationType
+  title      String
+  body       String
+  data       Json?
+  isRead     Boolean          @default(false) @map("is_read")
+  readAt     DateTime?        @map("read_at")
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+// ─────────────────────────────────────────────
+//  AUDITORÍA
+// ─────────────────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?  @map("user_id")
+  action     String
+  resource   String
+  resourceId String?  @map("resource_id")
+  metadata   Json?
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([resource, resourceId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// =============================================================
+//  ENUMS
+// =============================================================
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  MEMBER
+}
+
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum TeamPlan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum Priority {
+  URGENT
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  CANCELLED
+}
+
+enum AutomationTrigger {
+  TASK_STALE       // Tarea sin mover X días
+  TASK_MOVED       // Tarea movida a columna
+  TASK_ASSIGNED    // Tarea asignada a usuario
+  TASK_DUE_SOON    // Tarea próxima a vencer
+  SCHEDULE         // Cron schedule
+  WEATHER          // Condición climática (Open-Meteo)
+  WEBHOOK          // Webhook externo entrante
+}
+
+enum ActionType {
+  MOVE_TASK        // Mover tarea a columna
+  ASSIGN_USER      // Asignar usuario
+  ADD_LABEL        // Agregar etiqueta
+  SEND_NOTIFICATION // Enviar notificación
+  WEBHOOK          // Llamar URL externa
+  CREATE_TASK      // Crear nueva tarea
+}
+
+enum RunStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+  SKIPPED
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  TASK_COMMENT
+  TASK_DUE_SOON
+  TASK_OVERDUE
+  AUTOMATION_TRIGGERED
+  TEAM_INVITE
+  SYSTEM
+}

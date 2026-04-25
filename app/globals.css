@@ -71,23 +71,70 @@
 
 /* ── Utilidades Kanban ───────────────────────────────────── */
 .kanban-board {
-  @apply flex gap-4 overflow-x-auto pb-4 h-full;
+  @apply flex gap-4 pb-4 h-full items-start;
+  overflow-x: auto;
   scrollbar-width: thin;
+  /* Padding horizontal para que las columnas no queden pegadas al borde */
+  padding-left: 2px;
+  padding-right: 24px;
 }
 
 .kanban-column {
-  @apply flex-shrink-0 w-72 flex flex-col gap-2 rounded-lg bg-muted/50 p-3;
-  min-height: 200px;
+  @apply flex-shrink-0 flex flex-col rounded-xl p-3;
+  width: 288px;
+  min-height: 160px;
+  background: hsl(210 40% 96.8%);
+  border: 1px solid hsl(214.3 31.8% 91.4% / 0.8);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dark .kanban-column {
+  background: hsl(217.2 32.6% 14%);
+  border-color: hsl(217.2 32.6% 20%);
+}
+
+.kanban-column.is-over {
+  background: hsl(217 91% 96%);
+  border-color: hsl(217 91% 75%);
+  box-shadow: 0 0 0 2px hsl(217 91% 60% / 0.3);
+}
+
+.dark .kanban-column.is-over {
+  background: hsl(217 40% 18%);
+  border-color: hsl(217 60% 45%);
 }
 
 .task-card {
-  @apply bg-card rounded-md p-3 shadow-sm border border-border
-         cursor-grab active:cursor-grabbing
-         hover:shadow-md transition-shadow duration-150;
+  @apply bg-white dark:bg-slate-800 rounded-lg p-3;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  border: 1px solid hsl(214.3 31.8% 91.4%);
+  cursor: grab;
+  transition: box-shadow 0.15s ease, transform 0.1s ease, border-color 0.15s ease;
+  user-select: none;
+}
+
+.dark .task-card {
+  border-color: hsl(217.2 32.6% 22%);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.task-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+  border-color: hsl(214.3 31.8% 82%);
+  transform: translateY(-1px);
+}
+
+.dark .task-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  border-color: hsl(217.2 32.6% 30%);
+}
+
+.task-card:active {
+  cursor: grabbing;
 }
 
 .task-card.dragging {
-  @apply opacity-50 shadow-lg rotate-2;
+  opacity: 0;
 }
 
 /* ── Animaciones ─────────────────────────────────────────── */
@@ -97,9 +144,17 @@
 }
 
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes pop-in {
+  0%   { transform: scale(0.95); opacity: 0; }
+  60%  { transform: scale(1.02); }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
 .animate-slide-in  { animation: slide-in-right 0.3s ease-out; }
-.animate-fade-in   { animation: fade-in 0.2s ease-out; }
+.animate-fade-in   { animation: fade-in 0.2s ease-out forwards; }
+.animate-pop-in    { animation: pop-in 0.2s ease-out forwards; }
+

@@ -8,6 +8,8 @@ import type { Server as HTTPServer } from 'http'
 
 import { Server as SocketIOServer } from 'socket.io'
 
+import { createAdapter } from '@socket.io/redis-adapter'
+
 import { verifyAccessToken } from '@/lib/auth/jwt'
 import { socketLogger } from '@/lib/logger'
 import { activeWebSocketConnections } from '@/lib/metrics'
@@ -27,6 +29,11 @@ export function initSocketServer(httpServer: HTTPServer) {
     },
     transports: ['websocket', 'polling'],
   })
+
+  // Usar Redis Adapter para sincronizar instancias y workers
+  // Nota: io.adapter requiere un pubClient y subClient, usaremos la misma conexión duplicada
+  const subClient = redis.duplicate()
+  io.adapter(createAdapter(redis, subClient))
 
   // ── Middleware de autenticación ──────────────────────────
   io.use(async (socket: any, next: any) => {

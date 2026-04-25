@@ -44,18 +44,15 @@ export function useCreateBoard() {
 }
 
 // ── Tasks ─────────────────────────────────────────────────────
-export function useCreateTask() {
+export function useCreateTask(boardId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (data: CreateTaskInput) =>
       apiFetch<Task>(`${API}/tasks`, { method: 'POST', body: JSON.stringify(data) }),
-    // Optimistic update
+    // Optimistic update: inserta la tarea en la UI antes de que el servidor responda
     onMutate: async (newTask) => {
-      const boardId = await getBoardIdFromColumn(newTask.columnId)
-      if (!boardId) return
-
       await qc.cancelQueries({ queryKey: ['board', boardId] })
-      const prev = qc.getQueryData(['board', boardId])
+      const prev = qc.getQueryData<BoardDetail>(['board', boardId])
 
       qc.setQueryData(['board', boardId], (old: BoardDetail | undefined) => {
         if (!old) return old
@@ -63,19 +60,32 @@ export function useCreateTask() {
           ...old,
           columns: old.columns.map((col) =>
             col.id === newTask.columnId
-              ? { ...col, tasks: [...col.tasks, { ...newTask, id: 'temp-' + Date.now(), position: 999, _count: { comments: 0 } }] }
+              ? {
+                  ...col,
+                  tasks: [
+                    ...col.tasks,
+                    {
+                      ...newTask,
+                      id:       'temp-' + Date.now(),
+                      position: 999,
+                      _count:   { comments: 0 },
+                      creator:  { id: '', name: 'Tú', avatarUrl: null },
+                      assignee: null,
+                      labels:   [],
+                      dueDate:  newTask.dueDate ?? null,
+                    },
+                  ],
+                }
               : col,
           ),
         }
       })
-      return { prev, boardId }
+      return { prev }
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx?.boardId && ctx?.prev) qc.setQueryData(['board', ctx.boardId], ctx.prev)
+      if (ctx?.prev) qc.setQueryData(['board', boardId], ctx.prev)
     },
-    onSettled: (_data, _err, _vars, ctx) => {
-      if (ctx?.boardId) void qc.invalidateQueries({ queryKey: ['board', ctx.boardId] })
-    },
+    onSettled: () => void qc.invalidateQueries({ queryKey: ['board', boardId] }),
   })
 }
 
@@ -128,13 +138,6 @@ export function useCreateComment(taskId: string) {
       }),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['comments', taskId] }),
   })
-}
-
-// ── Helper para obtener boardId desde columnId ────────────────
-async function getBoardIdFromColumn(columnId: string): Promise<string | null> {
-  // En la práctica, el boardId viene del contexto del componente
-  // Este helper es un placeholder para el optimistic update
-  return null
 }
 
 // ── Types ─────────────────────────────────────────────────────

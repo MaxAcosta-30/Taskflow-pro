@@ -3,7 +3,7 @@ import type { NotificationType } from '@prisma/client'
 
 import { db } from '@/lib/db'
 import { workerLogger } from '@/lib/logger'
-// import { emitToUser } from '@/lib/socket' // TODO: Emit across instances using Redis PubSub
+import { emitToUserFromWorker } from '@/lib/socket/emitter'
 
 export async function notificationProcessor(job: Job) {
   const { userId, type, title, body, data } = job.data as {
@@ -30,8 +30,7 @@ export async function notificationProcessor(job: Job) {
   workerLogger.info({ notificationId: notification.id }, 'Notification saved to DB')
 
   // Emitir por webSockets al cliente en tiempo real
-  // En una arquitectura multi-instancia, esto debe viajar por Redis Pub/Sub
-  // emitToUser(userId, 'notification:new', notification)
+  emitToUserFromWorker(userId, 'notification:new', { notification: notification as any })
 
   return notification
 }

@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { withAuth, parseBody, ok, notFound, serverError } from '@/lib/api/helpers'
 import { db } from '@/lib/db'
 import { invalidateCache, CACHE_KEYS } from '@/lib/redis'
-import { emitToBoard } from '@/lib/socket'
+import { emitToBoard } from '@/lib/socket/emitter'
 
 const moveSchema = z.object({
   toColumnId: z.string().cuid(),

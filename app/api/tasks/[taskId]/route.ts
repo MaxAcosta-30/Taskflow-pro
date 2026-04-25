@@ -8,7 +8,7 @@ import { withAuth, parseBody, ok, notFound, serverError } from '@/lib/api/helper
 import { db } from '@/lib/db'
 import { queueNotification } from '@/lib/queue'
 import { invalidateCache, CACHE_KEYS } from '@/lib/redis'
-import { emitToBoard } from '@/lib/socket'
+import { emitToBoard } from '@/lib/socket/emitter'
 import { updateTaskSchema } from '@/lib/validations'
 
 type Params = { params: { taskId: string } }

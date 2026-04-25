@@ -9,7 +9,7 @@ import { withAuth, parseBody, created, serverError } from '@/lib/api/helpers'
 import { db } from '@/lib/db'
 import { logger } from '@/lib/logger'
 import { invalidateCache, CACHE_KEYS } from '@/lib/redis'
-import { emitToBoard } from '@/lib/socket'
+import { emitToBoard } from '@/lib/socket/emitter'
 import { createTaskSchema } from '@/lib/validations'
 
 export async function POST(req: NextRequest) {

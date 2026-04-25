@@ -13,12 +13,13 @@ import { useCreateTask } from '@/hooks/use-board'
 
 type Props = {
   columnId: string
+  boardId:  string
   onClose:  () => void
 }
 
-export function AddTaskForm({ columnId, onClose }: Props) {
+export function AddTaskForm({ columnId, boardId, onClose }: Props) {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<{ title: string }>()
-  const { mutate: createTask, isPending } = useCreateTask()
+  const { mutate: createTask, isPending } = useCreateTask(boardId)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   useEffect(() => { textareaRef.current?.focus() }, [])

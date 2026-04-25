@@ -3,14 +3,20 @@
 //  Define todas las colas de la aplicación
 // =============================================================
 
+import Redis from 'ioredis'
 import { Queue, QueueEvents } from 'bullmq'
 
-import { redis } from '@/lib/redis'
 import type { AutomationJobData, NotificationJobData } from '@/types'
 
 
-// ── Conexión compartida para BullMQ ──────────────────────────
-const connection = redis
+// ── Conexión dedicada para BullMQ ────────────────────────────
+// BullMQ requiere maxRetriesPerRequest: null y enableReadyCheck: false
+// para evitar timeouts con sus comandos bloqueantes (BRPOP, etc.)
+const connection = new Redis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
+  maxRetriesPerRequest: null,
+  enableReadyCheck:     false,
+  lazyConnect:          true,
+})
 
 // ── Nombres de colas ──────────────────────────────────────────
 export const QUEUE_NAMES = {

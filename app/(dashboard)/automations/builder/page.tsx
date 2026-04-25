@@ -4,7 +4,7 @@
 
 'use client'
 
-import { ArrowLeft, Save } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -24,7 +24,7 @@ export default function AutomationBuilderPage() {
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <input 
+          <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -34,26 +34,28 @@ export default function AutomationBuilderPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+          <Link
+            href="/automations"
+            className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          >
             Descartar
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-sm">
-            <Save className="w-4 h-4" />
-            Guardar Flujo
-          </button>
+          </Link>
         </div>
       </div>
 
       {/* Builder Canvas */}
       <div className="flex-1 overflow-y-auto p-8 relative">
         {/* Patrón de puntos de fondo */}
-        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none" 
-             style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-        
+        <div
+          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
+          style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+        />
+
         <div className="max-w-2xl mx-auto relative z-10 py-10">
-          <AutomationBuilder />
+          <AutomationBuilder automationName={name} />
         </div>
       </div>
     </div>
   )
 }
+

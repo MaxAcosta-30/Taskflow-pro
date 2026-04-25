@@ -30,26 +30,24 @@ export function KanbanColumn({ column, boardId, members }: Props) {
   const taskCount = column.tasks.length
 
   return (
-    <div className={`kanban-column transition-colors duration-150
-      ${isOver ? 'bg-blue-50 dark:bg-blue-950/20 ring-2 ring-blue-400/50 ring-inset' : ''}`}
-    >
+    <div className={`kanban-column ${isOver ? 'is-over' : ''}`}>
       {/* Header de columna */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-2">
           <span
-            className="w-2 h-2 rounded-full"
+            className="w-2.5 h-2.5 rounded-full"
             style={{ backgroundColor: column.color }}
           />
-          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
             {column.name}
           </h3>
-          <span className="text-xs font-medium text-slate-400 bg-slate-200 dark:bg-slate-700
-                           w-5 h-5 rounded-full flex items-center justify-center">
+          <span className="text-xs font-semibold text-slate-400 bg-slate-200/80 dark:bg-slate-700
+                           min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center">
             {taskCount}
           </span>
         </div>
 
-        <button className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 transition-colors">
+        <button className="p-1 rounded-md hover:bg-slate-200/80 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
           <MoreHorizontal className="w-4 h-4" />
         </button>
       </div>
@@ -57,7 +55,7 @@ export function KanbanColumn({ column, boardId, members }: Props) {
       {/* Tareas */}
       <div
         ref={setNodeRef}
-        className="flex flex-col gap-2 flex-1 min-h-[80px]"
+        className="flex flex-col gap-2 flex-1 min-h-[60px]"
       >
         <SortableContext
           items={column.tasks.map((t) => t.id)}
@@ -76,6 +74,7 @@ export function KanbanColumn({ column, boardId, members }: Props) {
         {addingTask && (
           <AddTaskForm
             columnId={column.id}
+            boardId={boardId}
             onClose={() => setAddingTask(false)}
           />
         )}
@@ -87,7 +86,7 @@ export function KanbanColumn({ column, boardId, members }: Props) {
           onClick={() => setAddingTask(true)}
           className="mt-2 w-full flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm
                      text-slate-400 dark:text-slate-500
-                     hover:bg-slate-200 dark:hover:bg-slate-700
+                     hover:bg-slate-200/80 dark:hover:bg-slate-700
                      hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />

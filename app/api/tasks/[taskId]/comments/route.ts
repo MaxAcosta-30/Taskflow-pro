@@ -6,7 +6,7 @@ import type { NextRequest } from 'next/server'
 
 import { withAuth, parseBody, ok, created, serverError } from '@/lib/api/helpers'
 import { db } from '@/lib/db'
-import { emitToBoard } from '@/lib/socket'
+import { emitToBoard } from '@/lib/socket/emitter'
 import { createCommentSchema } from '@/lib/validations'
 
 type Params = { params: { taskId: string } }

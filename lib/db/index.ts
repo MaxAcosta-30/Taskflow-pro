@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
 // =============================================================
 //  lib/db/index.ts — Prisma Client Singleton
 //  Evita múltiples conexiones en desarrollo con hot-reload
@@ -26,12 +27,12 @@ export const db =
 
 // Log queries en desarrollo
 if (process.env.NODE_ENV === 'development') {
-  ;(db as any).$on('query', (e: any) => {
+  (db as any).$on('query', (e: any) => {
     logger.debug({ query: e.query, duration: `${e.duration}ms` }, 'DB Query')
   })
 }
 
-;(db as any).$on('error', (e: any) => {
+(db as any).$on('error', (e: any) => {
   logger.error({ message: e.message }, 'DB Error')
 })
 

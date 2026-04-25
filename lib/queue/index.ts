@@ -5,9 +5,9 @@
 
 import { Queue, QueueEvents } from 'bullmq'
 
+import { redis } from '@/lib/redis'
 import type { AutomationJobData, NotificationJobData } from '@/types'
 
-import { redis } from '@/lib/redis'
 
 // ── Conexión compartida para BullMQ ──────────────────────────
 const connection = redis

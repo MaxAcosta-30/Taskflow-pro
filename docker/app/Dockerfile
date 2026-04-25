@@ -12,7 +12,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm ci --only=production && \
+RUN npm ci --only=production --ignore-scripts && \
     npm install --save-dev tsx && \
     npx prisma generate
 

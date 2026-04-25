@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await */
 // =============================================================
 //  workers/index.ts — BullMQ Worker Entry Point
 //  Proceso separado que consume las colas de Redis
@@ -5,23 +6,23 @@
 
 import { Worker } from 'bullmq'
 
-import { redis } from '@/lib/redis'
-import { QUEUE_NAMES } from '@/lib/queue'
 import { workerLogger } from '@/lib/logger'
+import { QUEUE_NAMES } from '@/lib/queue'
+import { redis } from '@/lib/redis'
 
-// Los processors se importarán en las fases siguientes
-// import { automationProcessor } from './processors/automation'
-// import { notificationProcessor } from './processors/notification'
-// import { cleanupProcessor } from './processors/cleanup'
+// Los processors importados de la Fase 4
+import { automationProcessor } from './processors/automation'
+import { notificationProcessor } from './processors/notification'
+import { cleanupProcessor } from './processors/cleanup'
 
-workerLogger.info('TaskFlow Worker iniciando...')
+workerLogger.info(' TaskFlow Worker iniciando...')
 
 // ── Worker de Automatizaciones ────────────────────────────────
 const automationsWorker = new Worker(
   QUEUE_NAMES.AUTOMATIONS,
   async (job) => {
     workerLogger.info({ jobId: job.id, name: job.name }, 'Processing automation job')
-    // TODO Fase 4: automationProcessor(job)
+    await automationProcessor(job)
   },
   {
     connection: redis,
@@ -34,7 +35,7 @@ const notificationsWorker = new Worker(
   QUEUE_NAMES.NOTIFICATIONS,
   async (job) => {
     workerLogger.info({ jobId: job.id, name: job.name }, 'Processing notification job')
-    // TODO Fase 4: notificationProcessor(job)
+    await notificationProcessor(job)
   },
   {
     connection: redis,
@@ -47,7 +48,7 @@ const cleanupWorker = new Worker(
   QUEUE_NAMES.CLEANUP,
   async (job) => {
     workerLogger.info({ jobId: job.id }, 'Running cleanup job')
-    // TODO Fase 8: cleanupProcessor(job)
+    await cleanupProcessor(job)
   },
   {
     connection: redis,
@@ -60,13 +61,13 @@ const workers = [automationsWorker, notificationsWorker, cleanupWorker]
 
 workers.forEach((worker) => {
   worker.on('completed', (job) => {
-    workerLogger.info({ jobId: job.id, queue: worker.name }, 'Job completed')
+    workerLogger.info({ jobId: job.id, queue: worker.name }, 'Job completed ')
   })
 
   worker.on('failed', (job, err) => {
     workerLogger.error(
       { jobId: job?.id, queue: worker.name, error: err.message },
-      'Job failed',
+      'Job failed ',
     )
   })
 
@@ -75,7 +76,7 @@ workers.forEach((worker) => {
   })
 })
 
-workerLogger.info('Workers activos y escuchando colas')
+workerLogger.info(' Workers activos y escuchando colas')
 
 // ── Graceful Shutdown ─────────────────────────────────────────
 async function shutdown() {

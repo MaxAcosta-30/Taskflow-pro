@@ -70,7 +70,9 @@ export const createTaskSchema = z.object({
   labelIds:       z.array(z.string().cuid()).optional(),
 })
 
-export const updateTaskSchema = createTaskSchema.partial().omit({ columnId: true })
+export const updateTaskSchema = createTaskSchema.partial().omit({ columnId: true }).extend({
+  status: z.enum(['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE', 'CANCELLED']).optional()
+})
 
 export const moveTaskSchema = z.object({
   taskId:       z.string().cuid(),

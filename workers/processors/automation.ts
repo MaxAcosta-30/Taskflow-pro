@@ -5,6 +5,7 @@ import { db } from '@/lib/db'
 import { workerLogger } from '@/lib/logger'
 import { emitToBoardFromWorker } from '@/lib/socket/emitter'
 import { queueNotification } from '@/lib/queue'
+import { automationJobsProcessed } from '@/lib/metrics'
 
 export async function automationProcessor(job: Job) {
   const { automationId, triggeredBy, taskId } = job.data as {
@@ -37,6 +38,7 @@ export async function automationProcessor(job: Job) {
         where: { id: run.id },
         data: { status: 'SKIPPED', logs: { message: 'Automation not found or inactive' } },
       })
+      automationJobsProcessed.inc({ status: 'skipped', trigger_type: automation?.triggerType || 'unknown' })
       return { skipped: true }
     }
 
@@ -171,7 +173,6 @@ export async function automationProcessor(job: Job) {
       } catch (err: any) {
         workerLogger.error({ actionId: action.id, error: err.message }, 'Action failed')
         logs.push({ actionId: action.id, type: action.actionType, status: 'failed', error: err.message })
-        // Dependiendo de la lógica de negocio, podríamos abortar el loop o continuar. Aquí continuamos.
       }
     }
 
@@ -191,6 +192,7 @@ export async function automationProcessor(job: Job) {
       data: { lastRunAt: new Date() },
     })
 
+    automationJobsProcessed.inc({ status: 'success', trigger_type: automation.triggerType })
     return { success: true }
   } catch (error: any) {
     await db.automationRun.update({
@@ -201,6 +203,7 @@ export async function automationProcessor(job: Job) {
         error: error.message,
       },
     })
+    automationJobsProcessed.inc({ status: 'failed', trigger_type: 'unknown' })
     throw error
   }
 }

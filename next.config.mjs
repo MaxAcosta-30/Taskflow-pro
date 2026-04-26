@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/require-await */
+import { withSentryConfig } from "@sentry/nextjs";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone', // Para Docker
-
   experimental: {
-    serverComponentsExternalPackages: ['pino', 'pino-pretty'],
+    serverComponentsExternalPackages: ['pino', 'pino-pretty', 'socket.io', 'ioredis'],
   },
 
   eslint: {
@@ -28,7 +26,6 @@ const nextConfig = {
     ],
   },
 
-  // Headers de seguridad
   async headers() {
     return [
       {
@@ -42,4 +39,16 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+const sentryConfig = {
+  silent: true,
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  widenClientFileUpload: true,
+  transpileClientSDK: true,
+  tunnelRoute: "/monitoring",
+  hideSourceMaps: true,
+  disableLogger: true,
+  automaticVercelMonitors: true,
+};
+
+export default withSentryConfig(nextConfig, sentryConfig);

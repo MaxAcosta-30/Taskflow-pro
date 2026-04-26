@@ -1,0 +1,43 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "id": 2,
+  "links": [],
+  "panels": [
+    {
+      "title": "Total Tasks Created",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum(tasks_created_total)", "legendFormat": "Tasks" }
+      ],
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
+      }
+    },
+    {
+      "title": "Notifications Sent by Type",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(notifications_sent_total[5m])) by (type)", "legendFormat": "{{type}}" }
+      ]
+    },
+    {
+      "title": "Automation Success Rate",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 6 },
+      "targets": [
+        { "expr": "sum(automation_jobs_processed_total) by (status)", "legendFormat": "{{status}}" }
+      ]
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": ["business", "kpi"],
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "TaskFlow Pro - Business KPIs",
+  "uid": "business-01",
+  "version": 1
+}

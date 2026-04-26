@@ -107,9 +107,10 @@ export type NotificationItem = {
 // ── Queue Job Types ───────────────────────────────────────────
 export type AutomationJobData = {
   automationId: string
-  triggerType: string
-  triggerPayload: Record<string, unknown>
+  triggeredBy?: string
   taskId?: string
+  triggerType?: string
+  triggerPayload?: Record<string, unknown>
 }
 
 export type NotificationJobData = {

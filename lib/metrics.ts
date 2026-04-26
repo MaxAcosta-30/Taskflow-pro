@@ -1,60 +1,45 @@
-// =============================================================
-//  lib/metrics.ts — Definición central de métricas Prometheus
-// =============================================================
+import { Counter, Histogram, Registry } from 'prom-client';
 
-import { register, collectDefaultMetrics, Counter, Histogram, Gauge } from 'prom-client'
-
-// Solo inicializar una vez para evitar advertencias de métricas duplicadas en dev
-const globalAny = global as any
-if (!globalAny.metricsInitialized) {
-  collectDefaultMetrics({ register })
-  globalAny.metricsInitialized = true
-}
+const register = new Registry();
 
 export const httpRequestsTotal = new Counter({
-  name: 'taskflow_http_requests_total',
-  help: 'Total de requests HTTP',
-  labelNames: ['method', 'route', 'status_code'],
+  name: 'http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'path', 'status'],
   registers: [register],
-})
+});
 
-export const httpRequestDuration = new Histogram({
-  name: 'taskflow_http_request_duration_seconds',
-  help: 'Duración de requests HTTP en segundos',
-  labelNames: ['method', 'route'],
-  buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5],
+export const httpRequestDurationSeconds = new Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'Duration of HTTP requests in seconds',
+  labelNames: ['method', 'path', 'status'],
   registers: [register],
-})
+});
 
-export const activeWebSocketConnections = new Gauge({
-  name: 'taskflow_websocket_connections_active',
-  help: 'Conexiones WebSocket activas',
+export const websocketConnectionsActive = new Counter({
+  name: 'websocket_connections_active',
+  help: 'Number of active WebSocket connections',
   registers: [register],
-})
+});
 
-export const queueJobsTotal = new Counter({
-  name: 'taskflow_queue_jobs_total',
-  help: 'Total de jobs procesados',
-  labelNames: ['queue', 'status'],
+export const automationJobsProcessed = new Counter({
+  name: 'automation_jobs_processed_total',
+  help: 'Total number of automation jobs processed',
+  labelNames: ['status', 'trigger_type'],
   registers: [register],
-})
+});
 
-export const queueJobDuration = new Histogram({
-  name: 'taskflow_queue_job_duration_seconds',
-  help: 'Duración de procesamiento de jobs',
-  labelNames: ['queue'],
+export const notificationsSentTotal = new Counter({
+  name: 'notifications_sent_total',
+  help: 'Total number of notifications sent',
+  labelNames: ['type'],
   registers: [register],
-})
+});
 
-export const automationsTriggeredTotal = new Counter({
-  name: 'taskflow_automations_triggered_total',
-  help: 'Total de automatizaciones ejecutadas',
-  labelNames: ['trigger_type', 'status'],
+export const tasksCreatedTotal = new Counter({
+  name: 'tasks_created_total',
+  help: 'Total number of tasks created',
   registers: [register],
-})
+});
 
-export const activeUsers = new Gauge({
-  name: 'taskflow_active_users_total',
-  help: 'Usuarios activos en los últimos 5 minutos',
-  registers: [register],
-})
+export { register };

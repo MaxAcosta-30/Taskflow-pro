@@ -1,28 +1,29 @@
-// =============================================================
-//  app/api/metrics/route.ts — Prometheus Metrics Endpoint
-// =============================================================
+import { NextResponse } from 'next/server';
+import { register } from '@/lib/metrics';
 
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server'
-import { register } from 'prom-client'
-
-// Importamos el archivo para forzar la inicialización de métricas
-import '@/lib/metrics'
-
-// ── Endpoint GET /api/metrics ─────────────────────────────────
-export async function GET(request: NextRequest) {
-  // Proteger con secret en producción
-  const secret = request.headers.get('x-metrics-secret')
-  if (
-    process.env.NODE_ENV === 'production' &&
-    secret !== process.env.METRICS_SECRET
-  ) {
-    return new NextResponse('Unauthorized', { status: 401 })
+/**
+ * Endpoint de metricas para Prometheus.
+ * Expone tanto las metricas por defecto de Node.js como las personalizadas
+ * definidas en lib/metrics.ts.
+ */
+export async function GET() {
+  try {
+    const metrics = await register.metrics();
+    
+    return new NextResponse(metrics, {
+      headers: {
+        'Content-Type': register.contentType,
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
+    });
+  } catch (error: any) {
+    return new NextResponse(error.message, { 
+      status: 500,
+      headers: { 'Content-Type': 'text/plain' }
+    });
   }
-
-  const metrics = await register.metrics()
-
-  return new NextResponse(metrics, {
-    headers: { 'Content-Type': register.contentType },
-  })
 }
+
+export const dynamic = 'force-dynamic';

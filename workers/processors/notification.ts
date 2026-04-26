@@ -4,6 +4,7 @@ import type { NotificationType } from '@prisma/client'
 import { db } from '@/lib/db'
 import { workerLogger } from '@/lib/logger'
 import { emitToUserFromWorker } from '@/lib/socket/emitter'
+import { notificationsSentTotal } from '@/lib/metrics'
 
 export async function notificationProcessor(job: Job) {
   const { userId, type, title, body, data } = job.data as {
@@ -31,6 +32,9 @@ export async function notificationProcessor(job: Job) {
 
   // Emitir por webSockets al cliente en tiempo real
   emitToUserFromWorker(userId, 'notification:new', { notification: notification as any })
+
+  // Incrementar métrica
+  notificationsSentTotal.inc({ type })
 
   return notification
 }

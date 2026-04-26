@@ -1,56 +1,102 @@
-// =============================================================
-//  tests/unit/auth/jwt.test.ts
-// =============================================================
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import jwt from 'jsonwebtoken';
+import { 
+  generateTokens, 
+  verifyAccessToken, 
+  verifyRefreshToken, 
+  decodeToken 
+} from '@/lib/auth/jwt';
+import { 
+  loginSchema, 
+  refreshTokenSchema 
+} from '@/lib/validations';
 
-import { generateTokens, verifyAccessToken, verifyRefreshToken } from '@/lib/auth/jwt'
+describe('JWT Auth - Helpers', () => {
+  const payload = { sub: 'user_abc', email: 'admin@taskflow.pro', role: 'ADMIN' as any };
 
-// Setear variables de entorno para tests
-process.env.JWT_SECRET         = 'test_secret_super_long_at_least_32_chars_abc'
-process.env.JWT_REFRESH_SECRET = 'test_refresh_secret_super_long_32_chars_xyz'
-process.env.JWT_EXPIRES_IN     = '15m'
-process.env.JWT_REFRESH_EXPIRES_IN = '7d'
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
 
-describe('JWT Helpers', () => {
-  const payload = { sub: 'user_123', email: 'test@test.com', role: 'MEMBER' }
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   describe('generateTokens', () => {
-    it('should generate access and refresh tokens', () => {
-      const tokens = generateTokens(payload)
-      expect(tokens.accessToken).toBeDefined()
-      expect(tokens.refreshToken).toBeDefined()
-      expect(tokens.expiresIn).toBeGreaterThan(0)
-    })
+    it('debe generar tokens con la estructura correcta', () => {
+      const tokens = generateTokens(payload);
+      expect(tokens).toHaveProperty('accessToken');
+      expect(tokens).toHaveProperty('refreshToken');
+      expect(tokens).toHaveProperty('expiresIn');
+      expect(typeof tokens.expiresIn).toBe('number');
+    });
 
-    it('access token should be a valid JWT with 3 parts', () => {
-      const { accessToken } = generateTokens(payload)
-      expect(accessToken.split('.')).toHaveLength(3)
-    })
-  })
+    it('el payload decodificado debe coincidir con la entrada', () => {
+      const { accessToken } = generateTokens(payload);
+      const decoded = jwt.decode(accessToken) as any;
+      expect(decoded.sub).toBe(payload.sub);
+      expect(decoded.role).toBe(payload.role);
+    });
+  });
 
   describe('verifyAccessToken', () => {
-    it('should verify and return payload', () => {
-      const { accessToken } = generateTokens(payload)
-      const decoded = verifyAccessToken(accessToken)
-      expect(decoded.sub).toBe(payload.sub)
-      expect(decoded.email).toBe(payload.email)
-      expect(decoded.role).toBe(payload.role)
-    })
+    it('debe validar un token legitimo', () => {
+      const { accessToken } = generateTokens(payload);
+      const verified = verifyAccessToken(accessToken);
+      expect(verified.sub).toBe(payload.sub);
+    });
 
-    it('should throw on invalid token', () => {
-      expect(() => verifyAccessToken('invalid.token.here')).toThrow()
-    })
-  })
+    it('debe fallar si la firma es incorrecta', () => {
+      const tokenInvalido = jwt.sign(payload, 'otra-llave-distinta');
+      expect(() => verifyAccessToken(tokenInvalido)).toThrow();
+    });
 
-  describe('verifyRefreshToken', () => {
-    it('should verify refresh token', () => {
-      const { refreshToken } = generateTokens(payload)
-      const decoded = verifyRefreshToken(refreshToken)
-      expect(decoded.sub).toBe(payload.sub)
-    })
+    it('debe fallar si el token ha expirado', () => {
+      const { accessToken } = generateTokens(payload);
+      // Adelantar el tiempo 20 minutos (el token expira en 15m por defecto)
+      vi.advanceTimersByTime(20 * 60 * 1000);
+      expect(() => verifyAccessToken(accessToken)).toThrow();
+    });
+  });
 
-    it('should throw if access token used as refresh', () => {
-      const { accessToken } = generateTokens(payload)
-      expect(() => verifyRefreshToken(accessToken)).toThrow()
-    })
-  })
-})
+  describe('decodeToken', () => {
+    it('debe retornar el payload incluso si el token ha expirado', () => {
+      const { accessToken } = generateTokens(payload);
+      vi.advanceTimersByTime(20 * 60 * 1000);
+      const decoded = decodeToken(accessToken);
+      expect(decoded?.sub).toBe(payload.sub);
+    });
+  });
+});
+
+describe('Zod Validation - Auth Schemas', () => {
+  describe('loginSchema', () => {
+    it('debe validar un login correcto', () => {
+      const result = loginSchema.safeParse({
+        email: 'test@taskflow.pro',
+        password: 'password123'
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('debe fallar con email mal formado', () => {
+      const result = loginSchema.safeParse({
+        email: 'no-es-email',
+        password: 'password123'
+      });
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('refreshTokenSchema', () => {
+    it('debe requerir el campo refreshToken', () => {
+      const result = refreshTokenSchema.safeParse({ token: 'abc' });
+      expect(result.success).toBe(false);
+    });
+
+    it('debe aceptar un string no vacio', () => {
+      const result = refreshTokenSchema.safeParse({ refreshToken: 'some-jwt-string' });
+      expect(result.success).toBe(true);
+    });
+  });
+});

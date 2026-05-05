@@ -14,36 +14,32 @@ type User = {
 }
 
 type AuthState = {
-  user:           User | null
-  accessToken:    string | null
+  user: User | null
+  accessToken: string | null
   isAuthenticated: boolean
-  isLoading:      boolean
+  isLoading: boolean
 
-  setUser:        (user: User) => void
-  setTokens:      (accessToken: string) => void
-  logout:         () => void
-  setLoading:     (loading: boolean) => void
+  setUser: (user: User) => void
+  setTokens: (accessToken: string) => void
+  logout: () => void
+  setLoading: (loading: boolean) => void
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      user:            null,
-      accessToken:     null,
+      user: null,
+      accessToken: null,
       isAuthenticated: false,
-      isLoading:       true,
+      isLoading: true,
 
-      setUser: (user) =>
-        set({ user, isAuthenticated: true, isLoading: false }),
+      setUser: (user) => set({ user, isAuthenticated: true, isLoading: false }),
 
-      setTokens: (accessToken) =>
-        set({ accessToken }),
+      setTokens: (accessToken) => set({ accessToken }),
 
-      logout: () =>
-        set({ user: null, accessToken: null, isAuthenticated: false }),
+      logout: () => set({ user: null, accessToken: null, isAuthenticated: false }),
 
-      setLoading: (isLoading) =>
-        set({ isLoading }),
+      setLoading: (isLoading) => set({ isLoading }),
     }),
     {
       name: 'taskflow-auth',

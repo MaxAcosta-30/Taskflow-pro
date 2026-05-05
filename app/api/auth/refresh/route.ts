@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     const session = await db.session.findFirst({
       where: {
         refreshToken,
-        userId:    payload.sub,
+        userId: payload.sub,
         isRevoked: false,
         expiresAt: { gt: new Date() },
       },
@@ -48,31 +48,28 @@ export async function POST(req: NextRequest) {
     })
 
     if (!session || !session.user.isActive) {
-      return Response.json(
-        { success: false, error: 'Sesión inválida o expirada' },
-        { status: 401 },
-      )
+      return Response.json({ success: false, error: 'Sesión inválida o expirada' }, { status: 401 })
     }
 
     // 3. Revocar sesión anterior y crear nueva (rotation)
     await db.session.update({
       where: { id: session.id },
-      data:  { isRevoked: true },
+      data: { isRevoked: true },
     })
 
     const newTokens = generateTokens({
-      sub:   session.user.id,
+      sub: session.user.id,
       email: session.user.email,
-      role:  session.user.role,
+      role: session.user.role,
     })
 
     await db.session.create({
       data: {
-        userId:       session.user.id,
+        userId: session.user.id,
         refreshToken: newTokens.refreshToken,
-        userAgent:    req.headers.get('user-agent') ?? undefined,
-        ipAddress:    getClientIp(req),
-        expiresAt:    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        userAgent: req.headers.get('user-agent') ?? undefined,
+        ipAddress: getClientIp(req),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     })
 
@@ -83,9 +80,6 @@ export async function POST(req: NextRequest) {
     return Response.json({ success: true, data: { tokens: newTokens } })
   } catch (error) {
     authLogger.error({ error }, 'Refresh error')
-    return Response.json(
-      { success: false, error: 'Error interno del servidor' },
-      { status: 500 },
-    )
+    return Response.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }

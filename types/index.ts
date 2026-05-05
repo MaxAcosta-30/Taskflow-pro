@@ -3,16 +3,18 @@
 // =============================================================
 
 // ── Respuestas API ─────────────────────────────────────────────
-export type ApiResponse<T = unknown> = {
-  success: true
-  data: T
-  message?: string
-} | {
-  success: false
-  error: string
-  code?: string
-  details?: Record<string, string[]>
-}
+export type ApiResponse<T = unknown> =
+  | {
+      success: true
+      data: T
+      message?: string
+    }
+  | {
+      success: false
+      error: string
+      code?: string
+      details?: Record<string, string[]>
+    }
 
 export type PaginatedResponse<T> = {
   data: T[]
@@ -34,7 +36,7 @@ export type AuthTokens = {
 }
 
 export type JwtPayload = {
-  sub: string        // userId
+  sub: string // userId
   email: string
   role: string
   teamId?: string
@@ -45,10 +47,10 @@ export type JwtPayload = {
 // ── WebSocket Events ───────────────────────────────────────────
 export type SocketEvents = {
   // Task events
-  'task:created':  { task: TaskWithRelations; boardId: string }
-  'task:updated':  { task: TaskWithRelations; boardId: string }
-  'task:deleted':  { taskId: string; boardId: string }
-  'task:moved':    { taskId: string; fromColumnId: string; toColumnId: string; position: number }
+  'task:created': { task: TaskWithRelations; boardId: string }
+  'task:updated': { task: TaskWithRelations; boardId: string }
+  'task:deleted': { taskId: string; boardId: string }
+  'task:moved': { taskId: string; fromColumnId: string; toColumnId: string; position: number }
 
   // Comment events
   'comment:created': { comment: CommentWithAuthor; taskId: string }
@@ -60,12 +62,17 @@ export type SocketEvents = {
   // Board events
   'board:updated': { boardId: string }
 
+  // Column events
+  'column:created': { column: any; boardId: string }
+  'column:updated': { column: any; boardId: string }
+  'column:deleted': { columnId: string; boardId: string }
+
   // Automation events
   'automation:triggered': { automationId: string; taskId?: string }
 
   // Presence
   'user:joined': { userId: string; boardId: string }
-  'user:left':   { userId: string; boardId: string }
+  'user:left': { userId: string; boardId: string }
 }
 
 // ── Task & Board types ────────────────────────────────────────

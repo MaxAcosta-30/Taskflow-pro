@@ -27,24 +27,24 @@ if (process.env.NODE_ENV !== 'production') {
 
 // ── Prefijos de keys (evita colisiones) ────────────────────────
 export const CACHE_KEYS = {
-  user:         (id: string)        => `user:${id}`,
-  userSession:  (token: string)     => `session:${token}`,
-  board:        (id: string)        => `board:${id}`,
-  boardMembers: (boardId: string)   => `board:${boardId}:members`,
-  task:         (id: string)        => `task:${id}`,
-  teamBoards:   (teamId: string)    => `team:${teamId}:boards`,
-  weather:      (lat: number, lon: number) => `weather:${lat}:${lon}`,
-  news:         (query: string)     => `news:${query}`,
-  rateLimit:    (ip: string, route: string) => `ratelimit:${ip}:${route}`,
+  user: (id: string) => `user:${id}`,
+  userSession: (token: string) => `session:${token}`,
+  board: (id: string) => `board:${id}`,
+  boardMembers: (boardId: string) => `board:${boardId}:members`,
+  task: (id: string) => `task:${id}`,
+  teamBoards: (teamId: string) => `team:${teamId}:boards`,
+  weather: (lat: number, lon: number) => `weather:${lat}:${lon}`,
+  news: (query: string) => `news:${query}`,
+  rateLimit: (ip: string, route: string) => `ratelimit:${ip}:${route}`,
 } as const
 
 // ── TTLs en segundos ───────────────────────────────────────────
 export const TTL = {
-  USER:       60 * 60,        // 1 hora
-  BOARD:      60 * 5,         // 5 minutos
-  WEATHER:    60 * 30,        // 30 minutos
-  NEWS:       60 * 60,        // 1 hora
-  SHORT:      60,             // 1 minuto
+  USER: 60 * 60, // 1 hora
+  BOARD: 60 * 5, // 5 minutos
+  WEATHER: 60 * 30, // 30 minutos
+  NEWS: 60 * 60, // 1 hora
+  SHORT: 60, // 1 minuto
 } as const
 
 // ── Helpers ───────────────────────────────────────────────────

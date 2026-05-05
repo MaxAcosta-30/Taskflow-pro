@@ -6,7 +6,7 @@ import type { NextRequest } from 'next/server'
 
 import { withAuth, parseBody, ok, created, serverError } from '@/lib/api/helpers'
 import { db } from '@/lib/db'
-import { emitToBoard } from '@/lib/socket/emitter'
+import { publishToBoard } from '@/lib/socket/publisher'
 import { createCommentSchema } from '@/lib/validations'
 
 type Params = { params: { taskId: string } }
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest, { params }: Params) {
       const comments = await db.taskComment.findMany({
         where: {
           taskId: params.taskId,
-          task:   { column: { board: { team: { members: { some: { userId: user.sub } } } } } },
+          task: { column: { board: { team: { members: { some: { userId: user.sub } } } } } },
         },
         orderBy: { createdAt: 'asc' },
         include: { author: { select: { id: true, name: true, avatarUrl: true } } },
@@ -39,22 +39,23 @@ export async function POST(req: NextRequest, { params }: Params) {
     try {
       const task = await db.task.findFirst({
         where: {
-          id:     params.taskId,
+          id: params.taskId,
           column: { board: { team: { members: { some: { userId: user.sub } } } } },
         },
         include: { column: { select: { boardId: true } } },
       })
-      if (!task) return Response.json({ success: false, error: 'Tarea no encontrada' }, { status: 404 })
+      if (!task)
+        return Response.json({ success: false, error: 'Tarea no encontrada' }, { status: 404 })
 
       const comment = await db.taskComment.create({
-        data:    { taskId: params.taskId, authorId: user.sub, content: data.content },
+        data: { taskId: params.taskId, authorId: user.sub, content: data.content },
         include: { author: { select: { id: true, name: true, avatarUrl: true } } },
       })
 
       // Emit en tiempo real al board
-      emitToBoard(task.column.boardId, 'comment:created', {
+      await publishToBoard(task.column.boardId, 'comment:created', {
         comment: comment as never,
-        taskId:  params.taskId,
+        taskId: params.taskId,
       })
 
       return created(comment)

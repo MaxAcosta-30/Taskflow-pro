@@ -14,7 +14,7 @@ import { registerSchema } from '@/lib/validations'
 export async function POST(req: NextRequest) {
   try {
     // 1. Validar body con Zod
-    const body = await req.json() as unknown
+    const body = (await req.json()) as unknown
     const parsed = registerSchema.safeParse(body)
 
     if (!parsed.success) {
@@ -45,23 +45,23 @@ export async function POST(req: NextRequest) {
 
     // 4. Generar tokens JWT
     const tokens = generateTokens({
-      sub:   user.id,
+      sub: user.id,
       email: user.email,
-      role:  user.role,
+      role: user.role,
     })
 
     // 5. Guardar sesión en DB
     await createSession({
-      userId:       user.id,
+      userId: user.id,
       refreshToken: tokens.refreshToken,
-      userAgent:    req.headers.get('user-agent') ?? undefined,
-      ipAddress:    getClientIp(req),
+      userAgent: req.headers.get('user-agent') ?? undefined,
+      ipAddress: getClientIp(req),
     })
 
     // 6. Actualizar lastLoginAt
     await db.user.update({
       where: { id: user.id },
-      data:  { lastLoginAt: new Date() },
+      data: { lastLoginAt: new Date() },
     })
 
     // 7. Setear cookies httpOnly
@@ -79,9 +79,6 @@ export async function POST(req: NextRequest) {
     )
   } catch (error) {
     authLogger.error({ error }, 'Register error')
-    return Response.json(
-      { success: false, error: 'Error interno del servidor' },
-      { status: 500 },
-    )
+    return Response.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }

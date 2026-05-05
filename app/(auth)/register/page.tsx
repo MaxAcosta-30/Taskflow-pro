@@ -16,9 +16,10 @@ import { registerSchema, type RegisterInput } from '@/lib/validations'
 // Validación visual de requisitos de contraseña
 function PasswordRequirement({ met, text }: { met: boolean; text: string }) {
   return (
-    <div className={`flex items-center gap-1.5 text-xs transition-colors
-      ${met ? 'text-green-600 dark:text-green-400' : 'text-slate-400'}`}>
-      <Check className={`w-3 h-3 ${met ? 'opacity-100' : 'opacity-30'}`} />
+    <div
+      className={`flex items-center gap-1.5 text-xs transition-colors ${met ? 'text-green-600 dark:text-green-400' : 'text-slate-400'}`}
+    >
+      <Check className={`h-3 w-3 ${met ? 'opacity-100' : 'opacity-30'}`} />
       {text}
     </div>
   )
@@ -42,29 +43,37 @@ export default function RegisterPage() {
   const password = watch('password', '')
   const hasMinLength = password.length >= 8
   const hasUppercase = /[A-Z]/.test(password)
-  const hasNumber    = /[0-9]/.test(password)
+  const hasNumber = /[0-9]/.test(password)
 
   const onSubmit = (data: RegisterInput) => register_(data)
 
   const apiError = registerError
-    ? (registerError as { error?: string }).error ?? 'Error al crear la cuenta'
+    ? ((registerError as { error?: string }).error ?? 'Error al crear la cuenta')
     : null
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="space-y-2">
-        <div className="lg:hidden flex items-center gap-2 mb-6">
-          <div className="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center">
-            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        <div className="mb-6 flex items-center gap-2 lg:hidden">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500">
+            <svg
+              className="h-4 w-4 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
             </svg>
           </div>
           <span className="font-semibold text-slate-900 dark:text-white">TaskFlow Pro</span>
         </div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-          Crea tu cuenta gratis
-        </h2>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Crea tu cuenta gratis</h2>
         <p className="text-slate-500 dark:text-slate-400">
           Empieza a automatizar tu equipo hoy mismo
         </p>
@@ -73,12 +82,9 @@ export default function RegisterPage() {
       {/* OAuth GitHub */}
       <a
         href="/api/auth/oauth/github"
-        className="flex items-center justify-center gap-3 w-full px-4 py-2.5
-                   border border-slate-200 dark:border-slate-700 rounded-lg
-                   text-slate-700 dark:text-slate-300 font-medium text-sm
-                   hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+        className="flex w-full items-center justify-center gap-3 rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
       >
-        <Github className="w-5 h-5" />
+        <Github className="h-5 w-5" />
         Registrarse con GitHub
       </a>
 
@@ -88,7 +94,7 @@ export default function RegisterPage() {
           <div className="w-full border-t border-slate-200 dark:border-slate-800" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white dark:bg-slate-950 px-2 text-slate-400">
+          <span className="bg-white px-2 text-slate-400 dark:bg-slate-950">
             o regístrate con email
           </span>
         </div>
@@ -96,18 +102,18 @@ export default function RegisterPage() {
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-
         {apiError && (
-          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800
-                          rounded-lg p-3 text-sm text-red-700 dark:text-red-400">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
             {apiError}
           </div>
         )}
 
         {/* Nombre */}
         <div className="space-y-1.5">
-          <label htmlFor="name"
-            className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+          >
             Nombre completo
           </label>
           <input
@@ -116,11 +122,7 @@ export default function RegisterPage() {
             autoComplete="name"
             placeholder="Juan García"
             {...register('name')}
-            className="w-full px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700
-                       bg-white dark:bg-slate-900 text-slate-900 dark:text-white
-                       placeholder:text-slate-400
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                       disabled:opacity-50 transition-colors text-sm"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 transition-colors placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
             disabled={isPending}
           />
           {errors.name && (
@@ -130,8 +132,10 @@ export default function RegisterPage() {
 
         {/* Email */}
         <div className="space-y-1.5">
-          <label htmlFor="email"
-            className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+          >
             Email
           </label>
           <input
@@ -140,11 +144,7 @@ export default function RegisterPage() {
             autoComplete="email"
             placeholder="tu@email.com"
             {...register('email')}
-            className="w-full px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700
-                       bg-white dark:bg-slate-900 text-slate-900 dark:text-white
-                       placeholder:text-slate-400
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                       disabled:opacity-50 transition-colors text-sm"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 transition-colors placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
             disabled={isPending}
           />
           {errors.email && (
@@ -154,8 +154,10 @@ export default function RegisterPage() {
 
         {/* Password */}
         <div className="space-y-1.5">
-          <label htmlFor="password"
-            className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+          >
             Contraseña
           </label>
           <div className="relative">
@@ -165,20 +167,15 @@ export default function RegisterPage() {
               autoComplete="new-password"
               placeholder="••••••••"
               {...register('password')}
-              className="w-full px-3 py-2.5 pr-10 rounded-lg border border-slate-200 dark:border-slate-700
-                         bg-white dark:bg-slate-900 text-slate-900 dark:text-white
-                         placeholder:text-slate-400
-                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                         disabled:opacity-50 transition-colors text-sm"
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-10 text-sm text-slate-900 transition-colors placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
               disabled={isPending}
             />
             <button
               type="button"
               onClick={() => setShowPassword((p) => !p)}
-              className="absolute right-3 top-1/2 -translate-y-1/2
-                         text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
 
@@ -187,7 +184,7 @@ export default function RegisterPage() {
             <div className="flex gap-4 pt-1">
               <PasswordRequirement met={hasMinLength} text="8+ caracteres" />
               <PasswordRequirement met={hasUppercase} text="Una mayúscula" />
-              <PasswordRequirement met={hasNumber}    text="Un número" />
+              <PasswordRequirement met={hasNumber} text="Un número" />
             </div>
           )}
           {errors.password && (
@@ -199,25 +196,29 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5
-                     bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400
-                     text-white font-medium text-sm rounded-lg
-                     transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400"
         >
           {isPending ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Creando cuenta...</>
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" /> Creando cuenta...
+            </>
           ) : (
-            <><UserPlus className="w-4 h-4" /> Crear cuenta</>
+            <>
+              <UserPlus className="h-4 w-4" /> Crear cuenta
+            </>
           )}
         </button>
 
-        <p className="text-xs text-slate-400 text-center">
+        <p className="text-center text-xs text-slate-400">
           Al registrarte aceptas nuestros{' '}
           <Link href="/terms" className="underline hover:text-slate-600 dark:hover:text-slate-300">
             Términos de Servicio
-          </Link>
-          {' '}y{' '}
-          <Link href="/privacy" className="underline hover:text-slate-600 dark:hover:text-slate-300">
+          </Link>{' '}
+          y{' '}
+          <Link
+            href="/privacy"
+            className="underline hover:text-slate-600 dark:hover:text-slate-300"
+          >
             Política de Privacidad
           </Link>
         </p>
@@ -226,8 +227,10 @@ export default function RegisterPage() {
       {/* Link a login */}
       <p className="text-center text-sm text-slate-500 dark:text-slate-400">
         ¿Ya tienes cuenta?{' '}
-        <Link href="/login"
-          className="text-blue-600 dark:text-blue-400 font-medium hover:underline">
+        <Link
+          href="/login"
+          className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+        >
           Inicia sesión
         </Link>
       </p>

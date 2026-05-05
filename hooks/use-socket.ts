@@ -7,7 +7,7 @@
 
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useCallback } from 'react'
-import type { Socket } from 'socket.io-client';
+import type { Socket } from 'socket.io-client'
 import { io } from 'socket.io-client'
 
 import { useAuthStore } from '@/stores/auth.store'
@@ -18,8 +18,8 @@ let socket: Socket | null = null
 function getSocket(): Socket {
   if (!socket) {
     socket = io(process.env.NEXT_PUBLIC_SOCKET_URL ?? '', {
-      path:        '/socket.io',
-      transports:  ['websocket'],
+      path: '/socket.io',
+      transports: ['websocket'],
       autoConnect: false,
     })
   }
@@ -36,8 +36,8 @@ export function useSocketConnection() {
     const s = getSocket()
     if (!s.connected) s.connect()
 
-    s.on('connect',       () => console.log('[Socket] Connected:', s.id))
-    s.on('disconnect',    () => console.log('[Socket] Disconnected'))
+    s.on('connect', () => console.log('[Socket] Connected:', s.id))
+    s.on('disconnect', () => console.log('[Socket] Disconnected'))
     s.on('connect_error', (err) => console.warn('[Socket] Error:', err.message))
 
     return () => {
@@ -51,7 +51,7 @@ export function useSocketConnection() {
 // ── Hook: sincronización de un tablero en tiempo real ─────────
 export function useBoardSocket(boardId: string) {
   const queryClient = useQueryClient()
-  const joinedRef   = useRef(false)
+  const joinedRef = useRef(false)
 
   // Unirse al room del tablero
   useEffect(() => {
@@ -99,7 +99,12 @@ export function useBoardSocket(boardId: string) {
       })
     }
 
-    const onTaskMoved = ({ taskId, fromColumnId, toColumnId, position }: SocketEvents['task:moved']) => {
+    const onTaskMoved = ({
+      taskId,
+      fromColumnId,
+      toColumnId,
+      position,
+    }: SocketEvents['task:moved']) => {
       queryClient.setQueryData(key, (old: BoardData | undefined) => {
         if (!old) return old
         return moveTaskInBoard(old, taskId, fromColumnId, toColumnId, position)
@@ -109,19 +114,21 @@ export function useBoardSocket(boardId: string) {
     s.on('task:created', onTaskCreated)
     s.on('task:updated', onTaskUpdated)
     s.on('task:deleted', onTaskDeleted)
-    s.on('task:moved',   onTaskMoved)
+    s.on('task:moved', onTaskMoved)
 
     return () => {
       s.off('task:created', onTaskCreated)
       s.off('task:updated', onTaskUpdated)
       s.off('task:deleted', onTaskDeleted)
-      s.off('task:moved',   onTaskMoved)
+      s.off('task:moved', onTaskMoved)
     }
   }, [boardId, queryClient])
 }
 
 // ── Hook: notificaciones en tiempo real ───────────────────────
-export function useNotificationSocket(onNotification: (n: SocketEvents['notification:new']['notification']) => void) {
+export function useNotificationSocket(
+  onNotification: (n: SocketEvents['notification:new']['notification']) => void,
+) {
   const cbRef = useRef(onNotification)
   cbRef.current = onNotification
 
@@ -131,7 +138,9 @@ export function useNotificationSocket(onNotification: (n: SocketEvents['notifica
       cbRef.current(notification)
     }
     s.on('notification:new', handler)
-    return () => { s.off('notification:new', handler) }
+    return () => {
+      s.off('notification:new', handler)
+    }
   }, [])
 }
 

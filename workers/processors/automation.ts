@@ -1,11 +1,43 @@
-import type { Job } from 'bullmq'
 import axios from 'axios'
+import type { Job } from 'bullmq'
 
 import { db } from '@/lib/db'
 import { workerLogger } from '@/lib/logger'
-import { emitToBoardFromWorker } from '@/lib/socket/emitter'
+import { automationsTriggeredTotal } from '@/lib/metrics'
 import { queueNotification } from '@/lib/queue'
-import { automationJobsProcessed } from '@/lib/metrics'
+import { publishToBoard } from '@/lib/socket/publisher'
+
+/**
+ * Helper para interpolar variables en un string.
+ * Ejemplo: "Nueva tarea: {{task.title}}" -> "Nueva tarea: Mi Tarea"
+ */
+function interpolate(text: string, context: Record<string, unknown>): string {
+  if (!text || typeof text !== 'string') return text
+  return text.replace(/\{\{(.*?)\}\}/g, (match: string, path: string) => {
+    const keys = path.trim().split('.')
+    let value: unknown = context
+    for (const key of keys) {
+      value = (value as Record<string, unknown>)?.[key]
+    }
+    return value !== undefined ? String(value) : match
+  })
+}
+
+/**
+ * Interpola variables en un objeto recursivamente.
+ */
+function interpolateObject(obj: unknown, context: Record<string, unknown>): unknown {
+  if (typeof obj === 'string') return interpolate(obj, context)
+  if (Array.isArray(obj)) return obj.map((item) => interpolateObject(item, context))
+  if (typeof obj === 'object' && obj !== null) {
+    const result: Record<string, unknown> = {}
+    for (const key in obj) {
+      result[key] = interpolateObject((obj as Record<string, unknown>)[key], context)
+    }
+    return result
+  }
+  return obj
+}
 
 export async function automationProcessor(job: Job) {
   const { automationId, triggeredBy, taskId } = job.data as {
@@ -16,7 +48,6 @@ export async function automationProcessor(job: Job) {
 
   workerLogger.info({ jobId: job.id, automationId }, 'Executing automation')
 
-  // Create an AutomationRun record
   const run = await db.automationRun.create({
     data: {
       automationId,
@@ -27,10 +58,12 @@ export async function automationProcessor(job: Job) {
   })
 
   try {
-    // 1. Fetch automation and its actions
     const automation = await db.automation.findUnique({
       where: { id: automationId },
-      include: { actions: { orderBy: { position: 'asc' } } },
+      include: {
+        actions: { orderBy: { position: 'asc' } },
+        team: true,
+      },
     })
 
     if (!automation || !automation.isActive) {
@@ -38,23 +71,51 @@ export async function automationProcessor(job: Job) {
         where: { id: run.id },
         data: { status: 'SKIPPED', logs: { message: 'Automation not found or inactive' } },
       })
-      automationJobsProcessed.inc({ status: 'skipped', trigger_type: automation?.triggerType || 'unknown' })
+      automationsTriggeredTotal.inc({
+        status: 'skipped',
+        trigger_type: automation?.triggerType || 'unknown',
+      })
       return { skipped: true }
     }
 
-    // Si hay un taskId, obtenemos el tablero para poder emitir eventos en tiempo real
+    // Preparar contexto para variables dinámicas
+    const context: Record<string, unknown> = {
+      automation: { name: automation.name },
+      team: { name: automation.team.name },
+      now: new Date().toISOString(),
+    }
+
     let boardId: string | undefined
     if (taskId) {
       const task = await db.task.findUnique({
         where: { id: taskId },
-        include: { column: true },
+        include: {
+          column: true,
+          creator: true,
+          assignee: true,
+        },
       })
       if (task) {
         boardId = task.column.boardId
+        context.task = {
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          status: task.status,
+          priority: task.priority,
+          creator: task.creator.name,
+          assignee: task.assignee?.name ?? 'Nadie',
+        }
       }
     }
 
-    // Helper para obtener la tarea completa y emitir el evento
+    if (triggeredBy) {
+      const user = await db.user.findUnique({ where: { id: triggeredBy } })
+      if (user) {
+        context.user = { id: user.id, name: user.name, email: user.email }
+      }
+    }
+
     const emitTaskUpdated = async (id: string, bId: string) => {
       const updated = await db.task.findUnique({
         where: { id },
@@ -66,7 +127,6 @@ export async function automationProcessor(job: Job) {
         },
       })
       if (updated) {
-        // Formateamos para que coincida con TaskWithRelations del Frontend
         const payload = {
           ...updated,
           dueDate: updated.dueDate?.toISOString() ?? null,
@@ -78,15 +138,16 @@ export async function automationProcessor(job: Job) {
             color: l.label.color,
           })),
         }
-        emitToBoardFromWorker(bId, 'task:updated', { task: payload as any, boardId: bId })
+        await publishToBoard(bId, 'task:updated', { task: payload as never, boardId: bId })
       }
     }
 
-    // 2. Execute actions sequentially
     const logs = []
     for (const action of automation.actions) {
       workerLogger.debug({ actionType: action.actionType }, 'Executing action')
-      const config = action.config as Record<string, any>
+
+      // Interpolamos variables en el config de la acción antes de ejecutarla
+      const config = interpolateObject(action.config, context) as Record<string, unknown>
 
       try {
         switch (action.actionType) {
@@ -113,34 +174,38 @@ export async function automationProcessor(job: Job) {
           case 'ADD_LABEL':
             if (taskId && config.labelId && boardId) {
               await db.taskLabel.upsert({
-                where: { taskId_labelId: { taskId, labelId: config.labelId } },
+                where: { taskId_labelId: { taskId, labelId: String(config.labelId) } },
                 update: {},
-                create: { taskId, labelId: config.labelId },
+                create: { taskId, labelId: String(config.labelId) },
               })
               await emitTaskUpdated(taskId, boardId)
             }
             break
 
-          case 'SEND_NOTIFICATION':
-            if (config.userId && config.title && config.body) {
+          case 'SEND_NOTIFICATION': {
+            const targetUserId = config.userId
+              ? String(config.userId)
+              : (triggeredBy ?? automation.creatorId)
+            if (targetUserId && config.title && config.body) {
               await queueNotification({
-                userId: config.userId,
+                userId: String(targetUserId),
                 type: 'AUTOMATION_TRIGGERED',
-                title: config.title,
-                body: config.body,
+                title: String(config.title),
+                body: String(config.body),
                 data: { automationId, taskId },
               })
             }
             break
+          }
 
           case 'WEBHOOK':
             if (config.url) {
-              const method = config.method || 'POST'
+              const method = config.method ? String(config.method) : 'POST'
               await axios({
-                method,
-                url: config.url,
+                method: method,
+                url: String(config.url),
                 data: config.body,
-                headers: config.headers,
+                headers: config.headers as Record<string, string> | undefined,
                 timeout: 5000,
               })
             }
@@ -148,20 +213,20 @@ export async function automationProcessor(job: Job) {
 
           case 'CREATE_TASK':
             if (config.title && config.columnId) {
-              // Necesitamos saber quién la crea. Usaremos el creador de la automatización si no hay triggeredBy
               const creatorId = triggeredBy ?? automation.creatorId
               const newTask = await db.task.create({
                 data: {
-                  title: config.title,
-                  description: config.description,
-                  columnId: config.columnId,
+                  title: String(config.title),
+                  description: config.description ? String(config.description) : undefined,
+                  columnId: String(config.columnId),
                   creatorId,
                 },
                 include: { column: true },
               })
-              
-              // Emitir
-              emitToBoardFromWorker(newTask.column.boardId, 'task:created', { task: newTask as any, boardId: newTask.column.boardId })
+              await publishToBoard(newTask.column.boardId, 'task:created', {
+                task: newTask as never,
+                boardId: newTask.column.boardId,
+              })
             }
             break
 
@@ -170,40 +235,45 @@ export async function automationProcessor(job: Job) {
         }
 
         logs.push({ actionId: action.id, type: action.actionType, status: 'success' })
-      } catch (err: any) {
-        workerLogger.error({ actionId: action.id, error: err.message }, 'Action failed')
-        logs.push({ actionId: action.id, type: action.actionType, status: 'failed', error: err.message })
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : String(err)
+        workerLogger.error({ actionId: action.id, error: errorMessage }, 'Action failed')
+        logs.push({
+          actionId: action.id,
+          type: action.actionType,
+          status: 'failed',
+          error: errorMessage,
+        })
       }
     }
 
-    // 3. Update run status
     await db.automationRun.update({
       where: { id: run.id },
       data: {
         status: 'SUCCESS',
         completedAt: new Date(),
-        logs: logs as any,
+        logs: logs,
       },
     })
 
-    // Update last run time on the automation
     await db.automation.update({
       where: { id: automationId },
       data: { lastRunAt: new Date() },
     })
 
-    automationJobsProcessed.inc({ status: 'success', trigger_type: automation.triggerType })
+    automationsTriggeredTotal.inc({ status: 'success', trigger_type: automation.triggerType })
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
     await db.automationRun.update({
       where: { id: run.id },
       data: {
         status: 'FAILED',
         completedAt: new Date(),
-        error: error.message,
+        error: errorMessage,
       },
     })
-    automationJobsProcessed.inc({ status: 'failed', trigger_type: 'unknown' })
+    automationsTriggeredTotal.inc({ status: 'failed', trigger_type: 'unknown' })
     throw error
   }
 }

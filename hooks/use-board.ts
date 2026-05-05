@@ -12,8 +12,8 @@ import type { CreateTaskInput, MoveTaskInput } from '@/lib/validations'
 const API = '/api'
 
 async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
-  const res  = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options })
-  const data = await res.json() as { success: boolean; data?: T; error?: string }
+  const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options })
+  const data = (await res.json()) as { success: boolean; data?: T; error?: string }
   if (!res.ok || !data.success) throw new Error(data.error ?? 'Error en la petición')
   return data.data as T
 }
@@ -22,15 +22,15 @@ async function apiFetch<T>(url: string, options?: RequestInit): Promise<T> {
 export function useBoards() {
   return useQuery({
     queryKey: ['boards'],
-    queryFn:  () => apiFetch<Board[]>(`${API}/boards`),
+    queryFn: () => apiFetch<Board[]>(`${API}/boards`),
   })
 }
 
 export function useBoard(boardId: string) {
   return useQuery({
     queryKey: ['board', boardId],
-    queryFn:  () => apiFetch<BoardDetail>(`${API}/boards/${boardId}`),
-    enabled:  !!boardId,
+    queryFn: () => apiFetch<BoardDetail>(`${API}/boards/${boardId}`),
+    enabled: !!boardId,
   })
 }
 
@@ -66,13 +66,13 @@ export function useCreateTask(boardId: string) {
                     ...col.tasks,
                     {
                       ...newTask,
-                      id:       'temp-' + Date.now(),
+                      id: 'temp-' + Date.now(),
                       position: 999,
-                      _count:   { comments: 0 },
-                      creator:  { id: '', name: 'Tú', avatarUrl: null },
+                      _count: { comments: 0 },
+                      creator: { id: '', name: 'Tú', avatarUrl: null },
                       assignee: null,
-                      labels:   [],
-                      dueDate:  newTask.dueDate ?? null,
+                      labels: [],
+                      dueDate: newTask.dueDate ?? null,
                     },
                   ],
                 }
@@ -95,7 +95,7 @@ export function useMoveTask(boardId: string) {
     mutationFn: (data: MoveTaskInput) =>
       apiFetch(`${API}/tasks/${data.taskId}/move`, {
         method: 'PATCH',
-        body:   JSON.stringify({ toColumnId: data.toColumnId, position: data.position }),
+        body: JSON.stringify({ toColumnId: data.toColumnId, position: data.position }),
       }),
     onSettled: () => void qc.invalidateQueries({ queryKey: ['board', boardId] }),
   })
@@ -104,8 +104,7 @@ export function useMoveTask(boardId: string) {
 export function useDeleteTask(boardId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (taskId: string) =>
-      apiFetch(`${API}/tasks/${taskId}`, { method: 'DELETE' }),
+    mutationFn: (taskId: string) => apiFetch(`${API}/tasks/${taskId}`, { method: 'DELETE' }),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['board', boardId] }),
   })
 }
@@ -123,8 +122,8 @@ export function useUpdateTask(boardId: string) {
 export function useComments(taskId: string) {
   return useQuery({
     queryKey: ['comments', taskId],
-    queryFn:  () => apiFetch<Comment[]>(`${API}/tasks/${taskId}/comments`),
-    enabled:  !!taskId,
+    queryFn: () => apiFetch<Comment[]>(`${API}/tasks/${taskId}/comments`),
+    enabled: !!taskId,
   })
 }
 
@@ -134,30 +133,54 @@ export function useCreateComment(taskId: string) {
     mutationFn: (content: string) =>
       apiFetch(`${API}/tasks/${taskId}/comments`, {
         method: 'POST',
-        body:   JSON.stringify({ content }),
+        body: JSON.stringify({ content }),
       }),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['comments', taskId] }),
   })
 }
 
 // ── Types ─────────────────────────────────────────────────────
-export type Board = { id: string; name: string; color: string; description: string | null; _count: { columns: number } }
-export type Task  = {
-  id: string; title: string; description: string | null
-  priority: string; status: string; position: number
-  columnId: string; dueDate: string | null
+export type Board = {
+  id: string
+  name: string
+  color: string
+  description: string | null
+  _count: { columns: number }
+}
+export type Task = {
+  id: string
+  title: string
+  description: string | null
+  priority: string
+  status: string
+  position: number
+  columnId: string
+  dueDate: string | null
   creator: { id: string; name: string; avatarUrl: string | null }
   assignee: { id: string; name: string; avatarUrl: string | null } | null
   labels: Array<{ label: { id: string; name: string; color: string } }>
   _count: { comments: number }
 }
-export type Column     = { id: string; name: string; color: string; position: number; tasks: Task[] }
+export type Column = { id: string; name: string; color: string; position: number; tasks: Task[] }
 export type BoardDetail = {
-  id: string; name: string; color: string; teamId: string
-  team: { id: string; name: string; members: Array<{ teamRole: string; user: { id: string; name: string; avatarUrl: string | null } }> }
+  id: string
+  name: string
+  color: string
+  teamId: string
+  team: {
+    id: string
+    name: string
+    members: Array<{
+      teamRole: string
+      user: { id: string; name: string; avatarUrl: string | null }
+    }>
+  }
   columns: Column[]
 }
 export type Comment = {
-  id: string; content: string; isEdited: boolean; createdAt: string
+  id: string
+  content: string
+  isEdited: boolean
+  createdAt: string
   author: { id: string; name: string; avatarUrl: string | null }
 }

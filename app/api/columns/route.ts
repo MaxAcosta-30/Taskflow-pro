@@ -1,8 +1,9 @@
-import { NextRequest } from 'next/server';
-import { db } from '@/lib/db';
-import { withAuth, parseBody, created, serverError } from '@/lib/api/helpers';
-import { createColumnSchema } from '@/lib/validations';
-import { emitToBoard } from '@/lib/socket/emitter';
+import type { NextRequest } from 'next/server'
+
+import { withAuth, parseBody, created, serverError } from '@/lib/api/helpers'
+import { db } from '@/lib/db'
+import { publishToBoard } from '@/lib/socket/publisher'
+import { createColumnSchema } from '@/lib/validations'
 
 /**
  * POST /api/columns
@@ -10,8 +11,8 @@ import { emitToBoard } from '@/lib/socket/emitter';
  */
 export async function POST(req: NextRequest) {
   return withAuth(req, async (user) => {
-    const { data, error } = await parseBody(req, createColumnSchema);
-    if (error) return error;
+    const { data, error } = await parseBody(req, createColumnSchema)
+    if (error) return error
 
     try {
       // Verificar que el usuario tenga acceso al tablero
@@ -22,19 +23,22 @@ export async function POST(req: NextRequest) {
             members: { some: { userId: user.sub } },
           },
         },
-      });
+      })
 
       if (!board) {
-        return Response.json({ success: false, error: 'Tablero no encontrado o sin acceso' }, { status: 404 });
+        return Response.json(
+          { success: false, error: 'Tablero no encontrado o sin acceso' },
+          { status: 404 },
+        )
       }
 
       // Obtener la última posición
       const lastColumn = await db.column.findFirst({
         where: { boardId: data.boardId },
         orderBy: { position: 'desc' },
-      });
+      })
 
-      const position = data.position ?? (lastColumn ? lastColumn.position + 1 : 0);
+      const position = data.position ?? (lastColumn ? lastColumn.position + 1 : 0)
 
       const column = await db.column.create({
         data: {
@@ -43,15 +47,18 @@ export async function POST(req: NextRequest) {
           color: data.color || '#6B7280',
           position,
         },
-      });
+      })
 
       // Notificar vía WebSockets
-      emitToBoard(data.boardId, 'column:created', { column: column as any, boardId: data.boardId });
+      await publishToBoard(data.boardId, 'column:created', {
+        column: column as never,
+        boardId: data.boardId,
+      })
 
-      return created(column);
-    } catch (err: any) {
-      console.error('[POST_COLUMN_ERROR]', err);
-      return serverError();
+      return created(column)
+    } catch (err: unknown) {
+      console.error('[POST_COLUMN_ERROR]', err)
+      return serverError()
     }
-  });
+  })
 }

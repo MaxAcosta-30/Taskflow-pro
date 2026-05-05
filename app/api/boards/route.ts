@@ -57,19 +57,19 @@ export async function POST(req: NextRequest) {
 
       // Calcular posición
       const lastBoard = await db.board.findFirst({
-        where:   { teamId: membership.teamId },
+        where: { teamId: membership.teamId },
         orderBy: { position: 'desc' },
-        select:  { position: true },
+        select: { position: true },
       })
 
       const board = await db.board.create({
         data: {
           ...data,
-          teamId:   membership.teamId,
+          teamId: membership.teamId,
           position: (lastBoard?.position ?? -1) + 1,
         },
         include: {
-          team:   { select: { id: true, name: true } },
+          team: { select: { id: true, name: true } },
           _count: { select: { columns: true } },
         },
       })
@@ -77,10 +77,10 @@ export async function POST(req: NextRequest) {
       // Crear columnas por defecto
       await db.column.createMany({
         data: [
-          { boardId: board.id, name: 'Por hacer',    color: '#6B7280', position: 0, isDefault: true },
-          { boardId: board.id, name: 'En progreso',  color: '#3B82F6', position: 1 },
-          { boardId: board.id, name: 'En revisión',  color: '#F59E0B', position: 2 },
-          { boardId: board.id, name: 'Completado',   color: '#10B981', position: 3 },
+          { boardId: board.id, name: 'Por hacer', color: '#6B7280', position: 0, isDefault: true },
+          { boardId: board.id, name: 'En progreso', color: '#3B82F6', position: 1 },
+          { boardId: board.id, name: 'En revisión', color: '#F59E0B', position: 2 },
+          { boardId: board.id, name: 'Completado', color: '#10B981', position: 3 },
         ],
       })
 

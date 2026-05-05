@@ -3,10 +3,11 @@
 // =============================================================
 
 import type { NextRequest } from 'next/server'
-import { db } from '@/lib/db'
-import { getAuthUser, getCachedUser, unauthorized } from '@/lib/auth/helpers'
-import { parseBody, ok, serverError } from '@/lib/api/helpers'
 import { z } from 'zod'
+
+import { parseBody, ok, serverError } from '@/lib/api/helpers'
+import { getAuthUser, getCachedUser, unauthorized } from '@/lib/auth/helpers'
+import { db } from '@/lib/db'
 import { invalidateCache, CACHE_KEYS } from '@/lib/redis'
 
 export async function GET(req: NextRequest) {
@@ -45,7 +46,7 @@ export async function PATCH(req: NextRequest) {
         role: true,
         timezone: true,
         locale: true,
-      }
+      },
     })
 
     // Invalidad cache

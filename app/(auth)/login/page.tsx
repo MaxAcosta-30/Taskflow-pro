@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff, Github, Loader2, LogIn } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useLogin } from '@/hooks/use-auth'
@@ -16,17 +16,31 @@ import { loginSchema, type LoginInput } from '@/lib/validations'
 
 // ── Mensaje de error OAuth por searchParam ────────────────────
 const OAUTH_ERRORS: Record<string, string> = {
-  oauth_denied:     'Cancelaste la autenticación con GitHub.',
-  oauth_failed:     'Hubo un problema al conectar con GitHub. Intenta de nuevo.',
-  no_email:         'No pudimos obtener tu email de GitHub. Asegúrate de tener un email verificado.',
+  oauth_denied: 'Cancelaste la autenticación con GitHub.',
+  oauth_failed: 'Hubo un problema al conectar con GitHub. Intenta de nuevo.',
+  no_email: 'No pudimos obtener tu email de GitHub. Asegúrate de tener un email verificado.',
   account_disabled: 'Tu cuenta ha sido desactivada.',
-  server_error:     'Error interno. Por favor intenta más tarde.',
+  server_error: 'Error interno. Por favor intenta más tarde.',
 }
 
 export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-8 text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-slate-400" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
+  )
+}
+
+function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const searchParams = useSearchParams()
-  const oauthError   = searchParams.get('error')
+  const oauthError = searchParams.get('error')
 
   const { mutate: login, isPending, error: loginError } = useLogin()
 
@@ -42,33 +56,38 @@ export default function LoginPage() {
   const onSubmit = (data: LoginInput) => login(data)
 
   const apiError = loginError
-    ? (loginError as { error?: string }).error ?? 'Error al iniciar sesión'
+    ? ((loginError as { error?: string }).error ?? 'Error al iniciar sesión')
     : null
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="space-y-2">
-        <div className="lg:hidden flex items-center gap-2 mb-6">
-          <div className="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center">
-            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        <div className="mb-6 flex items-center gap-2 lg:hidden">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500">
+            <svg
+              className="h-4 w-4 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
             </svg>
           </div>
           <span className="font-semibold text-slate-900 dark:text-white">TaskFlow Pro</span>
         </div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-          Bienvenido de vuelta
-        </h2>
-        <p className="text-slate-500 dark:text-slate-400">
-          Ingresa a tu cuenta para continuar
-        </p>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Bienvenido de vuelta</h2>
+        <p className="text-slate-500 dark:text-slate-400">Ingresa a tu cuenta para continuar</p>
       </div>
 
       {/* Error OAuth */}
       {oauthError && OAUTH_ERRORS[oauthError] && (
-        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800
-                        rounded-lg p-4 text-sm text-red-700 dark:text-red-400">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
           {OAUTH_ERRORS[oauthError]}
         </div>
       )}
@@ -76,12 +95,9 @@ export default function LoginPage() {
       {/* OAuth GitHub */}
       <a
         href="/api/auth/oauth/github"
-        className="flex items-center justify-center gap-3 w-full px-4 py-2.5
-                   border border-slate-200 dark:border-slate-700 rounded-lg
-                   text-slate-700 dark:text-slate-300 font-medium text-sm
-                   hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+        className="flex w-full items-center justify-center gap-3 rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
       >
-        <Github className="w-5 h-5" />
+        <Github className="h-5 w-5" />
         Continuar con GitHub
       </a>
 
@@ -91,7 +107,7 @@ export default function LoginPage() {
           <div className="w-full border-t border-slate-200 dark:border-slate-800" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white dark:bg-slate-950 px-2 text-slate-400">
+          <span className="bg-white px-2 text-slate-400 dark:bg-slate-950">
             o continúa con email
           </span>
         </div>
@@ -99,19 +115,19 @@ export default function LoginPage() {
 
       {/* Formulario */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-
         {/* Error API */}
         {apiError && (
-          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800
-                          rounded-lg p-3 text-sm text-red-700 dark:text-red-400">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
             {apiError}
           </div>
         )}
 
         {/* Email */}
         <div className="space-y-1.5">
-          <label htmlFor="email"
-            className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+          >
             Email
           </label>
           <input
@@ -120,11 +136,7 @@ export default function LoginPage() {
             autoComplete="email"
             placeholder="tu@email.com"
             {...register('email')}
-            className="w-full px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700
-                       bg-white dark:bg-slate-900 text-slate-900 dark:text-white
-                       placeholder:text-slate-400
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                       disabled:opacity-50 transition-colors text-sm"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 transition-colors placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
             disabled={isPending}
           />
           {errors.email && (
@@ -135,12 +147,16 @@ export default function LoginPage() {
         {/* Password */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label htmlFor="password"
-              className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+            >
               Contraseña
             </label>
-            <Link href="/forgot-password"
-              className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+            <Link
+              href="/forgot-password"
+              className="text-xs text-blue-600 hover:underline dark:text-blue-400"
+            >
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
@@ -151,23 +167,15 @@ export default function LoginPage() {
               autoComplete="current-password"
               placeholder="••••••••"
               {...register('password')}
-              className="w-full px-3 py-2.5 pr-10 rounded-lg border border-slate-200 dark:border-slate-700
-                         bg-white dark:bg-slate-900 text-slate-900 dark:text-white
-                         placeholder:text-slate-400
-                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                         disabled:opacity-50 transition-colors text-sm"
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-10 text-sm text-slate-900 transition-colors placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
               disabled={isPending}
             />
             <button
               type="button"
               onClick={() => setShowPassword((p) => !p)}
-              className="absolute right-3 top-1/2 -translate-y-1/2
-                         text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
             >
-              {showPassword
-                ? <EyeOff className="w-4 h-4" />
-                : <Eye className="w-4 h-4" />
-              }
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
           {errors.password && (
@@ -179,15 +187,16 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5
-                     bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400
-                     text-white font-medium text-sm rounded-lg
-                     transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400"
         >
           {isPending ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Iniciando sesión...</>
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" /> Iniciando sesión...
+            </>
           ) : (
-            <><LogIn className="w-4 h-4" /> Iniciar sesión</>
+            <>
+              <LogIn className="h-4 w-4" /> Iniciar sesión
+            </>
           )}
         </button>
       </form>
@@ -195,8 +204,10 @@ export default function LoginPage() {
       {/* Link a register */}
       <p className="text-center text-sm text-slate-500 dark:text-slate-400">
         ¿No tienes cuenta?{' '}
-        <Link href="/register"
-          className="text-blue-600 dark:text-blue-400 font-medium hover:underline">
+        <Link
+          href="/register"
+          className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+        >
           Regístrate gratis
         </Link>
       </p>

@@ -26,7 +26,7 @@ export async function parseBody<T>(
   schema: ZodSchema<T>,
 ): Promise<{ data: T; error: null } | { data: null; error: Response }> {
   try {
-    const body = await req.json() as unknown
+    const body = (await req.json()) as unknown
     const parsed = schema.safeParse(body)
     if (!parsed.success) {
       return {

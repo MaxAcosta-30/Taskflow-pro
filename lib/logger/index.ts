@@ -29,8 +29,8 @@ export const logger = pino({
 })
 
 // Child loggers por módulo
-export const authLogger    = logger.child({ module: 'auth' })
-export const dbLogger      = logger.child({ module: 'db' })
-export const queueLogger   = logger.child({ module: 'queue' })
-export const socketLogger  = logger.child({ module: 'socket' })
-export const workerLogger  = logger.child({ module: 'worker' })
+export const authLogger = logger.child({ module: 'auth' })
+export const dbLogger = logger.child({ module: 'db' })
+export const queueLogger = logger.child({ module: 'queue' })
+export const socketLogger = logger.child({ module: 'socket' })
+export const workerLogger = logger.child({ module: 'worker' })

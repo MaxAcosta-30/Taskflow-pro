@@ -6,8 +6,8 @@ import { type NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
-import { db } from '@/lib/db'
 import { getAuthUser } from '@/lib/auth/helpers'
+import { db } from '@/lib/db'
 
 // ── PATCH /api/automations/:id ───────────────────────────────
 // Activa / desactiva una automatización
@@ -16,7 +16,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const user = await getAuthUser(request)
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const body = await request.json() as { isActive?: boolean; name?: string; description?: string }
+    const body = (await request.json()) as {
+      isActive?: boolean
+      name?: string
+      description?: string
+    }
 
     const automation = await db.automation.update({
       where: { id: params.id },

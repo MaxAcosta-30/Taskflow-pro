@@ -4,12 +4,7 @@
 
 import type { NextRequest } from 'next/server'
 
-import {
-  comparePassword,
-  setAuthCookies,
-  createSession,
-  getClientIp,
-} from '@/lib/auth/helpers'
+import { comparePassword, setAuthCookies, createSession, getClientIp } from '@/lib/auth/helpers'
 import { generateTokens } from '@/lib/auth/jwt'
 import { db } from '@/lib/db'
 import { authLogger } from '@/lib/logger'
@@ -33,14 +28,14 @@ export async function POST(req: NextRequest) {
           status: 429,
           headers: {
             'X-RateLimit-Remaining': String(rateLimit.remaining),
-            'X-RateLimit-Reset':     String(rateLimit.resetIn),
+            'X-RateLimit-Reset': String(rateLimit.resetIn),
           },
         },
       )
     }
 
     // 2. Validar body
-    const body = await req.json() as unknown
+    const body = (await req.json()) as unknown
     const parsed = loginSchema.safeParse(body)
 
     if (!parsed.success) {
@@ -56,15 +51,17 @@ export async function POST(req: NextRequest) {
     const user = await db.user.findUnique({
       where: { email },
       select: {
-        id: true, email: true, name: true,
-        avatarUrl: true, role: true,
-        passwordHash: true, isActive: true,
+        id: true,
+        email: true,
+        name: true,
+        avatarUrl: true,
+        role: true,
+        passwordHash: true,
+        isActive: true,
       },
     })
 
-    const isValid = user?.passwordHash
-      ? await comparePassword(password, user.passwordHash)
-      : false
+    const isValid = user?.passwordHash ? await comparePassword(password, user.passwordHash) : false
 
     if (!user || !isValid) {
       authLogger.warn({ email, ip }, 'Failed login attempt')
@@ -83,22 +80,22 @@ export async function POST(req: NextRequest) {
 
     // 4. Generar tokens
     const tokens = generateTokens({
-      sub:   user.id,
+      sub: user.id,
       email: user.email,
-      role:  user.role,
+      role: user.role,
     })
 
     // 5. Guardar sesión + actualizar lastLoginAt
     await Promise.all([
       createSession({
-        userId:       user.id,
+        userId: user.id,
         refreshToken: tokens.refreshToken,
-        userAgent:    req.headers.get('user-agent') ?? undefined,
-        ipAddress:    ip,
+        userAgent: req.headers.get('user-agent') ?? undefined,
+        ipAddress: ip,
       }),
       db.user.update({
         where: { id: user.id },
-        data:  { lastLoginAt: new Date() },
+        data: { lastLoginAt: new Date() },
       }),
     ])
 
@@ -116,9 +113,6 @@ export async function POST(req: NextRequest) {
     })
   } catch (error) {
     authLogger.error({ error }, 'Login error')
-    return Response.json(
-      { success: false, error: 'Error interno del servidor' },
-      { status: 500 },
-    )
+    return Response.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }

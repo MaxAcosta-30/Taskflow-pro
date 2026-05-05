@@ -17,8 +17,8 @@
 // =============================================================
 
 import { createServer } from 'http'
-import { parse }        from 'url'
-import path             from 'path'
+import path from 'path'
+import { parse } from 'url'
 
 // ── Cargar variables de entorno ──────────────────────────────
 // tsx no carga .env automáticamente — lo hacemos antes de importar
@@ -26,20 +26,24 @@ import path             from 'path'
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const dotenv = require('dotenv') as typeof import('dotenv')
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
-dotenv.config({ path: path.resolve(process.cwd(), '.env') })  // fallback
+dotenv.config({ path: path.resolve(process.cwd(), '.env') }) // fallback
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const next = require('next') as (opts: { dev: boolean; port: number }) => {
   prepare: () => Promise<void>
-  getRequestHandler: () => (req: import('http').IncomingMessage, res: import('http').ServerResponse, parsedUrl: import('url').UrlWithParsedQuery) => Promise<void>
+  getRequestHandler: () => (
+    req: import('http').IncomingMessage,
+    res: import('http').ServerResponse,
+    parsedUrl: import('url').UrlWithParsedQuery,
+  ) => Promise<void>
 }
 
 import { initSocketServer } from './lib/socket/index'
 
-const dev  = process.env.NODE_ENV !== 'production'
+const dev = process.env.NODE_ENV !== 'production'
 const port = parseInt(process.env.PORT ?? '3000', 10)
 
-const app    = next({ dev, port })
+const app = next({ dev, port })
 const handle = app.getRequestHandler()
 
 void app.prepare().then(() => {
@@ -75,5 +79,5 @@ void app.prepare().then(() => {
   }
 
   process.on('SIGTERM', () => shutdown('SIGTERM'))
-  process.on('SIGINT',  () => shutdown('SIGINT'))
+  process.on('SIGINT', () => shutdown('SIGINT'))
 })

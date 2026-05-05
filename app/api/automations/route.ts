@@ -6,9 +6,10 @@ import { type NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
-import { db } from '@/lib/db'
 import { getAuthUser } from '@/lib/auth/helpers'
+import { db } from '@/lib/db'
 import { createAutomationSchema } from '@/lib/validations'
+import { Prisma } from '@prisma/client'
 
 // ── GET /api/automations ─────────────────────────────────────
 // Lista todas las automatizaciones del equipo activo del usuario
@@ -79,11 +80,11 @@ export async function POST(request: NextRequest) {
         teamId: membership.teamId,
         creatorId: user.sub,
         triggerType,
-        triggerConfig: triggerConfig as any,
+        triggerConfig: triggerConfig as Prisma.InputJsonValue,
         actions: {
           create: actions.map((action, index) => ({
             actionType: action.actionType,
-            config: action.config as any,
+            config: action.config as Prisma.InputJsonValue,
             position: action.position ?? index,
           })),
         },
@@ -95,7 +96,8 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({ success: true, data: automation }, { status: 201 })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

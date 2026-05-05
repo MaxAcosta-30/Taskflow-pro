@@ -1,264 +1,270 @@
-# TaskFlow Pro 
+# TaskFlow Pro
 
-Plataforma empresarial de productividad y automatización de flujos de trabajo.
-Construida con Next.js 14, PostgreSQL, Redis, WebSockets, Docker y más.
+Plataforma empresarial de productividad y automatización de flujos de trabajo con tableros Kanban en tiempo real.
 
----
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript) ![Next.js](https://img.shields.io/badge/Next.js-14.2.5-black?logo=next.js) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql) ![Redis](https://img.shields.io/badge/Redis-7.2-red?logo=redis) ![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker) ![License MIT](https://img.shields.io/badge/License-MIT-green)
 
-##  Stack Tecnológico
-
-| Capa | Tecnología |
-|------|-----------|
-| Framework | Next.js 14 (App Router) |
-| Lenguaje | TypeScript estricto |
-| Base de datos | PostgreSQL 16 + Prisma ORM |
-| Cache / Queues | Redis 7 + BullMQ |
-| Tiempo real | Socket.io |
-| Auth | JWT + Refresh Tokens + OAuth GitHub |
-| UI | Tailwind CSS + shadcn/ui + Radix UI |
-| Estado cliente | TanStack Query + Zustand |
-| Drag & Drop | dnd-kit |
-| Validación | Zod |
-| Logging | Pino |
-| Métricas | Prometheus + Grafana |
-| Errores | Sentry |
-| Proxy | Nginx |
-| Contenedores | Docker + Docker Compose |
-| CI/CD | GitHub Actions |
-| Testing | Jest + Playwright |
-
----
-
-## ️ Estructura del Proyecto
-
-```
-taskflow-pro/
-├── app/                          # Next.js App Router
-│   ├── (auth)/                   # Rutas de autenticación (layout sin sidebar)
-│   │   ├── login/page.tsx
-│   │   └── register/page.tsx
-│   ├── (dashboard)/              # Rutas protegidas (layout con sidebar)
-│   │   ├── board/[boardId]/      # Tablero Kanban
-│   │   ├── automations/          # Motor de automatizaciones
-│   │   ├── analytics/            # Dashboard de métricas
-│   │   └── settings/             # Configuración de equipo/usuario
-│   └── api/                      # API Routes (backend)
-│       ├── auth/                 # Login, register, refresh, oauth
-│       ├── tasks/                # CRUD de tareas
-│       ├── boards/               # CRUD de tableros
-│       ├── columns/              # CRUD de columnas
-│       ├── automations/          # CRUD de automatizaciones
-│       ├── notifications/        # Notificaciones
-│       ├── metrics/              # Endpoint para Prometheus
-│       └── webhooks/             # Webhooks entrantes
-│
-├── components/                   # Componentes React
-│   ├── ui/                       # shadcn/ui base components
-│   ├── board/                    # Kanban board components
-│   ├── automations/              # Automation builder
-│   ├── analytics/                # Charts y widgets
-│   └── shared/                   # Navbar, Sidebar, etc.
-│
-├── lib/                          # Lógica de servidor reutilizable
-│   ├── db/                       # Prisma client singleton
-│   ├── redis/                    # ioredis client
-│   ├── socket/                   # Socket.io server
-│   ├── queue/                    # BullMQ queues y jobs
-│   ├── auth/                     # JWT helpers
-│   ├── validations/              # Zod schemas
-│   ├── logger/                   # Pino logger
-│   └── integrations/             # APIs externas
-│       ├── open-meteo/           # Clima (sin key)
-│       ├── github/               # GitHub OAuth + API
-│       └── newsapi/              # Noticias
-│
-├── workers/                      # BullMQ processors (proceso separado)
-│   ├── index.ts                  # Entry point del worker
-│   └── processors/               # Un archivo por tipo de job
-│
-├── types/                        # TypeScript types globales
-├── hooks/                        # React custom hooks
-├── stores/                       # Zustand stores
-├── middleware/                   # Next.js middleware (auth guard)
-├── prisma/                       # Schema + migraciones + seed
-├── tests/
-│   ├── unit/                     # Jest unit tests
-│   └── e2e/                      # Playwright E2E tests
-├── docker/                       # Dockerfiles
-├── nginx/                        # Configuración Nginx
-├── prometheus/                   # prometheus.yml
-├── grafana/                      # Dashboards + provisioning
-└── .github/workflows/            # CI/CD pipelines
+```text
+ ___________________________________________________________________
+|  TaskFlow Pro                                         [Search] (A)|
+|-------------------------------------------------------------------|
+|  Backlog (3)  |  To Do (2)    |  In Progress (1) |  Done (4)      |
+|  [ Feature A] |  [ Bugfix B]  |  [ Feature C ]   |  [ Task D ]    |
+|  [ Task E   ] |  [ Task F  ]  |                  |  [ Task G ]    |
+|  [ Task H   ] |               |                  |  [ Task I ]    |
+|               |               |                  |  [ Task J ]    |
+| [ + Tarea ]   | [ + Tarea ]   | [ + Tarea ]      | [ + Tarea ]    |
+|___________________________________________________________________|
 ```
 
 ---
 
-## ️ Roadmap de Fases
+## Características
 
-###  FASE 1 — Fundamentos (ACTUAL)
-Base sólida del proyecto.
-
-- [x] Estructura de carpetas completa
-- [x] package.json con todas las dependencias
-- [x] TypeScript configuración estricta
-- [x] ESLint + Prettier + Husky
-- [x] Variables de entorno (.env.example)
-- [x] Prisma Schema completo (todos los modelos)
-- [x] Docker Compose (App, Worker, Postgres, Redis, Nginx, Prometheus, Grafana)
-- [x] Dockerfiles (App + Worker)
-- [x] Nginx configuración con rate limiting
-- [x] Prometheus configuración
-- [x] GitHub Actions CI/CD pipeline
-- [x] Tipos TypeScript globales
-- [x] README completo
+- **Kanban en tiempo real** — Actualizaciones instantáneas usando Socket.io en custom server y eventos sincronizados vía Redis pub/sub.
+- **Motor de automatizaciones** — 7 tipos de triggers y 6 tipos de acciones procesadas asíncronamente en background workers con BullMQ.
+- **Dashboard de analytics** — Visualización de datos de rendimiento del equipo enriquecidos con integraciones de Open-Meteo y NewsAPI.
+- **Autenticación completa** — Sesiones seguras mediante JWT con rotación de refresh tokens, OAuth con GitHub y blacklist de tokens revocados en Redis.
+- **Observabilidad** — Exportación de métricas de negocio e infraestructura a Prometheus, dashboards en Grafana, monitoreo de errores con Sentry y logs estructurados con Pino.
+- **APIs externas gratuitas** — Integraciones pre-configuradas usando tiers gratuitos de Open-Meteo, NewsAPI, ExchangeRate y IPInfo.
 
 ---
 
-###  FASE 2 — Autenticación
-Sistema de auth completo y seguro.
+## Stack
 
-**Paso 2.1** — Prisma client singleton + logger (Pino)
-**Paso 2.2** — Redis client + helpers de cache
-**Paso 2.3** — JWT helpers (sign, verify, refresh)
-**Paso 2.4** — API Routes: POST /api/auth/register
-**Paso 2.5** — API Routes: POST /api/auth/login
-**Paso 2.6** — API Routes: POST /api/auth/refresh
-**Paso 2.7** — API Routes: POST /api/auth/logout
-**Paso 2.8** — OAuth GitHub (callback + perfil)
-**Paso 2.9** — Next.js Middleware (auth guard por rutas)
-**Paso 2.10** — UI: Login page + Register page
-**Paso 2.11** — Zustand auth store
-**Paso 2.12** — TanStack Query hooks para auth
-
----
-
-###  FASE 3 — Core: Kanban en Tiempo Real
-El corazón de la aplicación.
-
-**Paso 3.1** — Socket.io server setup
-**Paso 3.2** — API Routes: Boards CRUD
-**Paso 3.3** — API Routes: Columns CRUD
-**Paso 3.4** — API Routes: Tasks CRUD
-**Paso 3.5** — WebSocket events para tareas
-**Paso 3.6** — UI: Sidebar con lista de boards
-**Paso 3.7** — UI: Tablero Kanban (columnas + tarjetas)
-**Paso 3.8** — Drag & Drop con dnd-kit
-**Paso 3.9** — UI: Modal de detalle de tarea
-**Paso 3.10** — Comentarios en tiempo real
-**Paso 3.11** — Indicadores de presencia (quién está viendo)
+| Categoría | Tecnología | Versión |
+|---|---|---|
+| Framework | Next.js (App Router) | 14.2.5 |
+| Lenguaje | TypeScript | ^5 |
+| Base de datos | PostgreSQL (Prisma ORM) | ^5.17.0 |
+| Cache & Pub/Sub | Redis (ioredis) | ^5.4.1 |
+| Colas (Queues) | BullMQ | ^5.12.0 |
+| Tiempo real | Socket.io | ^4.7.5 |
+| Autenticación | JWT (jsonwebtoken) & bcryptjs | ^9.0.2 |
+| UI & Estilos | Tailwind CSS & Radix UI | ^3.4.1 |
+| Estado cliente | Zustand & TanStack React Query | ^4.5.4 |
+| Validación | Zod | ^3.23.8 |
+| Testing | Jest & Playwright | ^29.7.0 |
+| Métricas | Prometheus (prom-client) | ^15.1.3 |
+| Logging | Pino | ^9.3.2 |
+| Contenedores | Docker & Docker Compose | - |
 
 ---
 
-###  FASE 4 — Motor de Automatizaciones
-La feature más compleja e impresionante.
+## Arquitectura
 
-**Paso 4.1** — BullMQ setup (queues + workers)
-**Paso 4.2** — Worker: procesador de automatizaciones
-**Paso 4.3** — Integración Open-Meteo (trigger por clima)
-**Paso 4.4** — Scheduler (cron jobs con BullMQ)
-**Paso 4.5** — API Routes: Automations CRUD
-**Paso 4.6** — UI: Listado de automatizaciones
-**Paso 4.7** — UI: Builder visual de automatizaciones
-**Paso 4.8** — UI: Historial de ejecuciones (AutomationRun)
-**Paso 4.9** — Sistema de notificaciones (DB + WS)
+```text
+┌─────────────────────────────────────────────────────┐
+│                     Nginx                           │
+│            Rate limiting + SSL termination          │
+└──────────┬──────────────────────────┬───────────────┘
+           │                          │
+  ┌────────▼────────┐       ┌────────▼────────┐
+  │   Next.js App   │       │  Socket.io      │
+  │  (App Router)   │       │  (server.ts)    │
+  │  API Routes     │       │  WS connections │
+  └────────┬────────┘       └────────┬────────┘
+           │                          │
+           └──────────┬───────────────┘
+                      │
+         ┌────────────▼────────────┐
+         │         Redis           │
+         │  Cache │ Pub/Sub │ BullMQ│
+         └────────────┬────────────┘
+                      │
+         ┌────────────▼────────────┐
+         │       PostgreSQL        │
+         │      (Prisma ORM)       │
+         └─────────────────────────┘
+                      │
+         ┌────────────▼────────────┐
+         │    BullMQ Workers       │
+         │  automation │ notif     │
+         │  scheduler  │ cleanup   │
+         └─────────────────────────┘
+```
 
----
-
-###  FASE 5 — APIs Externas + Dashboard Analytics
-Integraciones y visualización de datos.
-
-**Paso 5.1** — Integración NewsAPI (widget de noticias)
-**Paso 5.2** — Integración ExchangeRate (conversión de moneda)
-**Paso 5.3** — Integración IPInfo (registro de sesiones)
-**Paso 5.4** — API Routes: Analytics (métricas del equipo)
-**Paso 5.5** — UI: Dashboard con widgets
-**Paso 5.6** — UI: Gráficos con Recharts
-**Paso 5.7** — UI: Notificaciones en tiempo real (centro de notifs)
-
----
-
-###  FASE 6 — Observabilidad
-Monitoreo production-grade.
-
-**Paso 6.1** — Endpoint /api/metrics (prom-client)
-**Paso 6.2** — Métricas custom (requests, latencia, jobs, errores)
-**Paso 6.3** — Grafana: dashboard de infraestructura
-**Paso 6.4** — Grafana: dashboard de negocio (KPIs)
-**Paso 6.5** — Sentry setup (errores en producción)
-**Paso 6.6** — Alertas en Grafana
+La aplicación se despliega mediante un custom server (`server.ts`) que monta tanto Next.js como Socket.io en el mismo proceso. Las API Routes procesan el tráfico HTTP y publican eventos a Redis Pub/Sub, los cuales son interceptados por el servidor Socket.io para su retransmisión a clientes conectados en tiempo real. Tareas de larga duración y automatizaciones se delegan a colas de BullMQ respaldadas por Redis, consumidas por un pool de workers independiente.
 
 ---
 
-###  FASE 7 — Testing
-Cobertura completa de pruebas.
+## Inicio rápido
 
-**Paso 7.1** — Jest config + setup
-**Paso 7.2** — Unit tests: auth helpers
-**Paso 7.3** — Unit tests: validations (Zod schemas)
-**Paso 7.4** — Unit tests: queue processors
-**Paso 7.5** — Integration tests: API Routes
-**Paso 7.6** — Playwright config
-**Paso 7.7** — E2E: flujo de registro/login
-**Paso 7.8** — E2E: crear tarea y moverla en el Kanban
-**Paso 7.9** — E2E: crear y ejecutar automatización
+### Prerequisitos
 
----
+- Node.js >= 20
+- Docker y Docker Compose
+- Git
 
-###  FASE 8 — Producción
-Preparación para deploy real.
-
-**Paso 8.1** — Variables de entorno de producción
-**Paso 8.2** — Seed de base de datos
-**Paso 8.3** — Backup automático de PostgreSQL
-**Paso 8.4** — Grafana provisioning (dashboards como código)
-**Paso 8.5** — Documentación API con Swagger/OpenAPI
-**Paso 8.6** — Guía de deploy en VPS
-
----
-
-##  Inicio rápido
+### Instalación
 
 ```bash
-# 1. Clonar e instalar
 git clone https://github.com/tu-usuario/taskflow-pro
 cd taskflow-pro
+
+# Instalar dependencias
 npm install
 
-# 2. Configurar entorno
+# Configurar variables de entorno
 cp .env.example .env.local
-# Editar .env.local con tus valores
+# Editar .env.local con tus valores (ver sección de configuración)
 
-# 3. Levantar servicios con Docker
+# Levantar infraestructura
 docker compose --profile dev up -d
 
-# 4. Ejecutar migraciones
+# Ejecutar migraciones
 npm run db:migrate
 
-# 5. Seed (datos de prueba)
+# Sembrar datos de prueba
 npm run db:seed
 
-# 6. Iniciar la app
-npm run dev
+# Iniciar la aplicación (en dos terminales)
+npm run dev          # Terminal 1 — Next.js + Socket.io
+npm run worker:dev   # Terminal 2 — BullMQ workers
+```
 
-# 7. Iniciar worker (en otra terminal)
-npm run worker:dev
+La aplicación estará disponible en http://localhost:3000
+
+### Credenciales del seed
+
+| Usuario | Email | Contraseña | Rol |
+|---|---|---|---|
+| Alice Admin | alice@taskflow.pro | password123 | Admin |
+| Bob Developer | bob@taskflow.pro | password123 | Member |
+| Carlos Viewer | carlos@taskflow.pro | password123 | Member |
+
+---
+
+## Configuración
+
+### Requeridas
+
+| Variable | Descripción | Ejemplo |
+|---|---|---|
+| DATABASE_URL | Conexión a PostgreSQL | postgresql://taskflow:taskflow_password@localhost:5432/taskflow_db |
+| REDIS_URL | Conexión a Redis | redis://localhost:6379 |
+| JWT_SECRET | Secreto para access tokens (min 32 chars) | [generado con openssl rand -base64 64] |
+| JWT_REFRESH_SECRET | Secreto para refresh tokens (diferente al anterior) | [generado con openssl rand -base64 64] |
+
+### Opcionales (APIs externas gratuitas)
+
+| Variable | Descripción | Cómo obtenerla |
+|---|---|---|
+| GITHUB_CLIENT_ID | OAuth GitHub | github.com/settings/apps |
+| NEWS_API_KEY | Noticias en dashboard | newsapi.org (free tier) |
+| EXCHANGE_RATE_API_KEY | Conversión de moneda | exchangerate-api.com (free) |
+| IPINFO_TOKEN | Geolocalización de sesiones | ipinfo.io (50k req/mes gratis) |
+| SENTRY_DSN | Monitoreo de errores | sentry.io (free tier) |
+
+### Generación de secretos JWT
+
+```bash
+# Ejecutar dos veces para obtener dos secretos diferentes
+openssl rand -base64 64
 ```
 
 ---
 
-##  Puertos
+## Scripts disponibles
 
-| Servicio | Puerto |
-|---------|--------|
-| Next.js App | http://localhost:3000 |
-| Nginx | http://localhost:80 |
-| Grafana | http://localhost:3002 |
-| Prometheus | http://localhost:9090 |
-| Redis Commander | http://localhost:8081 |
-| PostgreSQL | localhost:5432 |
+| Script | Descripción |
+|---|---|
+| npm run dev | Inicia Next.js + Socket.io en desarrollo mediante `tsx` |
+| npm run build | Construye la aplicación Next.js de producción |
+| npm run start | Inicia el servidor `server.ts` compilado para producción |
+| npm run lint | Ejecuta verificaciones de código ESLint |
+| npm run format | Aplica auto-formateo en todo el código con Prettier |
+| npm run type-check | Verifica la compilación de TypeScript sin emitir binarios |
+| npm run db:migrate | Aplica migraciones de desarrollo a Prisma y a PostgreSQL |
+| npm run db:seed | Siembra datos de prueba en la base de datos |
+| npm run db:studio | Inicia la interfaz web de Prisma Studio |
+| npm run worker:dev | Ejecuta los procesos workers de BullMQ en entorno de desarrollo |
+| npm run test | Ejecuta tests unitarios con Jest |
+| npm run test:coverage | Genera reporte de cobertura de código para tests unitarios |
+| npm run test:e2e | Ejecuta el conjunto de tests End-to-End con Playwright |
 
 ---
 
-##  Licencia
+## Servicios en desarrollo
 
-MIT — Libre para uso en portafolio y proyectos personales.
+| Servicio | URL | Descripción |
+|---|---|---|
+| Aplicación | http://localhost:3000 | Next.js + Socket.io |
+| Grafana | http://localhost:3002 | Dashboards (admin/admin123) |
+| Prometheus | http://localhost:9090 | Métricas |
+| Redis Commander | http://localhost:8081 | UI de Redis |
+| Prisma Studio | http://localhost:5555 | GUI de base de datos |
+
+---
+
+## Motor de Automatizaciones
+
+### Tipos de Trigger
+
+| Trigger | Descripción | Ejemplo Config |
+|---|---|---|
+| TASK_STALE | Tarea permanece inactiva por X días | `{ "daysStale": 3, "columnName": "In Review" }` |
+| TASK_MOVED | Tarea se mueve a una columna específica | `{ "toColumnName": "In Progress" }` |
+| TASK_ASSIGNED | Se asigna tarea a un usuario | `{}` |
+| TASK_DUE_SOON | Tarea próxima a su fecha de expiración | `{ "hoursBefore": 24 }` |
+| SCHEDULE | Ejecución periódica basada en tiempo | `{ "cronExpression": "0 9 * * 1" }` |
+| WEATHER | Condiciones de temperatura o precipitación | `{ "weatherCondition": "rain", "latitude": 40.71, "longitude": -74.00 }` |
+| WEBHOOK | Eventos desde una API externa mediante JSON | `{}` |
+
+### Tipos de Acción
+
+| Acción | Descripción | Ejemplo Config |
+|---|---|---|
+| MOVE_TASK | Mueve tarea a columna designada | `{ "toColumnId": "cm1ab2cd" }` |
+| ASSIGN_USER | Asigna usuario destino a una tarea | `{ "userId": "cm1ab2cd" }` |
+| ADD_LABEL | Añade etiqueta descriptiva | `{ "labelId": "cm1ab2cd" }` |
+| SEND_NOTIFICATION | Emite push/in-app notification a un usuario | `{ "userId": "cm1ab2cd", "title": "¡Aviso!", "body": "Revisar tarea" }` |
+| WEBHOOK | Llama API remota via POST/GET HTTP | `{ "url": "https://api.example.com", "method": "POST" }` |
+| CREATE_TASK | Produce una nueva subtarea en el tablero | `{ "title": "Revisión final", "columnId": "cm1ab2cd" }` |
+
+### Ejemplo de automatización
+
+```text
+Trigger: TASK_STALE (daysStale: 3, columnName: "In Review")
+Acción 1: MOVE_TASK → columna "En Riesgo"
+Acción 2: SEND_NOTIFICATION → "Tarea atascada en revisión por 3 días"
+```
+
+---
+
+## Testing
+
+```bash
+# Tests unitarios
+npm run test
+
+# Tests unitarios con coverage
+npm run test:coverage
+
+# Tests E2E (requiere servidor corriendo)
+npm run test:e2e
+
+# Tests E2E con UI visual
+npm run test:e2e:ui
+```
+
+| Módulo | Cobertura (Líneas) |
+|---|---|
+| Unit Tests Global | ~25.02% |
+
+---
+
+## Contribución
+
+1. Fork del repositorio
+2. Crear rama: `git checkout -b feature/mi-feature`
+3. Commits con formato convencional: `feat:`, `fix:`, `docs:`
+4. Push y Pull Request
+
+El CI/CD verifica automáticamente: TypeScript, ESLint, Prettier, tests unitarios y E2E.
+
+---
+
+## Licencia
+
+MIT — ver [LICENSE](LICENSE)

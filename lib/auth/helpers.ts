@@ -8,6 +8,7 @@ import { cookies } from 'next/headers'
 import type { NextRequest } from 'next/server'
 
 import { db } from '@/lib/db'
+import { getIpInfo } from '@/lib/integrations/ipinfo'
 import { redis, CACHE_KEYS, TTL } from '@/lib/redis'
 import type { JwtPayload } from '@/types'
 
@@ -31,18 +32,18 @@ export function setAuthCookies(accessToken: string, refreshToken: string) {
 
   cookieStore.set('access_token', accessToken, {
     httpOnly: true,
-    secure:   isProd,
+    secure: isProd,
     sameSite: 'lax',
-    maxAge:   15 * 60,           // 15 minutos
-    path:     '/',
+    maxAge: 15 * 60, // 15 minutos
+    path: '/',
   })
 
   cookieStore.set('refresh_token', refreshToken, {
     httpOnly: true,
-    secure:   isProd,
+    secure: isProd,
     sameSite: 'lax',
-    maxAge:   7 * 24 * 60 * 60,  // 7 días
-    path:     '/api/auth/refresh',
+    maxAge: 7 * 24 * 60 * 60, // 7 días
+    path: '/api/auth/refresh',
   })
 }
 
@@ -97,12 +98,17 @@ export async function createSession({
 }) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 
+  // Obtener datos de IP de forma no bloqueante
+  const ipData = ipAddress ? await getIpInfo(ipAddress).catch(() => null) : null
+
   return db.session.create({
     data: {
       userId,
       refreshToken,
       userAgent,
       ipAddress,
+      country: ipData?.country ?? null,
+      city: ipData?.city ?? null,
       expiresAt,
     },
   })
@@ -117,8 +123,13 @@ export async function getCachedUser(userId: string) {
   const user = await db.user.findUnique({
     where: { id: userId },
     select: {
-      id: true, email: true, name: true,
-      avatarUrl: true, role: true, isActive: true, timezone: true,
+      id: true,
+      email: true,
+      name: true,
+      avatarUrl: true,
+      role: true,
+      isActive: true,
+      timezone: true,
     },
   })
 

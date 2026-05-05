@@ -34,7 +34,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const isPublicRoute  = PUBLIC_ROUTES.some((r) => pathname.startsWith(r))
+  const isPublicRoute = PUBLIC_ROUTES.some((r) => pathname.startsWith(r))
   const isAuthOnlyRoute = AUTH_ONLY_ROUTES.some((r) => pathname.startsWith(r))
 
   // Obtener access token de la cookie
@@ -61,7 +61,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }

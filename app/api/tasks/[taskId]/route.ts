@@ -8,7 +8,7 @@ import { withAuth, parseBody, ok, notFound, serverError } from '@/lib/api/helper
 import { db } from '@/lib/db'
 import { queueNotification } from '@/lib/queue'
 import { invalidateCache, CACHE_KEYS } from '@/lib/redis'
-import { emitToBoard } from '@/lib/socket/emitter'
+import { publishToBoard } from '@/lib/socket/publisher'
 import { updateTaskSchema } from '@/lib/validations'
 
 type Params = { params: { taskId: string } }
@@ -18,13 +18,13 @@ export async function GET(req: NextRequest, { params }: Params) {
   return withAuth(req, async (user) => {
     const task = await db.task.findFirst({
       where: {
-        id:     params.taskId,
+        id: params.taskId,
         column: { board: { team: { members: { some: { userId: user.sub } } } } },
       },
       include: {
-        creator:  { select: { id: true, name: true, avatarUrl: true } },
+        creator: { select: { id: true, name: true, avatarUrl: true } },
         assignee: { select: { id: true, name: true, avatarUrl: true } },
-        labels:   { include: { label: true } },
+        labels: { include: { label: true } },
         comments: {
           orderBy: { createdAt: 'asc' },
           include: { author: { select: { id: true, name: true, avatarUrl: true } } },
@@ -47,7 +47,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     try {
       const existing = await db.task.findFirst({
         where: {
-          id:     params.taskId,
+          id: params.taskId,
           column: { board: { team: { members: { some: { userId: user.sub } } } } },
         },
         include: { column: { select: { boardId: true } } },
@@ -72,25 +72,25 @@ export async function PATCH(req: NextRequest, { params }: Params) {
           }),
         },
         include: {
-          creator:  { select: { id: true, name: true, avatarUrl: true } },
+          creator: { select: { id: true, name: true, avatarUrl: true } },
           assignee: { select: { id: true, name: true, avatarUrl: true } },
-          labels:   { include: { label: true } },
-          _count:   { select: { comments: true } },
+          labels: { include: { label: true } },
+          _count: { select: { comments: true } },
         },
       })
 
       const boardId = existing.column.boardId
       await invalidateCache(CACHE_KEYS.board(boardId))
-      emitToBoard(boardId, 'task:updated', { task: task as never, boardId })
+      await publishToBoard(boardId, 'task:updated', { task: task as never, boardId })
 
       // Notificar al asignado si cambió
       if (data.assigneeId && data.assigneeId !== existing.assigneeId) {
         await queueNotification({
           userId: data.assigneeId,
-          type:   'TASK_ASSIGNED',
-          title:  'Nueva tarea asignada',
-          body:   `Se te asignó: "${task.title}"`,
-          data:   { taskId: task.id, boardId },
+          type: 'TASK_ASSIGNED',
+          title: 'Nueva tarea asignada',
+          body: `Se te asignó: "${task.title}"`,
+          data: { taskId: task.id, boardId },
         })
       }
 
@@ -107,7 +107,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     try {
       const task = await db.task.findFirst({
         where: {
-          id:     params.taskId,
+          id: params.taskId,
           column: { board: { team: { members: { some: { userId: user.sub } } } } },
         },
         include: { column: { select: { boardId: true } } },
@@ -118,7 +118,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
 
       const boardId = task.column.boardId
       await invalidateCache(CACHE_KEYS.board(boardId))
-      emitToBoard(boardId, 'task:deleted', { taskId: params.taskId, boardId })
+      await publishToBoard(boardId, 'task:deleted', { taskId: params.taskId, boardId })
 
       return ok({ message: 'Tarea eliminada' })
     } catch {

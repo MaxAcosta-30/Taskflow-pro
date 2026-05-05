@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     if (refreshToken) {
       await db.session.updateMany({
         where: { refreshToken },
-        data:  { isRevoked: true },
+        data: { isRevoked: true },
       })
     }
 

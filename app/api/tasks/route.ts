@@ -9,7 +9,7 @@ import { withAuth, parseBody, created, serverError } from '@/lib/api/helpers'
 import { db } from '@/lib/db'
 import { logger } from '@/lib/logger'
 import { invalidateCache, CACHE_KEYS } from '@/lib/redis'
-import { emitToBoard } from '@/lib/socket/emitter'
+import { publishToBoard } from '@/lib/socket/publisher'
 import { createTaskSchema } from '@/lib/validations'
 
 export async function POST(req: NextRequest) {
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       // Verificar que la columna existe y el usuario tiene acceso al board
       const column = await db.column.findFirst({
         where: {
-          id:    columnId,
+          id: columnId,
           board: { team: { members: { some: { userId: user.sub } } } },
         },
         include: { board: { select: { id: true } } },
@@ -35,9 +35,9 @@ export async function POST(req: NextRequest) {
 
       // Calcular posición al final
       const lastTask = await db.task.findFirst({
-        where:   { columnId },
+        where: { columnId },
         orderBy: { position: 'desc' },
-        select:  { position: true },
+        select: { position: true },
       })
 
       const task = await db.task.create({
@@ -45,16 +45,16 @@ export async function POST(req: NextRequest) {
           ...rest,
           columnId,
           creatorId: user.sub,
-          position:  (lastTask?.position ?? -1) + 1,
+          position: (lastTask?.position ?? -1) + 1,
           ...(labelIds?.length && {
             labels: { create: labelIds.map((id) => ({ labelId: id })) },
           }),
         },
         include: {
-          creator:  { select: { id: true, name: true, avatarUrl: true } },
+          creator: { select: { id: true, name: true, avatarUrl: true } },
           assignee: { select: { id: true, name: true, avatarUrl: true } },
-          labels:   { include: { label: true } },
-          _count:   { select: { comments: true } },
+          labels: { include: { label: true } },
+          _count: { select: { comments: true } },
         },
       })
 
@@ -62,7 +62,10 @@ export async function POST(req: NextRequest) {
       await invalidateCache(CACHE_KEYS.board(column.board.id))
 
       // Emitir evento en tiempo real
-      emitToBoard(column.board.id, 'task:created', { task: task as never, boardId: column.board.id })
+      await publishToBoard(column.board.id, 'task:created', {
+        task: task as never,
+        boardId: column.board.id,
+      })
 
       return created(task)
     } catch (err) {

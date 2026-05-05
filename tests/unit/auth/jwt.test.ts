@@ -1,102 +1,103 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import jwt from 'jsonwebtoken';
-import { 
-  generateTokens, 
-  verifyAccessToken, 
-  verifyRefreshToken, 
-  decodeToken 
-} from '@/lib/auth/jwt';
-import { 
-  loginSchema, 
-  refreshTokenSchema 
-} from '@/lib/validations';
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return, @typescript-eslint/unbound-method */
+import jwt from 'jsonwebtoken'
+
+import { generateTokens, verifyAccessToken, verifyRefreshToken, decodeToken } from '@/lib/auth/jwt'
+import { loginSchema, refreshTokenSchema } from '@/lib/validations'
 
 describe('JWT Auth - Helpers', () => {
-  const payload = { sub: 'user_abc', email: 'admin@taskflow.pro', role: 'ADMIN' as any };
+  const payload = { sub: 'user_abc', email: 'admin@taskflow.pro', role: 'ADMIN' as any }
 
   beforeEach(() => {
-    vi.useFakeTimers();
-  });
+    jest.useFakeTimers()
+  })
 
   afterEach(() => {
-    vi.useRealTimers();
-  });
+    jest.useRealTimers()
+  })
 
   describe('generateTokens', () => {
     it('debe generar tokens con la estructura correcta', () => {
-      const tokens = generateTokens(payload);
-      expect(tokens).toHaveProperty('accessToken');
-      expect(tokens).toHaveProperty('refreshToken');
-      expect(tokens).toHaveProperty('expiresIn');
-      expect(typeof tokens.expiresIn).toBe('number');
-    });
+      const tokens = generateTokens(payload)
+      expect(tokens).toHaveProperty('accessToken')
+      expect(tokens).toHaveProperty('refreshToken')
+      expect(tokens).toHaveProperty('expiresIn')
+      expect(typeof tokens.expiresIn).toBe('number')
+    })
 
     it('el payload decodificado debe coincidir con la entrada', () => {
-      const { accessToken } = generateTokens(payload);
-      const decoded = jwt.decode(accessToken) as any;
-      expect(decoded.sub).toBe(payload.sub);
-      expect(decoded.role).toBe(payload.role);
-    });
-  });
+      const { accessToken } = generateTokens(payload)
+      const decoded = jwt.decode(accessToken) as any
+      expect(decoded.sub).toBe(payload.sub)
+      expect(decoded.role).toBe(payload.role)
+    })
+  })
 
   describe('verifyAccessToken', () => {
     it('debe validar un token legitimo', () => {
-      const { accessToken } = generateTokens(payload);
-      const verified = verifyAccessToken(accessToken);
-      expect(verified.sub).toBe(payload.sub);
-    });
+      const { accessToken } = generateTokens(payload)
+      const verified = verifyAccessToken(accessToken)
+      expect(verified.sub).toBe(payload.sub)
+    })
 
     it('debe fallar si la firma es incorrecta', () => {
-      const tokenInvalido = jwt.sign(payload, 'otra-llave-distinta');
-      expect(() => verifyAccessToken(tokenInvalido)).toThrow();
-    });
+      const tokenInvalido = jwt.sign(payload, 'otra-llave-distinta')
+      expect(() => verifyAccessToken(tokenInvalido)).toThrow()
+    })
 
     it('debe fallar si el token ha expirado', () => {
-      const { accessToken } = generateTokens(payload);
+      const { accessToken } = generateTokens(payload)
       // Adelantar el tiempo 20 minutos (el token expira en 15m por defecto)
-      vi.advanceTimersByTime(20 * 60 * 1000);
-      expect(() => verifyAccessToken(accessToken)).toThrow();
-    });
-  });
+      jest.advanceTimersByTime(20 * 60 * 1000)
+      expect(() => verifyAccessToken(accessToken)).toThrow()
+    })
+  })
+
+  describe('verifyRefreshToken', () => {
+    it('debe validar un token de refresco legitimo', () => {
+      const { refreshToken } = generateTokens(payload)
+      const verified = verifyRefreshToken(refreshToken)
+      expect(verified.sub).toBe(payload.sub)
+    })
+  })
 
   describe('decodeToken', () => {
     it('debe retornar el payload incluso si el token ha expirado', () => {
-      const { accessToken } = generateTokens(payload);
-      vi.advanceTimersByTime(20 * 60 * 1000);
-      const decoded = decodeToken(accessToken);
-      expect(decoded?.sub).toBe(payload.sub);
-    });
-  });
-});
+      const { accessToken } = generateTokens(payload)
+      jest.advanceTimersByTime(20 * 60 * 1000)
+      const decoded = decodeToken(accessToken)
+      expect(decoded?.sub).toBe(payload.sub)
+    })
+  })
+})
 
 describe('Zod Validation - Auth Schemas', () => {
   describe('loginSchema', () => {
     it('debe validar un login correcto', () => {
       const result = loginSchema.safeParse({
         email: 'test@taskflow.pro',
-        password: 'password123'
-      });
-      expect(result.success).toBe(true);
-    });
+        password: 'password123',
+      })
+      expect(result.success).toBe(true)
+    })
 
     it('debe fallar con email mal formado', () => {
       const result = loginSchema.safeParse({
         email: 'no-es-email',
-        password: 'password123'
-      });
-      expect(result.success).toBe(false);
-    });
-  });
+        password: 'password123',
+      })
+      expect(result.success).toBe(false)
+    })
+  })
 
   describe('refreshTokenSchema', () => {
     it('debe requerir el campo refreshToken', () => {
-      const result = refreshTokenSchema.safeParse({ token: 'abc' });
-      expect(result.success).toBe(false);
-    });
+      const result = refreshTokenSchema.safeParse({ token: 'abc' })
+      expect(result.success).toBe(false)
+    })
 
     it('debe aceptar un string no vacio', () => {
-      const result = refreshTokenSchema.safeParse({ refreshToken: 'some-jwt-string' });
-      expect(result.success).toBe(true);
-    });
-  });
-});
+      const result = refreshTokenSchema.safeParse({ refreshToken: 'some-jwt-string' })
+      expect(result.success).toBe(true)
+    })
+  })
+})

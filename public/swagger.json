@@ -5,9 +5,7 @@
     "version": "1.0.0",
     "description": "API oficial de TaskFlow Pro para la gestión de tareas y automatizaciones."
   },
-  "servers": [
-    { "url": "http://localhost:3000/api", "description": "Servidor de desarrollo" }
-  ],
+  "servers": [{ "url": "http://localhost:3000/api", "description": "Servidor de desarrollo" }],
   "components": {
     "securitySchemes": {
       "bearerAuth": {
@@ -33,7 +31,10 @@
           "title": { "type": "string" },
           "description": { "type": "string", "nullable": true },
           "priority": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "URGENT"] },
-          "status": { "type": "string", "enum": ["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE", "CANCELLED"] }
+          "status": {
+            "type": "string",
+            "enum": ["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE", "CANCELLED"]
+          }
         }
       }
     }

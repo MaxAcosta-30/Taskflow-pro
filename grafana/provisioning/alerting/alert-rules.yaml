@@ -1,0 +1,173 @@
+# =============================================================
+#  grafana/provisioning/alerting/alert-rules.yaml
+#  Reglas de alerta para infraestructura y negocio
+# =============================================================
+
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: taskflow-infrastructure
+    folder: TaskFlow Pro
+    interval: 1m
+    rules:
+      # 1. Latencia alta (p95 > 500ms)
+      - uid: taskflow-alert-latency
+        title: High HTTP Latency p95
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              refId: C
+              conditions:
+                - evaluator:
+                    params: [0.5]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+        for: 2m
+        annotations:
+          summary: HTTP p95 latency above 500ms
+          description: The 95th percentile latency has been above 500ms for 2 minutes
+        labels:
+          severity: warning
+
+      # 2. Tasa de error HTTP (> 5%)
+      - uid: taskflow-alert-errors
+        title: High HTTP Error Rate
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              refId: C
+              conditions:
+                - evaluator:
+                    params: [0.05]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+        for: 2m
+        annotations:
+          summary: HTTP error rate above 5%
+        labels:
+          severity: critical
+
+      # 3. Cola de automatizaciones saturada (> 100 jobs en 5m)
+      - uid: taskflow-alert-queue
+        title: Automation Queue Backlog
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: increase(automation_jobs_processed_total{status="pending"}[5m])
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              refId: C
+              conditions:
+                - evaluator:
+                    params: [100]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+        for: 1m
+        annotations:
+          summary: More than 100 automation jobs queued in 5 minutes
+        labels:
+          severity: warning
+
+      # 4. Jobs fallidos (> 10 en 5m)
+      - uid: taskflow-alert-failures
+        title: Queue Job Failures
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: increase(automation_jobs_processed_total{status="failed"}[5m])
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              refId: C
+              conditions:
+                - evaluator:
+                    params: [10]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+        for: 1m
+        annotations:
+          summary: More than 10 queue jobs failed in the last 5 minutes
+        labels:
+          severity: critical
+
+      # 5. Sin conexiones WebSocket
+      - uid: taskflow-alert-websocket
+        title: No Active WebSocket Connections
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: websocket_connections_active
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              refId: C
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: eq
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+        for: 10m
+        annotations:
+          summary: No WebSocket connections for 10 minutes — server may be down
+        labels:
+          severity: warning

@@ -9,14 +9,14 @@ import { generateTokens } from '@/lib/auth/jwt'
 import { db } from '@/lib/db'
 import { authLogger } from '@/lib/logger'
 
-const GITHUB_CLIENT_ID     = process.env.GITHUB_CLIENT_ID!
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID!
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET!
-const APP_URL              = process.env.NEXT_PUBLIC_APP_URL!
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL!
 
 // ── GET /api/auth/oauth/github — Iniciar flujo OAuth ─────────
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
-  const code  = searchParams.get('code')
+  const code = searchParams.get('code')
   const state = searchParams.get('state')
   const error = searchParams.get('error')
 
@@ -44,16 +44,16 @@ export async function GET(req: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Accept:         'application/json',
+        Accept: 'application/json',
       },
       body: JSON.stringify({
-        client_id:     GITHUB_CLIENT_ID,
+        client_id: GITHUB_CLIENT_ID,
         client_secret: GITHUB_CLIENT_SECRET,
         code,
       }),
     })
 
-    const tokenData = await tokenRes.json() as { access_token?: string; error?: string }
+    const tokenData = (await tokenRes.json()) as { access_token?: string; error?: string }
 
     if (!tokenData.access_token) {
       authLogger.warn({ error: tokenData.error }, 'GitHub token exchange failed')
@@ -97,7 +97,7 @@ export async function GET(req: NextRequest) {
       // Actualizar access token
       await db.oAuthAccount.update({
         where: { id: existingOAuth.id },
-        data:  { accessToken: tokenData.access_token },
+        data: { accessToken: tokenData.access_token },
       })
     } else {
       // 4. Buscar si ya existe usuario con ese email
@@ -110,9 +110,9 @@ export async function GET(req: NextRequest) {
         // Crear nuevo usuario
         const newUser = await db.user.create({
           data: {
-            email:      primaryEmail,
-            name:       githubUser.name ?? githubUser.login,
-            avatarUrl:  githubUser.avatar_url,
+            email: primaryEmail,
+            name: githubUser.name ?? githubUser.login,
+            avatarUrl: githubUser.avatar_url,
             isVerified: true,
           },
         })
@@ -122,9 +122,9 @@ export async function GET(req: NextRequest) {
       await db.oAuthAccount.create({
         data: {
           userId,
-          provider:       'github',
+          provider: 'github',
           providerUserId,
-          accessToken:    tokenData.access_token,
+          accessToken: tokenData.access_token,
         },
       })
     }
@@ -143,10 +143,10 @@ export async function GET(req: NextRequest) {
     const tokens = generateTokens({ sub: user.id, email: user.email, role: user.role })
 
     await createSession({
-      userId:       user.id,
+      userId: user.id,
       refreshToken: tokens.refreshToken,
-      userAgent:    req.headers.get('user-agent') ?? undefined,
-      ipAddress:    getClientIp(req),
+      userAgent: req.headers.get('user-agent') ?? undefined,
+      ipAddress: getClientIp(req),
     })
 
     await db.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } })

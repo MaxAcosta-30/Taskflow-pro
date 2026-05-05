@@ -1,0 +1,21 @@
+# =============================================================
+#  grafana/provisioning/alerting/contact-points.yaml
+#  Contact points para alertas de TaskFlow Pro
+# =============================================================
+
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: taskflow-default
+    receivers:
+      - uid: taskflow-webhook
+        type: webhook
+        settings:
+          url: ${GRAFANA_WEBHOOK_URL:-http://localhost:3000/api/webhooks/grafana}
+          httpMethod: POST
+          title: "TaskFlow Alert: {{ .GroupLabels.alertname }}"
+          message: |
+            Status: {{ .Status }}
+            Summary: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+        disableResolveMessage: false

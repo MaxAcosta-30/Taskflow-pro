@@ -21,7 +21,7 @@ export async function GET(req: NextRequest, { params }: Params) {
         async () =>
           db.board.findFirst({
             where: {
-              id:         boardId,
+              id: boardId,
               isArchived: false,
               team: { members: { some: { userId: user.sub } } },
             },
@@ -38,16 +38,16 @@ export async function GET(req: NextRequest, { params }: Params) {
                 },
               },
               columns: {
-                where:   { },
+                where: {},
                 orderBy: { position: 'asc' },
                 include: {
                   tasks: {
                     orderBy: { position: 'asc' },
                     include: {
-                      creator:  { select: { id: true, name: true, avatarUrl: true } },
+                      creator: { select: { id: true, name: true, avatarUrl: true } },
                       assignee: { select: { id: true, name: true, avatarUrl: true } },
-                      labels:   { include: { label: true } },
-                      _count:   { select: { comments: true } },
+                      labels: { include: { label: true } },
+                      _count: { select: { comments: true } },
                     },
                   },
                 },
@@ -73,7 +73,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     try {
       const board = await db.board.findFirst({
         where: {
-          id:   boardId,
+          id: boardId,
           team: { members: { some: { userId: user.sub, teamRole: { in: ['OWNER', 'ADMIN'] } } } },
         },
       })

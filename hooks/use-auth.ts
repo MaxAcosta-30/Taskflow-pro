@@ -15,8 +15,11 @@ const API = '/api/auth'
 
 // ── Tipos ─────────────────────────────────────────────────────
 type AuthUser = {
-  id: string; email: string; name: string
-  avatarUrl: string | null; role: string
+  id: string
+  email: string
+  name: string
+  avatarUrl: string | null
+  role: string
 }
 
 type AuthResponse = {
@@ -29,11 +32,11 @@ type AuthResponse = {
 // ── Fetch helper ──────────────────────────────────────────────
 async function authFetch<T>(url: string, body: unknown): Promise<T> {
   const res = await fetch(url, {
-    method:  'POST',
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(body),
+    body: JSON.stringify(body),
   })
-  const data = await res.json() as T
+  const data = (await res.json()) as T
   if (!res.ok) throw data
   return data
 }
@@ -47,25 +50,24 @@ export function useCurrentUser() {
     queryFn: async () => {
       const res = await fetch(`${API}/me`)
       if (!res.ok) throw new Error('Not authenticated')
-      const data = await res.json() as { data: { user: AuthUser } }
+      const data = (await res.json()) as { data: { user: AuthUser } }
       setUser(data.data.user)
       return data.data.user
     },
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime:    10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   })
 }
 
 // ── Hook: Register ────────────────────────────────────────────
 export function useRegister() {
-  const router     = useRouter()
+  const router = useRouter()
   const { setUser } = useAuthStore()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: RegisterInput) =>
-      authFetch<AuthResponse>(`${API}/register`, data),
+    mutationFn: (data: RegisterInput) => authFetch<AuthResponse>(`${API}/register`, data),
 
     onSuccess: (res) => {
       if (res.success && res.data) {
@@ -79,13 +81,12 @@ export function useRegister() {
 
 // ── Hook: Login ───────────────────────────────────────────────
 export function useLogin() {
-  const router      = useRouter()
+  const router = useRouter()
   const { setUser } = useAuthStore()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: LoginInput) =>
-      authFetch<AuthResponse>(`${API}/login`, data),
+    mutationFn: (data: LoginInput) => authFetch<AuthResponse>(`${API}/login`, data),
 
     onSuccess: (res) => {
       if (res.success && res.data) {
@@ -99,13 +100,12 @@ export function useLogin() {
 
 // ── Hook: Logout ──────────────────────────────────────────────
 export function useLogout() {
-  const router      = useRouter()
-  const { logout }  = useAuthStore()
+  const router = useRouter()
+  const { logout } = useAuthStore()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: () =>
-      fetch(`${API}/logout`, { method: 'POST' }).then((r) => r.json()),
+    mutationFn: () => fetch(`${API}/logout`, { method: 'POST' }).then((r) => r.json()),
 
     onSettled: () => {
       logout()

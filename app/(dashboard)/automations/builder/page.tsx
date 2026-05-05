@@ -14,21 +14,21 @@ export default function AutomationBuilderPage() {
   const [name, setName] = useState('Nueva Automatización Sin Título')
 
   return (
-    <div className="flex flex-col h-[calc(100vh-2rem)] -m-6 bg-slate-50/50 dark:bg-slate-950/50">
+    <div className="-m-6 flex h-[calc(100vh-2rem)] flex-col bg-slate-50/50 dark:bg-slate-950/50">
       {/* Builder Header */}
-      <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm z-10">
+      <div className="z-10 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center gap-4">
           <Link
             href="/automations"
-            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" />
           </Link>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="text-lg font-semibold bg-transparent border-none outline-none focus:ring-0 text-slate-900 dark:text-white placeholder-slate-300 w-80"
+            className="w-80 border-none bg-transparent text-lg font-semibold text-slate-900 placeholder-slate-300 outline-none focus:ring-0 dark:text-white"
             placeholder="Nombre de la automatización..."
           />
         </div>
@@ -36,7 +36,7 @@ export default function AutomationBuilderPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/automations"
-            className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
           >
             Descartar
           </Link>
@@ -44,18 +44,20 @@ export default function AutomationBuilderPage() {
       </div>
 
       {/* Builder Canvas */}
-      <div className="flex-1 overflow-y-auto p-8 relative">
+      <div className="relative flex-1 overflow-y-auto p-8">
         {/* Patrón de puntos de fondo */}
         <div
-          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
-          style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+          className="pointer-events-none absolute inset-0 opacity-[0.03] dark:opacity-[0.05]"
+          style={{
+            backgroundImage: 'radial-gradient(#000 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
+          }}
         />
 
-        <div className="max-w-2xl mx-auto relative z-10 py-10">
+        <div className="relative z-10 mx-auto max-w-2xl py-10">
           <AutomationBuilder automationName={name} />
         </div>
       </div>
     </div>
   )
 }
-

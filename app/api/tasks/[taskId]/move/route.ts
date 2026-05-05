@@ -8,11 +8,11 @@ import { z } from 'zod'
 import { withAuth, parseBody, ok, notFound, serverError } from '@/lib/api/helpers'
 import { db } from '@/lib/db'
 import { invalidateCache, CACHE_KEYS } from '@/lib/redis'
-import { emitToBoard } from '@/lib/socket/emitter'
+import { publishToBoard } from '@/lib/socket/publisher'
 
 const moveSchema = z.object({
   toColumnId: z.string().cuid(),
-  position:   z.number().int().min(0),
+  position: z.number().int().min(0),
 })
 
 type Params = { params: { taskId: string } }
@@ -26,7 +26,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       // Verificar acceso
       const task = await db.task.findFirst({
         where: {
-          id:     params.taskId,
+          id: params.taskId,
           column: { board: { team: { members: { some: { userId: user.sub } } } } },
         },
         include: { column: { select: { id: true, boardId: true } } },
@@ -34,7 +34,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       if (!task) return notFound()
 
       const fromColumnId = task.columnId
-      const boardId      = task.column.boardId
+      const boardId = task.column.boardId
 
       // Transacción: reordenar tareas afectadas + mover la tarea
       await db.$transaction(async (tx) => {
@@ -43,12 +43,12 @@ export async function PATCH(req: NextRequest, { params }: Params) {
           // Liberar espacio en columna destino desplazando hacia abajo
           await tx.task.updateMany({
             where: { columnId: data.toColumnId, position: { gte: data.position } },
-            data:  { position: { increment: 1 } },
+            data: { position: { increment: 1 } },
           })
           // Cerrar hueco en columna origen
           await tx.task.updateMany({
             where: { columnId: fromColumnId, position: { gt: task.position } },
-            data:  { position: { decrement: 1 } },
+            data: { position: { decrement: 1 } },
           })
         } else {
           // Reordenar dentro de la misma columna
@@ -57,7 +57,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
               where: {
                 columnId: fromColumnId,
                 position: { gte: data.position, lt: task.position },
-                id:       { not: task.id },
+                id: { not: task.id },
               },
               data: { position: { increment: 1 } },
             })
@@ -66,7 +66,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
               where: {
                 columnId: fromColumnId,
                 position: { gt: task.position, lte: data.position },
-                id:       { not: task.id },
+                id: { not: task.id },
               },
               data: { position: { decrement: 1 } },
             })
@@ -76,18 +76,18 @@ export async function PATCH(req: NextRequest, { params }: Params) {
         // Mover la tarea
         await tx.task.update({
           where: { id: task.id },
-          data:  { columnId: data.toColumnId, position: data.position },
+          data: { columnId: data.toColumnId, position: data.position },
         })
       })
 
       await invalidateCache(CACHE_KEYS.board(boardId))
 
       // Emitir evento tiempo real
-      emitToBoard(boardId, 'task:moved', {
-        taskId:      task.id,
+      await publishToBoard(boardId, 'task:moved', {
+        taskId: task.id,
         fromColumnId,
-        toColumnId:  data.toColumnId,
-        position:    data.position,
+        toColumnId: data.toColumnId,
+        position: data.position,
       })
 
       return ok({ message: 'Tarea movida', taskId: task.id, toColumnId: data.toColumnId })

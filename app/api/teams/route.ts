@@ -1,7 +1,8 @@
-import { NextRequest } from 'next/server';
-import { db } from '@/lib/db';
-import { withAuth, parseBody, created, serverError } from '@/lib/api/helpers';
-import { createTeamSchema } from '@/lib/validations';
+import type { NextRequest } from 'next/server'
+
+import { withAuth, parseBody, created, serverError } from '@/lib/api/helpers'
+import { db } from '@/lib/db'
+import { createTeamSchema } from '@/lib/validations'
 
 /**
  * POST /api/teams
@@ -9,15 +10,18 @@ import { createTeamSchema } from '@/lib/validations';
  */
 export async function POST(req: NextRequest) {
   return withAuth(req, async (user) => {
-    const { data, error } = await parseBody(req, createTeamSchema);
-    if (error) return error;
+    const { data, error } = await parseBody(req, createTeamSchema)
+    if (error) return error
 
     try {
       // Generar un slug básico basado en el nombre
-      const slug = data.name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '') + '-' + Math.random().toString(36).substring(2, 7);
+      const slug =
+        data.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '') +
+        '-' +
+        Math.random().toString(36).substring(2, 7)
 
       const team = await db.team.create({
         data: {
@@ -34,12 +38,12 @@ export async function POST(req: NextRequest) {
         include: {
           members: true,
         },
-      });
+      })
 
-      return created(team);
+      return created(team)
     } catch (err: any) {
-      console.error('[POST_TEAM_ERROR]', err);
-      return serverError();
+      console.error('[POST_TEAM_ERROR]', err)
+      return serverError()
     }
-  });
+  })
 }

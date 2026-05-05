@@ -8,48 +8,48 @@
 
 @layer base {
   :root {
-    --background:   0 0% 100%;
-    --foreground:   222.2 84% 4.9%;
-    --card:         0 0% 100%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
-    --popover:      0 0% 100%;
+    --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary:      221.2 83.2% 53.3%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
-    --secondary:    210 40% 96.1%;
+    --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted:        210 40% 96.1%;
+    --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent:       210 40% 96.1%;
+    --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive:  0 84.2% 60.2%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border:       214.3 31.8% 91.4%;
-    --input:        214.3 31.8% 91.4%;
-    --ring:         221.2 83.2% 53.3%;
-    --radius:       0.5rem;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background:   222.2 84% 4.9%;
-    --foreground:   210 40% 98%;
-    --card:         222.2 84% 4.9%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-    --popover:      222.2 84% 4.9%;
+    --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary:      217.2 91.2% 59.8%;
+    --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary:    217.2 32.6% 17.5%;
+    --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-    --muted:        217.2 32.6% 17.5%;
+    --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent:       217.2 32.6% 17.5%;
+    --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-    --destructive:  0 62.8% 30.6%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border:       217.2 32.6% 17.5%;
-    --input:        217.2 32.6% 17.5%;
-    --ring:         224.3 76.3% 48%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
   }
 }
 
@@ -59,19 +59,30 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
 }
 
 /* ── Scrollbar personalizado ─────────────────────────────── */
-::-webkit-scrollbar        { width: 6px; height: 6px; }
-::-webkit-scrollbar-track  { @apply bg-muted rounded-full; }
-::-webkit-scrollbar-thumb  { @apply bg-muted-foreground/30 rounded-full; }
-::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground/50; }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply rounded-full bg-muted;
+}
+::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-muted-foreground/30;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/50;
+}
 
 /* ── Utilidades Kanban ───────────────────────────────────── */
 .kanban-board {
-  @apply flex gap-4 pb-4 h-full items-start;
+  @apply flex h-full items-start gap-4 pb-4;
   overflow-x: auto;
   scrollbar-width: thin;
   /* Padding horizontal para que las columnas no queden pegadas al borde */
@@ -80,12 +91,14 @@
 }
 
 .kanban-column {
-  @apply flex-shrink-0 flex flex-col rounded-xl p-3;
+  @apply flex flex-shrink-0 flex-col rounded-xl p-3;
   width: 288px;
   min-height: 160px;
   background: hsl(210 40% 96.8%);
   border: 1px solid hsl(214.3 31.8% 91.4% / 0.8);
-  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .dark .kanban-column {
@@ -105,27 +118,34 @@
 }
 
 .task-card {
-  @apply bg-white dark:bg-slate-800 rounded-lg p-3;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  @apply rounded-lg bg-white p-3 dark:bg-slate-800;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.04);
   border: 1px solid hsl(214.3 31.8% 91.4%);
   cursor: grab;
-  transition: box-shadow 0.15s ease, transform 0.1s ease, border-color 0.15s ease;
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.1s ease,
+    border-color 0.15s ease;
   user-select: none;
 }
 
 .dark .task-card {
   border-color: hsl(217.2 32.6% 22%);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .task-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.06);
   border-color: hsl(214.3 31.8% 82%);
   transform: translateY(-1px);
 }
 
 .dark .task-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   border-color: hsl(217.2 32.6% 30%);
 }
 
@@ -139,22 +159,47 @@
 
 /* ── Animaciones ─────────────────────────────────────────── */
 @keyframes slide-in-right {
-  from { transform: translateX(100%); opacity: 0; }
-  to   { transform: translateX(0);    opacity: 1; }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pop-in {
-  0%   { transform: scale(0.95); opacity: 0; }
-  60%  { transform: scale(1.02); }
-  100% { transform: scale(1);    opacity: 1; }
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
-.animate-slide-in  { animation: slide-in-right 0.3s ease-out; }
-.animate-fade-in   { animation: fade-in 0.2s ease-out forwards; }
-.animate-pop-in    { animation: pop-in 0.2s ease-out forwards; }
-
+.animate-slide-in {
+  animation: slide-in-right 0.3s ease-out;
+}
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out forwards;
+}
+.animate-pop-in {
+  animation: pop-in 0.2s ease-out forwards;
+}

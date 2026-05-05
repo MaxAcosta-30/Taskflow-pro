@@ -12,8 +12,8 @@ import { redis } from '@/lib/redis'
 
 // Los processors importados de la Fase 4
 import { automationProcessor } from './processors/automation'
-import { notificationProcessor } from './processors/notification'
 import { cleanupProcessor } from './processors/cleanup'
+import { notificationProcessor } from './processors/notification'
 
 workerLogger.info(' TaskFlow Worker iniciando...')
 
@@ -65,10 +65,7 @@ workers.forEach((worker) => {
   })
 
   worker.on('failed', (job, err) => {
-    workerLogger.error(
-      { jobId: job?.id, queue: worker.name, error: err.message },
-      'Job failed ',
-    )
+    workerLogger.error({ jobId: job?.id, queue: worker.name, error: err.message }, 'Job failed ')
   })
 
   worker.on('error', (err) => {
@@ -86,4 +83,4 @@ async function shutdown() {
 }
 
 process.on('SIGTERM', () => void shutdown())
-process.on('SIGINT',  () => void shutdown())
+process.on('SIGINT', () => void shutdown())

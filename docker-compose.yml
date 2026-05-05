@@ -14,6 +14,8 @@ volumes:
   prometheus-data:
   grafana-data:
 
+  postgres-backups:
+
 services:
 
   # ────────────────────────────────────────
@@ -200,3 +202,30 @@ services:
       - redis
     profiles:
       - dev  # Solo levanta con: docker compose --profile dev up
+
+  # ────────────────────────────────────────
+  #  BACKUP — PostgreSQL automated backup
+  # ────────────────────────────────────────
+  backup:
+    image: postgres:16-alpine
+    container_name: taskflow-backup
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER:     ${POSTGRES_USER:-taskflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-taskflow_password}
+      POSTGRES_DB:       ${POSTGRES_DB:-taskflow_db}
+      POSTGRES_HOST:     postgres
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
+    volumes:
+      - ./docker/postgres/backup.sh:/backup.sh:ro
+      - ./docker/postgres/restore.sh:/restore.sh:ro
+      - postgres-backups:/backups
+    command: >
+      sh -c "chmod +x /backup.sh /restore.sh &&
+             echo '0 2 * * * /backup.sh >> /var/log/backup.log 2>&1' | crontab - &&
+             crond -f -l 2"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - taskflow-network

@@ -30,24 +30,24 @@ export default function AutomationsPage() {
   const [menuOpen, setMenuOpen] = useState<string | null>(null)
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="mx-auto max-w-5xl space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Zap className="w-6 h-6 text-yellow-500" />
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-900 dark:text-white">
+            <Zap className="h-6 w-6 text-yellow-500" />
             Automatizaciones
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">
+          <p className="mt-1 text-slate-500 dark:text-slate-400">
             Diseña flujos de trabajo en segundo plano para ahorrar tiempo.
           </p>
         </div>
 
         <Link
           href="/automations/builder"
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="h-4 w-4" />
           Nueva Automatización
         </Link>
       </div>
@@ -55,27 +55,27 @@ export default function AutomationsPage() {
       {/* Loading */}
       {isLoading && (
         <div className="flex items-center justify-center py-20 text-slate-400">
-          <Loader2 className="w-6 h-6 animate-spin mr-2" />
+          <Loader2 className="mr-2 h-6 w-6 animate-spin" />
           Cargando automatizaciones...
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <div className="text-center py-12 text-red-500">
+        <div className="py-12 text-center text-red-500">
           No se pudieron cargar las automatizaciones.
         </div>
       )}
 
       {/* Empty state */}
       {!isLoading && automations?.length === 0 && (
-        <div className="text-center py-20 space-y-4">
-          <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto">
-            <Zap className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+        <div className="space-y-4 py-20 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800">
+            <Zap className="h-8 w-8 text-slate-300 dark:text-slate-600" />
           </div>
           <p className="text-slate-500 dark:text-slate-400">
             Aún no tienes automatizaciones.{' '}
-            <Link href="/automations/builder" className="text-blue-500 hover:underline font-medium">
+            <Link href="/automations/builder" className="font-medium text-blue-500 hover:underline">
               Crea tu primera
             </Link>
           </p>
@@ -84,24 +84,28 @@ export default function AutomationsPage() {
 
       {/* Grid */}
       {automations && automations.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {automations.map((auto) => (
             <div
               key={auto.id}
-              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:shadow-md transition-shadow relative group"
+              className="group relative rounded-xl border border-slate-200 bg-white p-5 transition-shadow hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${auto.isActive ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-500' : 'bg-slate-100 text-slate-400 dark:bg-slate-800'}`}>
-                    <Zap className="w-5 h-5" />
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg ${auto.isActive ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-500' : 'bg-slate-100 text-slate-400 dark:bg-slate-800'}`}
+                  >
+                    <Zap className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900 dark:text-white text-sm">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                       {auto.name}
                     </h3>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className={`w-2 h-2 rounded-full ${auto.isActive ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
-                      <span className="text-xs text-slate-500 font-medium">
+                    <div className="mt-0.5 flex items-center gap-2">
+                      <span
+                        className={`h-2 w-2 rounded-full ${auto.isActive ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`}
+                      />
+                      <span className="text-xs font-medium text-slate-500">
                         {auto.isActive ? 'Activo' : 'Inactivo'}
                       </span>
                     </div>
@@ -112,27 +116,33 @@ export default function AutomationsPage() {
                 <div className="relative">
                   <button
                     onClick={() => setMenuOpen(menuOpen === auto.id ? null : auto.id)}
-                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 rounded"
+                    className="rounded p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                   >
-                    <MoreVertical className="w-4 h-4" />
+                    <MoreVertical className="h-4 w-4" />
                   </button>
                   {menuOpen === auto.id && (
                     <div
-                      className="absolute right-0 top-8 w-44 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-20 overflow-hidden"
+                      className="absolute right-0 top-8 z-20 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800"
                       onMouseLeave={() => setMenuOpen(null)}
                     >
                       <button
-                        onClick={() => { toggle({ id: auto.id, isActive: !auto.isActive }); setMenuOpen(null) }}
-                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                        onClick={() => {
+                          toggle({ id: auto.id, isActive: !auto.isActive })
+                          setMenuOpen(null)
+                        }}
+                        className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-slate-700 transition-colors hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-700/50"
                       >
-                        <Power className="w-4 h-4" />
+                        <Power className="h-4 w-4" />
                         {auto.isActive ? 'Desactivar' : 'Activar'}
                       </button>
                       <button
-                        onClick={() => { remove(auto.id); setMenuOpen(null) }}
-                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        onClick={() => {
+                          remove(auto.id)
+                          setMenuOpen(null)
+                        }}
+                        className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="h-4 w-4" />
                         Eliminar
                       </button>
                     </div>
@@ -141,22 +151,25 @@ export default function AutomationsPage() {
               </div>
 
               {auto.description && (
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-4 line-clamp-2">
+                <p className="mt-4 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">
                   {auto.description}
                 </p>
               )}
 
-              <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
+              <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 text-xs text-slate-400 dark:border-slate-800">
                 <div className="flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5" />
+                  <Activity className="h-3.5 w-3.5" />
                   <span>{TRIGGER_LABELS[auto.triggerType] ?? auto.triggerType}</span>
                 </div>
 
                 {auto.lastRunAt ? (
                   <div className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5" />
+                    <Clock className="h-3.5 w-3.5" />
                     <span>
-                      {formatDistanceToNow(new Date(auto.lastRunAt), { addSuffix: true, locale: es })}
+                      {formatDistanceToNow(new Date(auto.lastRunAt), {
+                        addSuffix: true,
+                        locale: es,
+                      })}
                     </span>
                   </div>
                 ) : (
@@ -165,8 +178,8 @@ export default function AutomationsPage() {
               </div>
 
               {/* Run count badge */}
-              <div className="absolute top-3 right-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full">
+              <div className="absolute right-10 top-3 opacity-0 transition-opacity group-hover:opacity-100">
+                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                   {auto._count.runs} ejecuciones
                 </span>
               </div>
@@ -177,4 +190,3 @@ export default function AutomationsPage() {
     </div>
   )
 }
-

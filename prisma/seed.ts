@@ -1,30 +1,43 @@
-import { PrismaClient, Role, TeamRole, TeamPlan, Priority, TaskStatus, AutomationTrigger, ActionType, RunStatus, NotificationType } from '@prisma/client';
-import bcrypt from 'bcryptjs';
-import { addDays, subDays, subHours } from 'date-fns';
+import {
+  PrismaClient,
+  Role,
+  TeamRole,
+  TeamPlan,
+  Priority,
+  TaskStatus,
+  AutomationTrigger,
+  ActionType,
+  RunStatus,
+  NotificationType,
+} from '@prisma/client'
+import bcrypt from 'bcryptjs'
+import { addDays, subDays, subHours } from 'date-fns'
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🌱 Iniciando seed profesional...');
+  console.log('🌱 Iniciando seed profesional...')
 
   // 1. Limpieza total
   const tablenames = await prisma.$queryRaw<Array<{ tablename: string }>>`
     SELECT tablename FROM pg_tables WHERE schemaname='public'
-  `;
+  `
 
   for (const { tablename } of tablenames) {
     if (tablename !== '_prisma_migrations') {
       try {
-        await prisma.$executeRawUnsafe(`TRUNCATE TABLE "public"."${tablename}" RESTART IDENTITY CASCADE;`);
+        await prisma.$executeRawUnsafe(
+          `TRUNCATE TABLE "public"."${tablename}" RESTART IDENTITY CASCADE;`,
+        )
       } catch (error) {
-        console.log(`No se pudo truncar ${tablename}`);
+        console.log(`No se pudo truncar ${tablename}`)
       }
     }
   }
-  console.log('🧹 Base de datos reseteada.');
+  console.log('🧹 Base de datos reseteada.')
 
   // 2. Usuarios
-  const passwordHash = await bcrypt.hash('password123', 12);
+  const passwordHash = await bcrypt.hash('password123', 12)
 
   const alice = await prisma.user.create({
     data: {
@@ -35,7 +48,7 @@ async function main() {
       avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alice',
       timezone: 'Europe/Madrid',
     },
-  });
+  })
 
   const bob = await prisma.user.create({
     data: {
@@ -45,7 +58,7 @@ async function main() {
       role: Role.MEMBER,
       avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob',
     },
-  });
+  })
 
   const carlos = await prisma.user.create({
     data: {
@@ -55,9 +68,9 @@ async function main() {
       role: Role.MEMBER,
       avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos',
     },
-  });
+  })
 
-  console.log('👤 Usuarios Alice, Bob y Carlos creados.');
+  console.log('👤 Usuarios Alice, Bob y Carlos creados.')
 
   // 3. Equipo
   const team = await prisma.team.create({
@@ -74,9 +87,9 @@ async function main() {
         ],
       },
     },
-  });
+  })
 
-  console.log('🏢 Equipo "Startup Tech" creado.');
+  console.log('🏢 Equipo "Startup Tech" creado.')
 
   // 4. Etiquetas
   const labels = await Promise.all([
@@ -85,14 +98,14 @@ async function main() {
     prisma.label.create({ data: { name: 'Refactor', color: '#8B5CF6', teamId: team.id } }),
     prisma.label.create({ data: { name: 'Hotfix', color: '#F59E0B', teamId: team.id } }),
     prisma.label.create({ data: { name: 'Design', color: '#EC4899', teamId: team.id } }),
-  ]);
+  ])
 
   // 5. Tableros
   const boards = [
     { name: '🚀 Product Launch', color: '#3B82F6', desc: 'Core product features and roadmap.' },
     { name: '🎨 Marketing & Design', color: '#EC4899', desc: 'Campaigns and brand assets.' },
     { name: '🛠 DevOps & Infra', color: '#10B981', desc: 'CI/CD, Monitoring and Scaling.' },
-  ];
+  ]
 
   for (const b of boards) {
     const board = await prisma.board.create({
@@ -112,38 +125,53 @@ async function main() {
         },
       },
       include: { columns: true },
-    });
+    })
 
     // Crear tareas para cada tablero
     for (const col of board.columns) {
-      const taskCount = col.name === 'Done' ? 12 : 4;
+      const taskCount = col.name === 'Done' ? 12 : 4
       for (let i = 0; i < taskCount; i++) {
-        const date = subDays(new Date(), Math.floor(Math.random() * 30));
+        const date = subDays(new Date(), Math.floor(Math.random() * 30))
         await prisma.task.create({
           data: {
             title: `${board.name === '🚀 Product Launch' ? 'Feature' : 'Task'} #${i + 1} en ${col.name}`,
-            description: 'Esta es una descripción detallada de la tarea generada automáticamente para el seed.',
+            description:
+              'Esta es una descripción detallada de la tarea generada automáticamente para el seed.',
             columnId: col.id,
             creatorId: alice.id,
             assigneeId: Math.random() > 0.3 ? bob.id : null,
-            priority: [Priority.LOW, Priority.MEDIUM, Priority.HIGH, Priority.URGENT][Math.floor(Math.random() * 4)],
-            status: col.name === 'Done' ? TaskStatus.DONE : (col.name === 'In Progress' ? TaskStatus.IN_PROGRESS : TaskStatus.TODO),
+            priority: [Priority.LOW, Priority.MEDIUM, Priority.HIGH, Priority.URGENT][
+              Math.floor(Math.random() * 4)
+            ],
+            status:
+              col.name === 'Done'
+                ? TaskStatus.DONE
+                : col.name === 'In Progress'
+                  ? TaskStatus.IN_PROGRESS
+                  : TaskStatus.TODO,
             createdAt: date,
             updatedAt: addDays(date, 1),
-            dueDate: col.name !== 'Done' ? addDays(new Date(), Math.floor(Math.random() * 15)) : null,
+            dueDate:
+              col.name !== 'Done' ? addDays(new Date(), Math.floor(Math.random() * 15)) : null,
             labels: {
-              create: Math.random() > 0.5 ? [{ labelId: labels[Math.floor(Math.random() * labels.length)].id }] : [],
+              create:
+                Math.random() > 0.5 && labels.length > 0
+                  ? [{ labelId: labels[Math.floor(Math.random() * labels.length)]!.id }]
+                  : [],
             },
             comments: {
-              create: Math.random() > 0.7 ? [{ authorId: bob.id, content: 'Estoy trabajando en esto!' }] : [],
+              create:
+                Math.random() > 0.7
+                  ? [{ authorId: bob.id, content: 'Estoy trabajando en esto!' }]
+                  : [],
             },
           },
-        });
+        })
       }
     }
   }
 
-  console.log('📋 3 Tableros creados con ~60 tareas distribuidas cronológicamente.');
+  console.log('📋 3 Tableros creados con ~60 tareas distribuidas cronológicamente.')
 
   // 6. Automatizaciones
   const automation1 = await prisma.automation.create({
@@ -163,7 +191,7 @@ async function main() {
         },
       },
     },
-  });
+  })
 
   const automation2 = await prisma.automation.create({
     data: {
@@ -177,41 +205,75 @@ async function main() {
       actions: {
         create: {
           actionType: ActionType.SEND_NOTIFICATION,
-          config: { userId: alice.id, title: 'Task is stale!', body: 'Check why the PR is blocked.' },
+          config: {
+            userId: alice.id,
+            title: 'Task is stale!',
+            body: 'Check why the PR is blocked.',
+          },
           position: 0,
         },
       },
     },
-  });
+  })
 
-  console.log('🤖 2 Automatizaciones activas creadas.');
+  console.log('🤖 2 Automatizaciones activas creadas.')
 
   // 7. Historial de Runs
   await prisma.automationRun.createMany({
     data: [
-      { automationId: automation1.id, status: RunStatus.SUCCESS, triggeredBy: 'USER_ACTION', startedAt: subHours(new Date(), 2), completedAt: subHours(new Date(), 2) },
-      { automationId: automation1.id, status: RunStatus.SUCCESS, triggeredBy: 'USER_ACTION', startedAt: subHours(new Date(), 24), completedAt: subHours(new Date(), 24) },
-      { automationId: automation2.id, status: RunStatus.FAILED, error: 'Network timeout', triggeredBy: 'SYSTEM_SCHEDULER', startedAt: subHours(new Date(), 5) },
+      {
+        automationId: automation1.id,
+        status: RunStatus.SUCCESS,
+        triggeredBy: 'USER_ACTION',
+        startedAt: subHours(new Date(), 2),
+        completedAt: subHours(new Date(), 2),
+      },
+      {
+        automationId: automation1.id,
+        status: RunStatus.SUCCESS,
+        triggeredBy: 'USER_ACTION',
+        startedAt: subHours(new Date(), 24),
+        completedAt: subHours(new Date(), 24),
+      },
+      {
+        automationId: automation2.id,
+        status: RunStatus.FAILED,
+        error: 'Network timeout',
+        triggeredBy: 'SYSTEM_SCHEDULER',
+        startedAt: subHours(new Date(), 5),
+      },
     ],
-  });
+  })
 
   // 8. Notificaciones
   await prisma.notification.createMany({
     data: [
-      { userId: alice.id, type: NotificationType.AUTOMATION_TRIGGERED, title: 'Automation Executed', body: 'Auto-assign to Bob was triggered.', isRead: false },
-      { userId: bob.id, type: NotificationType.TASK_ASSIGNED, title: 'New Task Assigned', body: 'Alice assigned you to Feature #5.', isRead: false },
+      {
+        userId: alice.id,
+        type: NotificationType.AUTOMATION_TRIGGERED,
+        title: 'Automation Executed',
+        body: 'Auto-assign to Bob was triggered.',
+        isRead: false,
+      },
+      {
+        userId: bob.id,
+        type: NotificationType.TASK_ASSIGNED,
+        title: 'New Task Assigned',
+        body: 'Alice assigned you to Feature #5.',
+        isRead: false,
+      },
     ],
-  });
+  })
 
-  console.log('🔔 Historial de ejecuciones y notificaciones pendientes creadas.');
-  console.log('✨ Seed finalizado correctamente. Credenciales: alice@taskflow.pro / password123');
+  console.log('🔔 Historial de ejecuciones y notificaciones pendientes creadas.')
+  console.log('✨ Seed finalizado correctamente. Credenciales: alice@taskflow.pro / password123')
 }
 
 main()
   .catch((e) => {
-    console.error(e);
-    process.exit(1);
+    console.error(e)
+    process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect();
-  });
+    await prisma.$disconnect()
+  })

@@ -8,11 +8,12 @@
       "title": "Total Tasks Created",
       "type": "stat",
       "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
-      "targets": [
-        { "expr": "sum(tasks_created_total)", "legendFormat": "Tasks" }
-      ],
+      "targets": [{ "expr": "sum(tasks_created_total)", "legendFormat": "Tasks" }],
       "fieldConfig": {
-        "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+        }
       }
     },
     {

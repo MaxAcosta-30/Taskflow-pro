@@ -5,6 +5,7 @@
 // =============================================================
 
 import type { SocketEvents } from '@/types'
+
 import { publishToBoard, publishToUser } from './publisher'
 
 // ── API Routes y Workers: emitir a un tablero ───────────────────
@@ -27,4 +28,4 @@ export function emitToUser<K extends keyof SocketEvents>(
 
 // ── Aliases para compatibilidad con código de workers ───────────
 export const emitToBoardFromWorker = emitToBoard
-export const emitToUserFromWorker  = emitToUser
+export const emitToUserFromWorker = emitToUser

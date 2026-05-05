@@ -3,73 +3,60 @@
 //  Define todas las colas de la aplicación
 // =============================================================
 
-import Redis from 'ioredis'
 import { Queue, QueueEvents } from 'bullmq'
+import Redis from 'ioredis'
 
 import type { AutomationJobData, NotificationJobData } from '@/types'
-
 
 // ── Conexión dedicada para BullMQ ────────────────────────────
 // BullMQ requiere maxRetriesPerRequest: null y enableReadyCheck: false
 // para evitar timeouts con sus comandos bloqueantes (BRPOP, etc.)
 const connection = new Redis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
   maxRetriesPerRequest: null,
-  enableReadyCheck:     false,
-  lazyConnect:          true,
+  enableReadyCheck: false,
+  lazyConnect: true,
 })
 
 // ── Nombres de colas ──────────────────────────────────────────
 export const QUEUE_NAMES = {
-  AUTOMATIONS:   'automations',
+  AUTOMATIONS: 'automations',
   NOTIFICATIONS: 'notifications',
-  EMAILS:        'emails',
-  CLEANUP:       'cleanup',
+  EMAILS: 'emails',
+  CLEANUP: 'cleanup',
 } as const
 
 // ── Definición de colas ───────────────────────────────────────
-export const automationsQueue = new Queue<AutomationJobData>(
-  QUEUE_NAMES.AUTOMATIONS,
-  {
-    connection,
-    defaultJobOptions: {
-      attempts: 3,
-      backoff: { type: 'exponential', delay: 5000 },
-      removeOnComplete: { count: 100 },
-      removeOnFail:    { count: 500 },
-    },
+export const automationsQueue = new Queue<AutomationJobData>(QUEUE_NAMES.AUTOMATIONS, {
+  connection,
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: { type: 'exponential', delay: 5000 },
+    removeOnComplete: { count: 100 },
+    removeOnFail: { count: 500 },
   },
-)
+})
 
-export const notificationsQueue = new Queue<NotificationJobData>(
-  QUEUE_NAMES.NOTIFICATIONS,
-  {
-    connection,
-    defaultJobOptions: {
-      attempts: 2,
-      backoff: { type: 'fixed', delay: 2000 },
-      removeOnComplete: { count: 200 },
-      removeOnFail:    { count: 100 },
-    },
+export const notificationsQueue = new Queue<NotificationJobData>(QUEUE_NAMES.NOTIFICATIONS, {
+  connection,
+  defaultJobOptions: {
+    attempts: 2,
+    backoff: { type: 'fixed', delay: 2000 },
+    removeOnComplete: { count: 200 },
+    removeOnFail: { count: 100 },
   },
-)
+})
 
-export const cleanupQueue = new Queue(
-  QUEUE_NAMES.CLEANUP,
-  {
-    connection,
-    defaultJobOptions: {
-      attempts: 1,
-      removeOnComplete: true,
-      removeOnFail: { count: 50 },
-    },
+export const cleanupQueue = new Queue(QUEUE_NAMES.CLEANUP, {
+  connection,
+  defaultJobOptions: {
+    attempts: 1,
+    removeOnComplete: true,
+    removeOnFail: { count: 50 },
   },
-)
+})
 
 // ── Queue Events (para monitoring) ───────────────────────────
-export const automationQueueEvents = new QueueEvents(
-  QUEUE_NAMES.AUTOMATIONS,
-  { connection },
-)
+export const automationQueueEvents = new QueueEvents(QUEUE_NAMES.AUTOMATIONS, { connection })
 
 // ── Helper: agregar job de automatización ────────────────────
 export async function triggerAutomation(data: AutomationJobData) {

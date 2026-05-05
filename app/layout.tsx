@@ -19,11 +19,7 @@ export const metadata: Metadata = {
   keywords: ['productividad', 'kanban', 'automatización', 'equipos'],
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>

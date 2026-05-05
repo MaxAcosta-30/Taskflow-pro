@@ -39,10 +39,41 @@ model User {
   assignedTasks     Task[]         @relation("TaskAssignee")
   taskComments      TaskComment[]
   notifications     Notification[]
+  notificationSettings NotificationSetting[]
+  pushSubscriptions PushSubscription[]
   auditLogs         AuditLog[]
   createdAutomations Automation[]
 
   @@map("users")
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+model NotificationSetting {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  email     Boolean          @default(true)
+  push      Boolean          @default(true)
+  inApp     Boolean          @default(true) @map("in_app")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@map("notification_settings")
 }
 
 model Session {
@@ -182,6 +213,8 @@ model Task {
   @@index([columnId])
   @@index([assigneeId])
   @@index([creatorId])
+  @@index([dueDate])
+  @@index([position])
   @@map("tasks")
 }
 
@@ -198,6 +231,7 @@ model TaskComment {
   author User @relation(fields: [authorId], references: [id])
 
   @@index([taskId])
+  @@index([createdAt])
   @@map("task_comments")
 }
 
@@ -211,6 +245,7 @@ model Label {
   tasks TaskLabel[]
 
   @@unique([name, teamId])
+  @@index([teamId])
   @@map("labels")
 }
 
@@ -223,6 +258,7 @@ model TaskLabel {
   label Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
 
   @@id([taskId, labelId])
+  @@index([labelId])
   @@map("task_labels")
 }
 
@@ -254,6 +290,7 @@ model Automation {
   creator User @relation(fields: [creatorId], references: [id])
 
   @@index([teamId])
+  @@index([isActive])
   @@map("automations")
 }
 
@@ -271,6 +308,7 @@ model AutomationAction {
   automation Automation @relation(fields: [automationId], references: [id], onDelete: Cascade)
 
   @@index([automationId])
+  @@index([position])
   @@map("automation_actions")
 }
 
@@ -288,6 +326,8 @@ model AutomationRun {
   automation Automation @relation(fields: [automationId], references: [id], onDelete: Cascade)
 
   @@index([automationId])
+  @@index([taskId])
+  @@index([startedAt])
   @@map("automation_runs")
 }
 

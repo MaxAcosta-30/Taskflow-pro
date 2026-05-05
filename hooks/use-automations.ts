@@ -3,8 +3,8 @@
 // =============================================================
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import { useRouter } from 'next/navigation'
 
 // ── Types ────────────────────────────────────────────────────
 export type ActionConfig =
@@ -12,7 +12,13 @@ export type ActionConfig =
   | { type: 'ASSIGN_USER'; userId: string }
   | { type: 'ADD_LABEL'; labelId: string }
   | { type: 'SEND_NOTIFICATION'; title: string; body: string; userId: string }
-  | { type: 'WEBHOOK'; url: string; method: string; headers?: Record<string, string>; body?: string }
+  | {
+      type: 'WEBHOOK'
+      url: string
+      method: string
+      headers?: Record<string, string>
+      body?: string
+    }
   | { type: 'CREATE_TASK'; title: string; columnId: string; description?: string }
 
 export type AutomationAction = {
@@ -50,11 +56,20 @@ async function fetchAutomations(): Promise<AutomationRecord[]> {
 }
 
 async function createAutomation(payload: CreateAutomationPayload): Promise<AutomationRecord> {
-  const { data } = await api.post<{ success: true; data: AutomationRecord }>('/automations', payload)
+  const { data } = await api.post<{ success: true; data: AutomationRecord }>(
+    '/automations',
+    payload,
+  )
   return data.data
 }
 
-async function toggleAutomation({ id, isActive }: { id: string; isActive: boolean }): Promise<void> {
+async function toggleAutomation({
+  id,
+  isActive,
+}: {
+  id: string
+  isActive: boolean
+}): Promise<void> {
   await api.patch(`/automations/${id}`, { isActive })
 }
 
@@ -93,8 +108,9 @@ export function useToggleAutomation() {
       // Optimistic update
       await queryClient.cancelQueries({ queryKey: ['automations'] })
       const prev = queryClient.getQueryData<AutomationRecord[]>(['automations'])
-      queryClient.setQueryData<AutomationRecord[]>(['automations'], (old) =>
-        old?.map((a) => a.id === id ? { ...a, isActive } : a) ?? []
+      queryClient.setQueryData<AutomationRecord[]>(
+        ['automations'],
+        (old) => old?.map((a) => (a.id === id ? { ...a, isActive } : a)) ?? [],
       )
       return { prev }
     },

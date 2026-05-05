@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return, @typescript-eslint/unbound-method */
 // =============================================================
 //  tests/unit/validations/auth.test.ts
 // =============================================================
@@ -21,24 +22,38 @@ describe('registerSchema', () => {
   })
 
   it('should fail with invalid email', () => {
-    const result = registerSchema.safeParse({ name: 'Juan', email: 'not-an-email', password: 'Password1' })
+    const result = registerSchema.safeParse({
+      name: 'Juan',
+      email: 'not-an-email',
+      password: 'Password1',
+    })
     expect(result.success).toBe(false)
     expect(result.error?.flatten().fieldErrors.email).toBeDefined()
   })
 
   it('should fail with weak password (no uppercase)', () => {
-    const result = registerSchema.safeParse({ name: 'Juan', email: 'j@test.com', password: 'password1' })
+    const result = registerSchema.safeParse({
+      name: 'Juan',
+      email: 'j@test.com',
+      password: 'password1',
+    })
     expect(result.success).toBe(false)
   })
 
   it('should fail with weak password (no number)', () => {
-    const result = registerSchema.safeParse({ name: 'Juan', email: 'j@test.com', password: 'Password' })
+    const result = registerSchema.safeParse({
+      name: 'Juan',
+      email: 'j@test.com',
+      password: 'Password',
+    })
     expect(result.success).toBe(false)
   })
 
   it('should lowercase the email', () => {
     const result = registerSchema.safeParse({
-      name: 'Juan', email: 'JUAN@TEST.COM', password: 'Password1',
+      name: 'Juan',
+      email: 'JUAN@TEST.COM',
+      password: 'Password1',
     })
     expect(result.success).toBe(true)
     if (result.success) expect(result.data.email).toBe('juan@test.com')

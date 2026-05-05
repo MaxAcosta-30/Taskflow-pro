@@ -6,9 +6,9 @@ import jwt from 'jsonwebtoken'
 
 import type { JwtPayload, AuthTokens } from '@/types'
 
-const JWT_SECRET         = process.env.JWT_SECRET!
+const JWT_SECRET = process.env.JWT_SECRET!
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!
-const JWT_EXPIRES_IN     = process.env.JWT_EXPIRES_IN  ?? '15m'
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN ?? '15m'
 const JWT_REFRESH_EXPIRES = process.env.JWT_REFRESH_EXPIRES_IN ?? '7d'
 
 if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
@@ -21,11 +21,9 @@ export function generateTokens(payload: Omit<JwtPayload, 'iat' | 'exp'>): AuthTo
     expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'],
   })
 
-  const refreshToken = jwt.sign(
-    { sub: payload.sub },
-    JWT_REFRESH_SECRET,
-    { expiresIn: JWT_REFRESH_EXPIRES as jwt.SignOptions['expiresIn'] },
-  )
+  const refreshToken = jwt.sign({ sub: payload.sub }, JWT_REFRESH_SECRET, {
+    expiresIn: JWT_REFRESH_EXPIRES as jwt.SignOptions['expiresIn'],
+  })
 
   // Calcular expiresIn en segundos
   const decoded = jwt.decode(accessToken) as { exp: number; iat: number }

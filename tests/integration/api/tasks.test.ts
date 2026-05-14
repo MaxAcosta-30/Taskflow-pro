@@ -8,25 +8,25 @@ import { NextRequest } from 'next/server'
 import { POST as createTaskHandler } from '@/app/api/tasks/route'
 import { db } from '@/lib/db'
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   db: {
-    column: { findFirst: jest.fn() },
-    task: { findFirst: jest.fn(), create: jest.fn() },
+    column: { findFirst: vi.fn() },
+    task: { findFirst: vi.fn(), create: vi.fn() },
   },
 }))
 
-jest.mock('@/lib/redis', () => ({
-  redis: { get: jest.fn(), setex: jest.fn(), del: jest.fn() },
-  invalidateCache: jest.fn(),
+vi.mock('@/lib/redis', () => ({
+  redis: { get: vi.fn(), setex: vi.fn(), del: vi.fn() },
+  invalidateCache: vi.fn(),
   CACHE_KEYS: { board: (id: string) => `board:${id}` },
 }))
 
-jest.mock('@/lib/socket/publisher', () => ({
-  publishToBoard: jest.fn(),
+vi.mock('@/lib/socket/publisher', () => ({
+  publishToBoard: vi.fn(),
 }))
 
-jest.mock('@/lib/auth/helpers', () => ({
-  getAuthUser: jest.fn().mockResolvedValue({ sub: 'user-1' }),
+vi.mock('@/lib/auth/helpers', () => ({
+  getAuthUser: vi.fn().mockResolvedValue({ sub: 'user-1' }),
 }))
 
 function makeRequest(url: string, body: any) {
@@ -39,17 +39,17 @@ function makeRequest(url: string, body: any) {
 
 describe('Tasks API Integration', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('POST /api/tasks', () => {
     it('should create a task and return 201', async () => {
-      ;(db.column.findFirst as jest.Mock).mockResolvedValue({
+      ;(db.column.findFirst as any).mockResolvedValue({
         id: 'ckp1234567890123456789012',
         board: { id: 'ckp1234567890123456789013' },
       })
-      ;(db.task.findFirst as jest.Mock).mockResolvedValue({ position: 5 })
-      ;(db.task.create as jest.Mock).mockResolvedValue({
+      ;(db.task.findFirst as any).mockResolvedValue({ position: 5 })
+      ;(db.task.create as any).mockResolvedValue({
         id: 'ckp1234567890123456789014',
         title: 'New Task',
         columnId: 'ckp1234567890123456789012',
@@ -75,7 +75,7 @@ describe('Tasks API Integration', () => {
     })
 
     it('should return 404 if column is not found or no access', async () => {
-      ;(db.column.findFirst as jest.Mock).mockResolvedValue(null)
+      ;(db.column.findFirst as any).mockResolvedValue(null)
 
       const req = makeRequest('http://localhost:3000/api/tasks', {
         title: 'New Task',

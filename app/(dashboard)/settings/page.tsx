@@ -84,10 +84,16 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <label
+                  htmlFor="timezone"
+                  className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
                   Zona Horaria
                 </label>
-                <select className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900">
+                <select
+                  id="timezone"
+                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                >
                   <option>America/Mexico_City (GMT-6)</option>
                   <option>UTC</option>
                   <option>Europe/Madrid (GMT+1)</option>

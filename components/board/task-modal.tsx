@@ -5,11 +5,11 @@
 'use client'
 
 import { X, Trash2, MessageSquare, Calendar, User, Flag, Loader2, Send } from 'lucide-react'
+import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 
 import { useDeleteTask, useComments, useCreateComment } from '@/hooks/use-board'
 import type { Task } from '@/hooks/use-board'
-import { useAuthStore } from '@/stores/auth.store'
 
 type Props = { task: Task; boardId: string; onClose: () => void }
 
@@ -22,7 +22,6 @@ const PRIORITY_COLORS = {
 }
 
 export function TaskModal({ task, boardId, onClose }: Props) {
-  const { user } = useAuthStore()
   const { mutate: deleteTask, isPending: deleting } = useDeleteTask(boardId)
   const { data: comments, isLoading: loadingComments } = useComments(task.id)
   const { mutate: createComment, isPending: commenting } = useCreateComment(task.id)
@@ -175,12 +174,14 @@ export function TaskModal({ task, boardId, onClose }: Props) {
 
                 {comments?.map((comment) => (
                   <div key={comment.id} className="flex gap-2.5">
-                    <div className="h-7 w-7 flex-shrink-0 overflow-hidden rounded-full bg-blue-100 dark:bg-blue-900">
+                    <div className="relative h-7 w-7 flex-shrink-0 overflow-hidden rounded-full bg-blue-100 dark:bg-blue-900">
                       {comment.author.avatarUrl ? (
-                        <img
+                        <Image
                           src={comment.author.avatarUrl}
                           alt={comment.author.name}
-                          className="h-full w-full object-cover"
+                          fill
+                          className="object-cover"
+                          sizes="28px"
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center">

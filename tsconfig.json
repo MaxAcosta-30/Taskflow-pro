@@ -16,6 +16,7 @@
     "noImplicitOverride": true,
     "exactOptionalPropertyTypes": false,
     "plugins": [{ "name": "next" }],
+    "types": ["vitest/globals"],
     "paths": {
       "@/*": ["./*"],
       "@/components/*": ["./components/*"],

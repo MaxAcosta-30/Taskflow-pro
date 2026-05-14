@@ -8,11 +8,11 @@ describe('JWT Auth - Helpers', () => {
   const payload = { sub: 'user_abc', email: 'admin@taskflow.pro', role: 'ADMIN' as any }
 
   beforeEach(() => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
   })
 
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   describe('generateTokens', () => {
@@ -47,7 +47,7 @@ describe('JWT Auth - Helpers', () => {
     it('debe fallar si el token ha expirado', () => {
       const { accessToken } = generateTokens(payload)
       // Adelantar el tiempo 20 minutos (el token expira en 15m por defecto)
-      jest.advanceTimersByTime(20 * 60 * 1000)
+      vi.advanceTimersByTime(20 * 60 * 1000)
       expect(() => verifyAccessToken(accessToken)).toThrow()
     })
   })
@@ -63,7 +63,7 @@ describe('JWT Auth - Helpers', () => {
   describe('decodeToken', () => {
     it('debe retornar el payload incluso si el token ha expirado', () => {
       const { accessToken } = generateTokens(payload)
-      jest.advanceTimersByTime(20 * 60 * 1000)
+      vi.advanceTimersByTime(20 * 60 * 1000)
       const decoded = decodeToken(accessToken)
       expect(decoded?.sub).toBe(payload.sub)
     })

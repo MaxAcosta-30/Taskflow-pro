@@ -132,12 +132,7 @@ export function KanbanBoard({ board }: Props) {
     >
       <div className="kanban-board h-full">
         {localColumns.map((column) => (
-          <KanbanColumn
-            key={column.id}
-            column={column}
-            boardId={board.id}
-            members={board.team.members.map((m) => m.user)}
-          />
+          <KanbanColumn key={column.id} column={column} boardId={board.id} />
         ))}
       </div>
 

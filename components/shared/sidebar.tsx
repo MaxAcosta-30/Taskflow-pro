@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Loader2,
 } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
@@ -137,9 +138,15 @@ export function Sidebar() {
       {/* Usuario */}
       <div className="border-t border-slate-200 p-3 dark:border-slate-800">
         <div className="flex items-center gap-2.5 rounded-md px-2 py-1.5">
-          <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-100 dark:bg-blue-900">
+          <div className="relative h-7 w-7 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-100 dark:bg-blue-900">
             {user?.avatarUrl ? (
-              <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
+              <Image
+                src={user.avatarUrl}
+                alt={user.name || 'User avatar'}
+                fill
+                className="object-cover"
+                sizes="28px"
+              />
             ) : (
               <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">
                 {user?.name?.charAt(0).toUpperCase()}

@@ -4,10 +4,10 @@
 
 import { type NextRequest, NextResponse } from 'next/server'
 
-export const dynamic = 'force-dynamic'
-
 import { getAuthUser } from '@/lib/auth/helpers'
 import { db } from '@/lib/db'
+
+export const dynamic = 'force-dynamic'
 
 // ── PATCH /api/automations/:id ───────────────────────────────
 // Activa / desactiva una automatización
@@ -28,8 +28,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     })
 
     return NextResponse.json({ success: true, data: automation })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
@@ -42,7 +43,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     await db.automation.delete({ where: { id: params.id } })
 
     return NextResponse.json({ success: true })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

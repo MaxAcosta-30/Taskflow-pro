@@ -2,14 +2,14 @@
 //  app/api/automations/route.ts — CRUD de Automatizaciones
 // =============================================================
 
+import type { Prisma } from '@prisma/client'
 import { type NextRequest, NextResponse } from 'next/server'
-
-export const dynamic = 'force-dynamic'
 
 import { getAuthUser } from '@/lib/auth/helpers'
 import { db } from '@/lib/db'
 import { createAutomationSchema } from '@/lib/validations'
-import { Prisma } from '@prisma/client'
+
+export const dynamic = 'force-dynamic'
 
 // ── GET /api/automations ─────────────────────────────────────
 // Lista todas las automatizaciones del equipo activo del usuario
@@ -38,8 +38,9 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json({ success: true, data: automations })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
     const user = await getAuthUser(request)
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const body = await request.json()
+    const body = (await request.json()) as unknown
     const validated = createAutomationSchema.safeParse(body)
 
     if (!validated.success) {

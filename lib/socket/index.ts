@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
 // =============================================================
 //  lib/socket/index.ts — Socket.io Server
 //  Maneja todos los eventos en tiempo real de la app
@@ -7,7 +6,8 @@
 import type { Server as HTTPServer } from 'http'
 
 import { createAdapter } from '@socket.io/redis-adapter'
-import { Server as SocketIOServer } from 'socket.io'
+import type { Redis } from 'ioredis'
+import { Server as SocketIOServer, type Socket } from 'socket.io'
 
 import { verifyAccessToken } from '@/lib/auth/jwt'
 import { socketLogger } from '@/lib/logger'
@@ -15,10 +15,15 @@ import { activeWebSocketConnections } from '@/lib/metrics'
 import { redis } from '@/lib/redis'
 import type { SocketEvents } from '@/types'
 
+interface SocketData {
+  userId: string
+  email: string
+}
+
 // Singleton para el servidor IO y el cliente de suscripción
 const globalForSocket = global as unknown as {
   io: SocketIOServer | null
-  redisSubClient: any | null
+  redisSubClient: Redis | null
 }
 
 export function initSocketServer(httpServer: HTTPServer) {
@@ -67,10 +72,10 @@ export function initSocketServer(httpServer: HTTPServer) {
   }
 
   // ── Middleware de autenticación ──────────────────────────
-  io.use(async (socket: any, next: any) => {
+  io.use((socket: Socket, next: (err?: Error) => void) => {
     try {
       const token =
-        (socket.handshake.auth.token as string | undefined) ??
+        (socket.handshake.auth['token'] as string | undefined) ??
         socket.handshake.headers.cookie
           ?.split(';')
           .find((c: string) => c.trim().startsWith('access_token='))
@@ -78,36 +83,48 @@ export function initSocketServer(httpServer: HTTPServer) {
 
       if (!token) return next(new Error('Unauthorized'))
 
-      const isBlacklisted = await redis.get(`blacklist:${token}`)
-      if (isBlacklisted) return next(new Error('Token revoked'))
+      void (async () => {
+        try {
+          const isBlacklisted = await redis.get(`blacklist:${token}`)
+          if (isBlacklisted) return next(new Error('Token revoked'))
 
-      const payload = verifyAccessToken(token)
-      socket.data.userId = payload.sub
-      socket.data.email = payload.email
-      next()
+          const payload = verifyAccessToken(token)
+          const data = socket.data as SocketData
+          data.userId = payload.sub
+          data.email = payload.email
+          next()
+        } catch {
+          next(new Error('Invalid token'))
+        }
+      })()
     } catch {
       next(new Error('Invalid token'))
     }
   })
 
   // ── Conexión ─────────────────────────────────────────────
-  io.on('connection', (socket: any) => {
-    const userId = socket.data.userId as string
+  io.on('connection', (socket: Socket) => {
+    const data = socket.data as SocketData
+    const userId = data.userId
     socketLogger.info({ userId, socketId: socket.id }, 'Client connected')
     activeWebSocketConnections.inc()
 
     // Unirse a room personal del usuario
     void socket.join(`user:${userId}`)
 
-    socket.on('board:join', async (boardId: string) => {
-      await socket.join(`board:${boardId}`)
-      socket.to(`board:${boardId}`).emit('user:joined', { userId, boardId })
-      socketLogger.debug({ userId, boardId }, 'User joined board room')
+    socket.on('board:join', (boardId: string) => {
+      void (async () => {
+        await socket.join(`board:${boardId}`)
+        socket.to(`board:${boardId}`).emit('user:joined', { userId, boardId })
+        socketLogger.debug({ userId, boardId }, 'User joined board room')
+      })()
     })
 
-    socket.on('board:leave', async (boardId: string) => {
-      await socket.leave(`board:${boardId}`)
-      socket.to(`board:${boardId}`).emit('user:left', { userId, boardId })
+    socket.on('board:leave', (boardId: string) => {
+      void (async () => {
+        await socket.leave(`board:${boardId}`)
+        socket.to(`board:${boardId}`).emit('user:left', { userId, boardId })
+      })()
     })
 
     socket.on('disconnect', () => {

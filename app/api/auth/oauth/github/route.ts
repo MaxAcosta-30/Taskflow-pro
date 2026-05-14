@@ -17,7 +17,6 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL!
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const code = searchParams.get('code')
-  const state = searchParams.get('state')
   const error = searchParams.get('error')
 
   // Si no hay code, redirigir a GitHub para autorización

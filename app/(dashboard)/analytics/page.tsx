@@ -39,7 +39,7 @@ export default function AnalyticsPage() {
     queryFn: async () => {
       const res = await fetch('/api/analytics')
       if (!res.ok) throw new Error('Error al cargar analíticas')
-      const json = await res.json()
+      const json = (await res.json()) as { data: AnalyticsData }
       return json.data
     },
   })

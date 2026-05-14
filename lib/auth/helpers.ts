@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 // =============================================================
 //  lib/auth/helpers.ts — Password, Sessions, Request utils
 // =============================================================
@@ -15,6 +14,17 @@ import type { JwtPayload } from '@/types'
 import { verifyAccessToken } from './jwt'
 
 const SALT_ROUNDS = 12
+
+// ── Tipos para el Cache ──────────────────────────────────────
+export interface SafeUser {
+  id: string
+  email: string
+  name: string
+  avatarUrl: string | null
+  role: string
+  isActive: boolean
+  timezone: string | null
+}
 
 // ── Password ──────────────────────────────────────────────────
 export async function hashPassword(plain: string): Promise<string> {
@@ -115,10 +125,10 @@ export async function createSession({
 }
 
 // ── Cache de usuario ──────────────────────────────────────────
-export async function getCachedUser(userId: string) {
+export async function getCachedUser(userId: string): Promise<SafeUser | null> {
   const cacheKey = CACHE_KEYS.user(userId)
   const cached = await redis.get(cacheKey)
-  if (cached) return JSON.parse(cached)
+  if (cached) return JSON.parse(cached) as SafeUser
 
   const user = await db.user.findUnique({
     where: { id: userId },

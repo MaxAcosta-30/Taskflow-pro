@@ -5,6 +5,7 @@
 'use client'
 
 import { Bell, LogOut, User } from 'lucide-react'
+import Image from 'next/image'
 import { useState } from 'react'
 
 import { useLogout } from '@/hooks/use-auth'
@@ -49,9 +50,15 @@ export function TopBar() {
 
         {/* Perfil + logout */}
         <div className="flex items-center gap-2 border-l border-slate-200 pl-2 dark:border-slate-800">
-          <div className="h-8 w-8 overflow-hidden rounded-full bg-blue-100 dark:bg-blue-900">
+          <div className="relative h-8 w-8 overflow-hidden rounded-full bg-blue-100 dark:bg-blue-900">
             {user?.avatarUrl ? (
-              <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
+              <Image
+                src={user.avatarUrl}
+                alt={user.name || 'User avatar'}
+                fill
+                className="object-cover"
+                sizes="32px"
+              />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
                 <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />

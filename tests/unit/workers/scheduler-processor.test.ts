@@ -8,37 +8,37 @@ import { checkWeatherCondition } from '@/lib/integrations/open-meteo'
 import { triggerAutomation } from '@/lib/queue'
 import { schedulerProcessor } from '@/workers/processors/scheduler'
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   db: {
-    automation: { findMany: jest.fn() },
-    task: { findMany: jest.fn() },
-    automationRun: { findFirst: jest.fn() },
+    automation: { findMany: vi.fn() },
+    task: { findMany: vi.fn() },
+    automationRun: { findFirst: vi.fn() },
   },
 }))
 
-jest.mock('@/lib/queue', () => ({
-  triggerAutomation: jest.fn(),
+vi.mock('@/lib/queue', () => ({
+  triggerAutomation: vi.fn(),
 }))
 
-jest.mock('@/lib/integrations/open-meteo', () => ({
-  checkWeatherCondition: jest.fn(),
+vi.mock('@/lib/integrations/open-meteo', () => ({
+  checkWeatherCondition: vi.fn(),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   workerLogger: {
-    info: jest.fn(),
-    debug: jest.fn(),
-    error: jest.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    error: vi.fn(),
   },
 }))
 
 describe('schedulerProcessor', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should trigger TASK_STALE automation for stale tasks', async () => {
-    ;(db.automation.findMany as jest.Mock).mockResolvedValue([
+    ;(db.automation.findMany as any).mockResolvedValue([
       {
         id: 'auto-1',
         isActive: true,
@@ -47,8 +47,8 @@ describe('schedulerProcessor', () => {
         teamId: 'team-1',
       },
     ])
-    ;(db.task.findMany as jest.Mock).mockResolvedValue([{ id: 'task-1' }])
-    ;(db.automationRun.findFirst as jest.Mock).mockResolvedValue(null)
+    ;(db.task.findMany as any).mockResolvedValue([{ id: 'task-1' }])
+    ;(db.automationRun.findFirst as any).mockResolvedValue(null)
 
     await schedulerProcessor()
 
@@ -62,7 +62,7 @@ describe('schedulerProcessor', () => {
   })
 
   it('should trigger WEATHER automation when condition matches', async () => {
-    ;(db.automation.findMany as jest.Mock).mockResolvedValue([
+    ;(db.automation.findMany as any).mockResolvedValue([
       {
         id: 'auto-2',
         isActive: true,
@@ -71,7 +71,7 @@ describe('schedulerProcessor', () => {
         teamId: 'team-1',
       },
     ])
-    ;(checkWeatherCondition as jest.Mock).mockResolvedValue({
+    ;(checkWeatherCondition as any).mockResolvedValue({
       matches: true,
       weather: { temperature: 15 },
     })
@@ -87,7 +87,7 @@ describe('schedulerProcessor', () => {
   })
 
   it('should not trigger WEATHER automation when condition does not match', async () => {
-    ;(db.automation.findMany as jest.Mock).mockResolvedValue([
+    ;(db.automation.findMany as any).mockResolvedValue([
       {
         id: 'auto-2',
         isActive: true,
@@ -96,7 +96,7 @@ describe('schedulerProcessor', () => {
         teamId: 'team-1',
       },
     ])
-    ;(checkWeatherCondition as jest.Mock).mockResolvedValue({
+    ;(checkWeatherCondition as any).mockResolvedValue({
       matches: false,
       weather: { temperature: 25 },
     })

@@ -16,14 +16,16 @@ if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   )
 }
 
-export async function notificationProcessor(job: Job) {
-  const { userId, type, title, body, data } = job.data as {
-    userId: string
-    type: NotificationType
-    title: string
-    body: string
-    data?: any
-  }
+export interface NotificationJobData {
+  userId: string
+  type: NotificationType
+  title: string
+  body: string
+  data?: Record<string, unknown>
+}
+
+export async function notificationProcessor(job: Job<NotificationJobData>) {
+  const { userId, type, title, body, data } = job.data
 
   workerLogger.debug({ jobId: job.id, userId, type }, 'Processing notification')
 
@@ -42,10 +44,16 @@ export async function notificationProcessor(job: Job) {
           type,
           title,
           body,
-          data: data ? data : undefined,
+          data: data ?? {},
         },
       })
-      await publishToUser(userId, 'notification:new', { notification: notification as never })
+      await publishToUser(userId, 'notification:new', {
+        notification: {
+          ...notification,
+          data: notification.data as Record<string, unknown> | null,
+          createdAt: notification.createdAt.toISOString(),
+        },
+      })
     }
 
     // 3. Web Push Notification
@@ -70,11 +78,15 @@ export async function notificationProcessor(job: Job) {
             },
             pushPayload,
           )
-          .catch((err) => {
-            if (err.statusCode === 410 || err.statusCode === 404) {
-              return db.pushSubscription.delete({ where: { id: sub.id } })
+          .catch((err: unknown) => {
+            if (err && typeof err === 'object' && 'statusCode' in err) {
+              const statusCode = (err as { statusCode: number }).statusCode
+              if (statusCode === 410 || statusCode === 404) {
+                return db.pushSubscription.delete({ where: { id: sub.id } })
+              }
             }
-            workerLogger.error({ subId: sub.id, error: err.message }, 'Push delivery failed')
+            const errorMessage = err instanceof Error ? err.message : 'Push delivery failed'
+            workerLogger.error({ subId: sub.id, error: errorMessage }, 'Push delivery failed')
           }),
       )
 

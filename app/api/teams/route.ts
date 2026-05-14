@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       })
 
       return created(team)
-    } catch (err: any) {
+    } catch (err) {
       console.error('[POST_TEAM_ERROR]', err)
       return serverError()
     }

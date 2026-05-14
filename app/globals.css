@@ -63,6 +63,10 @@
       'rlig' 1,
       'calt' 1;
   }
+  /* Mejora de accesibilidad: asegurar que el foco sea siempre visible */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2;
+  }
 }
 
 /* ── Scrollbar personalizado ─────────────────────────────── */

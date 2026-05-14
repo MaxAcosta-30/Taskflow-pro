@@ -7,6 +7,7 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { MessageSquare, Calendar, AlertCircle, ArrowUp, ArrowRight, Minus } from 'lucide-react'
+import Image from 'next/image'
 import { useState } from 'react'
 
 import type { Task } from '@/hooks/use-board'
@@ -139,13 +140,15 @@ export function TaskCard({ task, boardId, isDragging = false }: Props) {
             {task.assignee && (
               <div
                 title={task.assignee.name}
-                className="h-5 w-5 flex-shrink-0 overflow-hidden rounded-full bg-blue-100 dark:bg-blue-900"
+                className="relative h-5 w-5 flex-shrink-0 overflow-hidden rounded-full bg-blue-100 dark:bg-blue-900"
               >
                 {task.assignee.avatarUrl ? (
-                  <img
+                  <Image
                     src={task.assignee.avatarUrl}
                     alt={task.assignee.name}
-                    className="h-full w-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="20px"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center">

@@ -6,6 +6,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
+    setupFiles: ['./tests/setup.ts'],
     exclude: ['node_modules', 'tests/e2e/**/*'],
     env: {
       JWT_SECRET: 'test-secret-123',

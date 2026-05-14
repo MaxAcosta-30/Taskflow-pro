@@ -117,6 +117,7 @@ export default function AutomationsPage() {
                   <button
                     onClick={() => setMenuOpen(menuOpen === auto.id ? null : auto.id)}
                     className="rounded p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                    aria-label="Opciones de automatización"
                   >
                     <MoreVertical className="h-4 w-4" />
                   </button>

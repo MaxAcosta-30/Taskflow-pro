@@ -1,5 +1,6 @@
-import { AutomationTrigger, Prisma, Automation } from '@prisma/client'
-import { addDays, isBefore, addHours, isAfter } from 'date-fns'
+import type { Automation } from '@prisma/client'
+import { AutomationTrigger } from '@prisma/client'
+import { addDays, isBefore, addHours } from 'date-fns'
 
 import { db } from '@/lib/db'
 import type { WeatherCondition } from '@/lib/integrations/open-meteo'

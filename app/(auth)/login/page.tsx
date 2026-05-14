@@ -114,7 +114,13 @@ function LoginForm() {
       </div>
 
       {/* Formulario */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <form
+        onSubmit={(e) => {
+          void handleSubmit(onSubmit)(e)
+        }}
+        className="space-y-4"
+        noValidate
+      >
         {/* Error API */}
         {apiError && (
           <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">

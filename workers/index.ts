@@ -4,7 +4,7 @@
 //  Proceso separado que consume las colas de Redis
 // =============================================================
 
-import { Worker } from 'bullmq'
+import { Worker, type Job } from 'bullmq'
 
 import { workerLogger } from '@/lib/logger'
 import { QUEUE_NAMES } from '@/lib/queue'
@@ -13,14 +13,14 @@ import { redis } from '@/lib/redis'
 // Los processors importados de la Fase 4
 import { automationProcessor } from './processors/automation'
 import { cleanupProcessor } from './processors/cleanup'
-import { notificationProcessor } from './processors/notification'
+import { notificationProcessor, type NotificationJobData } from './processors/notification'
 
 workerLogger.info(' TaskFlow Worker iniciando...')
 
 // ── Worker de Automatizaciones ────────────────────────────────
 const automationsWorker = new Worker(
   QUEUE_NAMES.AUTOMATIONS,
-  async (job) => {
+  async (job: Job) => {
     workerLogger.info({ jobId: job.id, name: job.name }, 'Processing automation job')
     await automationProcessor(job)
   },
@@ -33,7 +33,7 @@ const automationsWorker = new Worker(
 // ── Worker de Notificaciones ──────────────────────────────────
 const notificationsWorker = new Worker(
   QUEUE_NAMES.NOTIFICATIONS,
-  async (job) => {
+  async (job: Job<NotificationJobData>) => {
     workerLogger.info({ jobId: job.id, name: job.name }, 'Processing notification job')
     await notificationProcessor(job)
   },
@@ -46,7 +46,7 @@ const notificationsWorker = new Worker(
 // ── Worker de Limpieza ────────────────────────────────────────
 const cleanupWorker = new Worker(
   QUEUE_NAMES.CLEANUP,
-  async (job) => {
+  async (job: Job) => {
     workerLogger.info({ jobId: job.id }, 'Running cleanup job')
     await cleanupProcessor(job)
   },

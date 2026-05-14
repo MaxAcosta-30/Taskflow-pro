@@ -8,7 +8,6 @@ import { hashPassword, setAuthCookies, createSession, getClientIp } from '@/lib/
 import { generateTokens } from '@/lib/auth/jwt'
 import { db } from '@/lib/db'
 import { authLogger } from '@/lib/logger'
-import { invalidateCache } from '@/lib/redis'
 import { registerSchema } from '@/lib/validations'
 
 export async function POST(req: NextRequest) {

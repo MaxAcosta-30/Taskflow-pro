@@ -47,7 +47,7 @@ export async function PATCH(req: NextRequest) {
     })
 
     return ok({ message: 'Contraseña actualizada correctamente' })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[PATCH_PASSWORD_ERROR]', err)
     return serverError()
   }

@@ -1,3 +1,4 @@
+import type { NotificationType } from '@prisma/client'
 import type { NextRequest } from 'next/server'
 import { z } from 'zod'
 
@@ -24,7 +25,8 @@ export async function GET(req: NextRequest) {
         where: { userId: user.sub },
       })
       return ok(settings)
-    } catch (err: any) {
+    } catch (err) {
+      console.error('[GET_NOTIF_SETTINGS_ERROR]', err)
       return serverError()
     }
   })
@@ -46,7 +48,7 @@ export async function PUT(req: NextRequest) {
             where: {
               userId_type: {
                 userId: user.sub,
-                type: setting.type as any,
+                type: setting.type as NotificationType,
               },
             },
             update: {
@@ -56,7 +58,7 @@ export async function PUT(req: NextRequest) {
             },
             create: {
               userId: user.sub,
-              type: setting.type as any,
+              type: setting.type as NotificationType,
               email: setting.email,
               push: setting.push,
               inApp: setting.inApp,
@@ -66,7 +68,7 @@ export async function PUT(req: NextRequest) {
       )
 
       return ok({ message: 'Preferencias actualizadas' })
-    } catch (err: any) {
+    } catch (err) {
       console.error('[NOTIF_SETTINGS_ERROR]', err)
       return serverError()
     }

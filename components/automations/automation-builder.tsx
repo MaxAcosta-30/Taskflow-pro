@@ -21,10 +21,14 @@ function TriggerConfigForm({
   if (triggerType === 'TASK_STALE') {
     return (
       <div className="mt-4 border-t border-blue-100 pt-4 dark:border-blue-900/30">
-        <label className="text-xs font-medium text-slate-500 dark:text-slate-400">
+        <label
+          htmlFor="days-stale"
+          className="text-xs font-medium text-slate-500 dark:text-slate-400"
+        >
           Días sin mover la tarea
         </label>
         <input
+          id="days-stale"
           type="number"
           min={1}
           max={365}
@@ -38,10 +42,14 @@ function TriggerConfigForm({
   if (triggerType === 'SCHEDULE') {
     return (
       <div className="mt-4 border-t border-blue-100 pt-4 dark:border-blue-900/30">
-        <label className="text-xs font-medium text-slate-500 dark:text-slate-400">
+        <label
+          htmlFor="cron-expression"
+          className="text-xs font-medium text-slate-500 dark:text-slate-400"
+        >
           Expresión Cron (ej: <code>0 9 * * 1</code> = cada lunes a las 9am)
         </label>
         <input
+          id="cron-expression"
           type="text"
           placeholder="0 9 * * 1"
           value={(config.cronExpression as string) ?? ''}
@@ -66,10 +74,14 @@ function ActionConfigForm({
   if (actionType === 'ASSIGN_USER') {
     return (
       <div className="mt-4 border-t border-indigo-100 pt-4 dark:border-indigo-900/30">
-        <label className="text-xs font-medium text-slate-500 dark:text-slate-400">
+        <label
+          htmlFor="assignee-id"
+          className="text-xs font-medium text-slate-500 dark:text-slate-400"
+        >
           ID del usuario a asignar
         </label>
         <input
+          id="assignee-id"
           type="text"
           placeholder="cuid del usuario..."
           value={(config.userId as string) ?? ''}
@@ -82,10 +94,14 @@ function ActionConfigForm({
   if (actionType === 'WEBHOOK') {
     return (
       <div className="mt-4 space-y-2 border-t border-indigo-100 pt-4 dark:border-indigo-900/30">
-        <label className="text-xs font-medium text-slate-500 dark:text-slate-400">
+        <label
+          htmlFor="webhook-url"
+          className="text-xs font-medium text-slate-500 dark:text-slate-400"
+        >
           URL del Webhook
         </label>
         <input
+          id="webhook-url"
           type="url"
           placeholder="https://hooks.slack.com/..."
           value={(config.url as string) ?? ''}
@@ -93,6 +109,7 @@ function ActionConfigForm({
           className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900"
         />
         <select
+          aria-label="Método HTTP"
           value={(config.method as string) ?? 'POST'}
           onChange={(e) => onChange({ ...config, type: actionType, method: e.target.value })}
           className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900"
@@ -110,12 +127,14 @@ function ActionConfigForm({
         <input
           type="text"
           placeholder="Título de la notificación"
+          aria-label="Título de la notificación"
           value={(config.title as string) ?? ''}
           onChange={(e) => onChange({ ...config, type: actionType, title: e.target.value })}
           className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900"
         />
         <textarea
           placeholder="Cuerpo del mensaje..."
+          aria-label="Cuerpo del mensaje de la notificación"
           rows={2}
           value={(config.body as string) ?? ''}
           onChange={(e) => onChange({ ...config, type: actionType, body: e.target.value })}
@@ -124,6 +143,7 @@ function ActionConfigForm({
         <input
           type="text"
           placeholder="ID del usuario destinatario"
+          aria-label="ID del usuario destinatario"
           value={(config.userId as string) ?? ''}
           onChange={(e) => onChange({ ...config, type: actionType, userId: e.target.value })}
           className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900"
@@ -132,6 +152,14 @@ function ActionConfigForm({
     )
   }
   return null
+}
+
+interface ApiError {
+  response?: {
+    data?: {
+      error?: string
+    }
+  }
 }
 
 // ── Main component ───────────────────────────────────────────
@@ -246,7 +274,7 @@ export function AutomationBuilder({ automationName }: { automationName: string }
           {/* Save error */}
           {error && (
             <p className="mt-4 text-sm text-red-500">
-              {(error as any).response?.data?.error ?? 'Error al guardar la automatización'}
+              {(error as ApiError).response?.data?.error ?? 'Error al guardar la automatización'}
             </p>
           )}
         </>

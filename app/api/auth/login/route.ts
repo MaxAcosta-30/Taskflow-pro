@@ -104,12 +104,19 @@ export async function POST(req: NextRequest) {
 
     authLogger.info({ userId: user.id }, 'User logged in')
 
-    // Excluir passwordHash de la respuesta
-    const { passwordHash: _, ...safeUser } = user
-
     return Response.json({
       success: true,
-      data: { user: safeUser, tokens },
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          avatarUrl: user.avatarUrl,
+          role: user.role,
+          isActive: user.isActive,
+        },
+        tokens,
+      },
     })
   } catch (error) {
     authLogger.error({ error }, 'Login error')

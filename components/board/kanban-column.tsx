@@ -22,7 +22,7 @@ type Props = {
   members: Member[]
 }
 
-export function KanbanColumn({ column, boardId, members }: Props) {
+export function KanbanColumn({ column, boardId }: Omit<Props, 'members'>) {
   const [addingTask, setAddingTask] = useState(false)
 
   const { setNodeRef, isOver } = useDroppable({ id: column.id })
@@ -43,7 +43,10 @@ export function KanbanColumn({ column, boardId, members }: Props) {
           </span>
         </div>
 
-        <button className="rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-200/80 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-300">
+        <button
+          className="rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-200/80 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+          aria-label="Opciones de columna"
+        >
           <MoreHorizontal className="h-4 w-4" />
         </button>
       </div>

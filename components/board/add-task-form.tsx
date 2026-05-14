@@ -18,12 +18,7 @@ type Props = {
 }
 
 export function AddTaskForm({ columnId, boardId, onClose }: Props) {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: {},
-  } = useForm<{ title: string }>()
+  const { register, handleSubmit, reset } = useForm<{ title: string }>()
   const { mutate: createTask, isPending } = useCreateTask(boardId)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
@@ -47,7 +42,7 @@ export function AddTaskForm({ columnId, boardId, onClose }: Props) {
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      void handleSubmit(onSubmit)()
+      void handleSubmit(onSubmit)(e)
     }
     if (e.key === 'Escape') onClose()
   }
@@ -63,6 +58,7 @@ export function AddTaskForm({ columnId, boardId, onClose }: Props) {
           textareaRef.current = el
         }}
         placeholder="Nombre de la tarea... (Enter para guardar)"
+        aria-label="Nombre de la tarea"
         rows={2}
         onKeyDown={handleKeyDown}
         className="w-full resize-none bg-transparent text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none dark:text-slate-200"
@@ -70,7 +66,9 @@ export function AddTaskForm({ columnId, boardId, onClose }: Props) {
 
       <div className="flex items-center gap-2">
         <button
-          onClick={handleSubmit(onSubmit)}
+          onClick={(e) => {
+            void handleSubmit(onSubmit)(e)
+          }}
           disabled={isPending}
           className="flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700 disabled:bg-blue-400"
         >
@@ -81,6 +79,7 @@ export function AddTaskForm({ columnId, boardId, onClose }: Props) {
         <button
           onClick={onClose}
           className="rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
+          aria-label="Cancelar"
         >
           <X className="h-3.5 w-3.5" />
         </button>

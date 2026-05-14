@@ -1,4 +1,4 @@
-import { startOfMonth, endOfMonth, subMonths } from 'date-fns'
+import { subMonths } from 'date-fns'
 import type { NextRequest } from 'next/server'
 
 import { withAuth, ok, serverError } from '@/lib/api/helpers'
@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
         avgLeadTimeHours: Math.round(avgLeadTimeHours * 10) / 10,
         totalCompleted: completedTasks.length,
       })
-    } catch (err: any) {
+    } catch (err) {
       console.error('[ANALYTICS_ERROR]', err)
       return serverError()
     }

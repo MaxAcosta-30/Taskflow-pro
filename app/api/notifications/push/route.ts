@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       })
 
       return ok({ message: 'Suscripción registrada exitosamente' })
-    } catch (err: any) {
+    } catch (err) {
       console.error('[PUSH_SUBSCRIPTION_ERROR]', err)
       return serverError()
     }
@@ -53,7 +53,8 @@ export async function POST(req: NextRequest) {
  */
 export async function DELETE(req: NextRequest) {
   return withAuth(req, async (user) => {
-    const { endpoint } = await req.json()
+    const body = (await req.json()) as { endpoint?: string }
+    const endpoint = body.endpoint
     if (!endpoint) return Response.json({ error: 'Endpoint requerido' }, { status: 400 })
 
     try {
@@ -61,7 +62,8 @@ export async function DELETE(req: NextRequest) {
         where: { endpoint, userId: user.sub },
       })
       return ok({ message: 'Suscripción eliminada' })
-    } catch (err: any) {
+    } catch (err) {
+      console.error('[DELETE_PUSH_SUBSCRIPTION_ERROR]', err)
       return serverError()
     }
   })

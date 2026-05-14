@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       })
 
       return ok(labels)
-    } catch (err: any) {
+    } catch (err) {
       console.error('[GET_LABELS_ERROR]', err)
       return serverError()
     }
@@ -65,8 +65,8 @@ export async function POST(req: NextRequest) {
       })
 
       return created(label)
-    } catch (err: any) {
-      if (err.code === 'P2002') {
+    } catch (err) {
+      if (err && typeof err === 'object' && 'code' in err && err.code === 'P2002') {
         return Response.json(
           { success: false, error: 'Ya existe una etiqueta con ese nombre en el equipo' },
           { status: 409 },

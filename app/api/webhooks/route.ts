@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'Invalid signature' }, { status: 401 })
     }
 
-    const payload = JSON.parse(body)
+    const payload = JSON.parse(body) as Record<string, unknown>
     const event = req.headers.get('x-github-event')
 
     logger.info({ event }, 'Webhook de GitHub recibido')
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     await triggerAutomation({
       automationId: 'GITHUB_EVENT', // Este es un placeholder, en realidad buscaríamos por repo/evento
       triggerType: 'WEBHOOK',
-      triggerPayload: { source: 'github', event, ...payload },
+      triggerPayload: { source: 'github', event: event ?? 'unknown', ...payload },
     })
 
     return Response.json({ success: true })

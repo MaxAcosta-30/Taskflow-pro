@@ -10,33 +10,33 @@ import { notificationsSentTotal } from '@/lib/metrics'
 import { publishToUser } from '@/lib/socket/publisher'
 import { notificationProcessor } from '@/workers/processors/notification'
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   db: {
-    notificationSetting: { findUnique: jest.fn() },
-    notification: { create: jest.fn() },
-    pushSubscription: { findMany: jest.fn(), delete: jest.fn() },
+    notificationSetting: { findUnique: vi.fn() },
+    notification: { create: vi.fn() },
+    pushSubscription: { findMany: vi.fn(), delete: vi.fn() },
   },
 }))
 
-jest.mock('@/lib/socket/publisher', () => ({
-  publishToUser: jest.fn(),
+vi.mock('@/lib/socket/publisher', () => ({
+  publishToUser: vi.fn(),
 }))
 
-jest.mock('@/lib/metrics', () => ({
-  notificationsSentTotal: { inc: jest.fn() },
+vi.mock('@/lib/metrics', () => ({
+  notificationsSentTotal: { inc: vi.fn() },
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   workerLogger: {
-    debug: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
+    debug: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
   },
 }))
 
-jest.mock('web-push', () => ({
-  sendNotification: jest.fn().mockResolvedValue({}),
-  setVapidDetails: jest.fn(),
+vi.mock('web-push', () => ({
+  sendNotification: vi.fn().mockResolvedValue({}),
+  setVapidDetails: vi.fn(),
 }))
 
 describe('notificationProcessor', () => {
@@ -51,15 +51,15 @@ describe('notificationProcessor', () => {
   } as Job
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should create a notification and emit socket event when in-app is enabled', async () => {
-    ;(db.notificationSetting.findUnique as jest.Mock).mockResolvedValue({
+    ;(db.notificationSetting.findUnique as any).mockResolvedValue({
       inApp: true,
       push: false,
     })
-    ;(db.notification.create as jest.Mock).mockResolvedValue({ id: 'notif-1', title: 'New Task' })
+    ;(db.notification.create as any).mockResolvedValue({ id: 'notif-1', title: 'New Task' })
 
     await notificationProcessor(mockJob)
 
@@ -69,7 +69,7 @@ describe('notificationProcessor', () => {
   })
 
   it('should skip in-app notification when explicitly disabled', async () => {
-    ;(db.notificationSetting.findUnique as jest.Mock).mockResolvedValue({
+    ;(db.notificationSetting.findUnique as any).mockResolvedValue({
       inApp: false,
       push: false,
     })

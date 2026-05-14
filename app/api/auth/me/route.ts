@@ -53,7 +53,7 @@ export async function PATCH(req: NextRequest) {
     await invalidateCache(CACHE_KEYS.user(payload.sub))
 
     return ok({ user: updatedUser })
-  } catch (err: any) {
+  } catch (err) {
     console.error('[PATCH_ME_ERROR]', err)
     return serverError()
   }

@@ -5,6 +5,7 @@
 'use client'
 
 import { Loader2, AlertCircle } from 'lucide-react'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 
 import { KanbanBoard } from '@/components/board/kanban-board'
@@ -57,10 +58,16 @@ export default function BoardPage() {
             <div
               key={user.id}
               title={user.name}
-              className="h-7 w-7 overflow-hidden rounded-full border-2 border-white bg-blue-100 dark:border-slate-900 dark:bg-blue-900"
+              className="relative h-7 w-7 overflow-hidden rounded-full border-2 border-white bg-blue-100 dark:border-slate-900 dark:bg-blue-900"
             >
               {user.avatarUrl ? (
-                <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
+                <Image
+                  src={user.avatarUrl}
+                  alt={user.name}
+                  fill
+                  className="object-cover"
+                  sizes="28px"
+                />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
                   <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">

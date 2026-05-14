@@ -63,8 +63,8 @@ export type SocketEvents = {
   'board:updated': { boardId: string }
 
   // Column events
-  'column:created': { column: any; boardId: string }
-  'column:updated': { column: any; boardId: string }
+  'column:created': { column: unknown; boardId: string }
+  'column:updated': { column: unknown; boardId: string }
   'column:deleted': { columnId: string; boardId: string }
 
   // Automation events

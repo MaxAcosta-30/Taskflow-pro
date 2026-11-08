@@ -70,7 +70,7 @@ export function AddTaskForm({ columnId, boardId, onClose }: Props) {
             void handleSubmit(onSubmit)(e)
           }}
           disabled={isPending}
-          className="flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700 disabled:bg-blue-400"
+          className="flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/85 disabled:opacity-60"
         >
           {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
           Agregar

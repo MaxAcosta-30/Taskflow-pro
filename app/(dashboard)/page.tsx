@@ -4,7 +4,7 @@
 
 'use client'
 
-import { Plus, Layout, Loader2 } from 'lucide-react'
+import { Plus, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
 import { useBoards, useCreateBoard } from '@/hooks/use-board'
@@ -44,40 +44,25 @@ export default function HomePage() {
               <Link
                 key={board.id}
                 href={`/board/${board.id}`}
-                className="group relative rounded-xl border border-slate-200 bg-white p-5 transition-all duration-200 hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
+                className="group relative flex min-h-[112px] flex-col justify-between rounded-md border border-slate-200 bg-card p-5 transition-[border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-500"
               >
-                {/* Color strip */}
-                <div
-                  className="absolute left-0 right-0 top-0 h-1 rounded-t-xl"
-                  style={{ backgroundColor: board.color }}
-                />
-
-                <div className="mt-1 flex items-start justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div
-                      className="flex h-8 w-8 items-center justify-center rounded-lg"
-                      style={{ backgroundColor: `${board.color}20` }}
-                    >
-                      <Layout className="h-4 w-4" style={{ color: board.color }} />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-slate-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-                        {board.name}
-                      </h3>
-                      <p className="mt-0.5 text-xs text-slate-400">
-                        {board._count.columns} columnas
-                      </p>
-                    </div>
-                  </div>
+                {/* El color del tablero es un punto, igual que en la barra lateral */}
+                <div className="flex items-center gap-2.5">
+                  <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ backgroundColor: board.color }} aria-hidden="true" />
+                  <h3 className="truncate text-base font-bold text-slate-900 dark:text-white">{board.name}</h3>
                 </div>
+                <p className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
+                  <span>{board._count.columns} columnas</span>
+                  <span className="font-medium text-slate-700 group-hover:text-primary dark:text-slate-300">Abrir tablero</span>
+                </p>
               </Link>
             ))}
 
             {/* Crear nuevo tablero */}
             <button
-              onClick={() => createBoard({ name: 'Nuevo tablero', color: '#3B82F6' })}
+              onClick={() => createBoard({ name: 'Nuevo tablero', color: '#FFC931' })}
               disabled={isPending}
-              className="flex min-h-[96px] flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 p-5 text-slate-400 transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-600 dark:border-slate-700 dark:hover:border-slate-600 dark:hover:bg-slate-800/50 dark:hover:text-slate-300"
+              className="flex min-h-[112px] flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed border-slate-200 p-5 text-slate-400 transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-600 dark:border-slate-700 dark:hover:border-slate-600 dark:hover:bg-slate-800/50 dark:hover:text-slate-300"
             >
               {isPending ? (
                 <Loader2 className="h-5 w-5 animate-spin" />

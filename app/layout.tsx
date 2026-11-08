@@ -3,26 +3,28 @@
 // =============================================================
 
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Archivo, JetBrains_Mono } from 'next/font/google'
 
 import { Providers } from '@/components/shared/providers'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+// Archivo con eje de anchura: expandida para rótulos (columnas, marca) y normal para leer.
+const archivo = Archivo({ subsets: ['latin'], axes: ['wdth'], variable: '--font-archivo' })
+const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' })
 
 export const metadata: Metadata = {
   title: {
     default: 'TaskFlow Pro',
     template: '%s | TaskFlow Pro',
   },
-  description: 'Plataforma empresarial de productividad y automatización de flujos de trabajo.',
+  description: 'Tableros sincronizados en tiempo real y automatizaciones por horario, cambio de estado o webhook.',
   keywords: ['productividad', 'kanban', 'automatización', 'equipos'],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${archivo.variable} ${mono.variable} font-sans antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

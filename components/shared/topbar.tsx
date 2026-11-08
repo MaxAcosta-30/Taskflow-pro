@@ -4,20 +4,36 @@
 
 'use client'
 
-import { Bell, LogOut, User } from 'lucide-react'
-import Image from 'next/image'
+import { Bell, LogOut, Menu } from 'lucide-react'
 import { useState } from 'react'
 
+import { Avatar } from '@/components/shared/avatar'
+import { Logo } from '@/components/shared/logo'
 import { useLogout } from '@/hooks/use-auth'
 import { useAuthStore } from '@/stores/auth.store'
+import { useUIStore } from '@/stores/ui.store'
 
 export function TopBar() {
   const { user } = useAuthStore()
   const { mutate: logout, isPending: loggingOut } = useLogout()
   const [notifOpen, setNotifOpen] = useState(false)
+  const { menuAbierto, abrirMenu } = useUIStore()
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-slate-200 bg-white px-6 dark:border-slate-800 dark:bg-slate-900">
+    <header className="flex h-14 items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-900 lg:px-6">
+      {/* Menú y marca en pantallas chicas: la barra lateral se vuelve cajón */}
+      <div className="flex items-center gap-2 text-slate-900 dark:text-white lg:hidden">
+        <button
+          onClick={() => abrirMenu(!menuAbierto)}
+          aria-label="Abrir menú"
+          aria-expanded={menuAbierto}
+          aria-controls="menu-lateral"
+          className="rounded-lg p-2.5 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <Logo size={24} />
+      </div>
       {/* Breadcrumb / título (slot vacío — cada página lo llena) */}
       <div id="topbar-title" />
 
@@ -27,6 +43,8 @@ export function TopBar() {
         <div className="relative">
           <button
             onClick={() => setNotifOpen((o) => !o)}
+            aria-label="Notificaciones"
+            aria-expanded={notifOpen}
             className="relative rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
           >
             <Bell className="h-4 w-4" />
@@ -50,26 +68,13 @@ export function TopBar() {
 
         {/* Perfil + logout */}
         <div className="flex items-center gap-2 border-l border-slate-200 pl-2 dark:border-slate-800">
-          <div className="relative h-8 w-8 overflow-hidden rounded-full bg-blue-100 dark:bg-blue-900">
-            {user?.avatarUrl ? (
-              <Image
-                src={user.avatarUrl}
-                alt={user.name || 'User avatar'}
-                fill
-                className="object-cover"
-                sizes="32px"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center">
-                <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              </div>
-            )}
-          </div>
+          <Avatar name={user?.name ?? ''} src={user?.avatarUrl} size={32} />
 
           <button
             onClick={() => logout()}
             disabled={loggingOut}
             title="Cerrar sesión"
+            aria-label="Cerrar sesión"
             className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950/30"
           >
             <LogOut className="h-4 w-4" />

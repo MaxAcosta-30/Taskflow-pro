@@ -5,10 +5,10 @@
 'use client'
 
 import { Loader2, AlertCircle } from 'lucide-react'
-import Image from 'next/image'
 import { useParams } from 'next/navigation'
 
 import { KanbanBoard } from '@/components/board/kanban-board'
+import { Avatar } from '@/components/shared/avatar'
 import { useBoard } from '@/hooks/use-board'
 import { useBoardSocket } from '@/hooks/use-socket'
 
@@ -55,27 +55,7 @@ export default function BoardPage() {
         {/* Avatares de miembros del equipo */}
         <div className="flex items-center -space-x-2">
           {board.team.members.slice(0, 5).map(({ user }) => (
-            <div
-              key={user.id}
-              title={user.name}
-              className="relative h-7 w-7 overflow-hidden rounded-full border-2 border-white bg-blue-100 dark:border-slate-900 dark:bg-blue-900"
-            >
-              {user.avatarUrl ? (
-                <Image
-                  src={user.avatarUrl}
-                  alt={user.name}
-                  fill
-                  className="object-cover"
-                  sizes="28px"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center">
-                  <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">
-                    {user.name.charAt(0)}
-                  </span>
-                </div>
-              )}
-            </div>
+            <Avatar key={user.id} name={user.name} src={user.avatarUrl} className="border-2 border-white dark:border-slate-900" />
           ))}
           {board.team.members.length > 5 && (
             <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-slate-200 dark:border-slate-900 dark:bg-slate-700">

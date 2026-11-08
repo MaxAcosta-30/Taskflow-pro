@@ -69,7 +69,7 @@ export function TriggerSelector({
   return (
     <div className="relative overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
       {/* Decorative background glow */}
-      <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-blue-500/10 blur-2xl dark:bg-blue-500/5" />
+      <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/10 blur-2xl dark:bg-blue-500/5" />
 
       <div className="relative z-10 mb-6 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 dark:bg-slate-800">

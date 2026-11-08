@@ -7,49 +7,59 @@
 @tailwind utilities;
 
 @layer base {
+  /* Marca "Señal": grafito + amarillo señal. El amarillo es relleno (con texto tinta);
+     como texto en claro se usa --primary-text, que sí alcanza contraste AA. */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 60 9% 95%;
+    --foreground: 228 12% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 228 12% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --popover-foreground: 228 12% 10%;
+    --primary: 44 100% 60%;
+    --primary-foreground: 228 12% 10%;
+    --primary-text: 42 100% 27%;
+    --secondary: 60 6% 91%;
+    --secondary-foreground: 228 12% 10%;
+    --muted: 60 6% 91%;
+    --muted-foreground: 60 2% 40%;
+    --accent: 60 6% 91%;
+    --accent-foreground: 228 12% 10%;
+    --destructive: 4 74% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 60 5% 85%;
+    --input: 60 5% 82%;
+    --ring: 42 100% 35%;
+    --radius: 0.375rem;
+    --chart-ink: #3b3b39;
+    --chart-mid: #8e8e87;
+    --chart-soft: #c4c4be;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --background: 225 11% 7%;
+    --foreground: 220 10% 93%;
+    --card: 228 9% 10%;
+    --card-foreground: 220 10% 93%;
+    --popover: 228 9% 10%;
+    --popover-foreground: 220 10% 93%;
+    --primary: 44 100% 60%;
+    --primary-foreground: 228 12% 10%;
+    --primary-text: 44 100% 60%;
+    --secondary: 228 8% 15%;
+    --secondary-foreground: 220 10% 93%;
+    --muted: 228 8% 15%;
+    --muted-foreground: 60 2% 62%;
+    --accent: 228 8% 15%;
+    --accent-foreground: 220 10% 93%;
+    --destructive: 4 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 228 8% 18%;
+    --input: 228 8% 22%;
+    --ring: 44 100% 60%;
+    --chart-ink: #ffc931;
+    --chart-mid: #8e8e87;
+    --chart-soft: #52524e;
   }
 }
 
@@ -84,73 +94,79 @@
   @apply bg-muted-foreground/50;
 }
 
-/* ── Utilidades Kanban ───────────────────────────────────── */
+/* ── Tablero: columnas como andenes, tarjetas planas y precisas ─ */
 .kanban-board {
-  @apply flex h-full items-start gap-4 pb-4;
+  @apply flex h-full items-start gap-3 pb-4;
   overflow-x: auto;
   scrollbar-width: thin;
-  /* Padding horizontal para que las columnas no queden pegadas al borde */
   padding-left: 2px;
   padding-right: 24px;
 }
 
 .kanban-column {
-  @apply flex flex-shrink-0 flex-col rounded-xl p-3;
-  width: 288px;
+  @apply flex flex-shrink-0 flex-col rounded-md p-2.5;
+  width: 292px;
   min-height: 160px;
-  background: hsl(210 40% 96.8%);
-  border: 1px solid hsl(214.3 31.8% 91.4% / 0.8);
+  background: hsl(60 6% 91%);
+  border: 1px solid hsl(var(--border));
   transition:
-    background-color 0.15s ease,
-    box-shadow 0.15s ease;
+    background-color 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .dark .kanban-column {
-  background: hsl(217.2 32.6% 14%);
-  border-color: hsl(217.2 32.6% 20%);
+  background: hsl(228 9% 9%);
 }
 
+/* Al arrastrar encima, el andén se ilumina con la señal */
 .kanban-column.is-over {
-  background: hsl(217 91% 96%);
-  border-color: hsl(217 91% 75%);
-  box-shadow: 0 0 0 2px hsl(217 91% 60% / 0.3);
+  background: hsl(44 100% 95%);
+  border-color: hsl(44 100% 50%);
+  box-shadow: inset 0 0 0 1px hsl(44 100% 50%);
 }
 
 .dark .kanban-column.is-over {
-  background: hsl(217 40% 18%);
-  border-color: hsl(217 60% 45%);
+  background: hsl(44 40% 12%);
+  border-color: hsl(44 100% 60% / 0.7);
+}
+
+/* Rótulo de columna: ancho y en mayúsculas, como un tablero de salidas */
+.column-title {
+  font-stretch: 125%;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.column-count {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
 }
 
 .task-card {
-  @apply rounded-lg bg-white p-3 dark:bg-slate-800;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 1px 2px rgba(0, 0, 0, 0.04);
-  border: 1px solid hsl(214.3 31.8% 91.4%);
+  @apply rounded-[5px] bg-white p-3 dark:bg-slate-800;
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.04);
   cursor: grab;
   transition:
-    box-shadow 0.15s ease,
-    transform 0.1s ease,
-    border-color 0.15s ease;
+    box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 160ms cubic-bezier(0.23, 1, 0.32, 1);
   user-select: none;
 }
 
 .dark .task-card {
-  border-color: hsl(217.2 32.6% 22%);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.4);
 }
 
-.task-card:hover {
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.1),
-    0 2px 4px rgba(0, 0, 0, 0.06);
-  border-color: hsl(214.3 31.8% 82%);
-  transform: translateY(-1px);
-}
-
-.dark .task-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  border-color: hsl(217.2 32.6% 30%);
+@media (hover: hover) and (pointer: fine) {
+  .task-card:hover {
+    border-color: hsl(var(--foreground) / 0.25);
+    box-shadow: 0 6px 16px -6px rgb(0 0 0 / 0.18);
+    transform: translateY(-1px);
+  }
 }
 
 .task-card:active {
@@ -159,6 +175,24 @@
 
 .task-card.dragging {
   opacity: 0;
+}
+
+/* El amarillo señal como texto necesita una variante oscura en tema claro */
+.text-primary {
+  color: hsl(var(--primary-text));
+}
+
+.font-wide {
+  font-stretch: 125%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ── Animaciones ─────────────────────────────────────────── */
@@ -206,4 +240,83 @@
 }
 .animate-pop-in {
   animation: pop-in 0.2s ease-out forwards;
+}
+
+/* ── Muestra del login: una tarjeta que avanza de andén ─────── */
+.tablero-muestra {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-width: 28rem;
+  height: 112px;
+}
+
+.muestra-columna {
+  border: 1px solid hsl(228 8% 20%);
+  border-radius: 5px;
+  padding: 8px 10px;
+}
+
+.muestra-columna span {
+  font-stretch: 125%;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: hsl(60 2% 62%);
+}
+
+.muestra-tarjeta {
+  position: absolute;
+  top: 38px;
+  left: 8px;
+  width: calc((100% - 16px) / 3 - 16px);
+  padding: 8px 10px;
+  border-radius: 5px;
+  background: #ffc931;
+  color: #16181d;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  box-shadow: 0 10px 24px -8px rgb(0 0 0 / 0.6);
+  animation: muestra-avanza 6s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+}
+
+.muestra-tarjeta small {
+  display: block;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+@keyframes muestra-avanza {
+  0%,
+  22% {
+    transform: translateX(0);
+  }
+  34%,
+  56% {
+    transform: translateX(calc(100% + 24px));
+  }
+  68%,
+  90% {
+    transform: translateX(calc(200% + 48px));
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* En el celular el tablero se recorre columna por columna, con encaje */
+@media (max-width: 767px) {
+  .kanban-board {
+    scroll-snap-type: x mandatory;
+    padding-right: 16px;
+  }
+  .kanban-column {
+    width: 84vw;
+    scroll-snap-align: start;
+  }
 }

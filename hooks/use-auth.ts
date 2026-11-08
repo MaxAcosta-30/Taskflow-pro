@@ -114,3 +114,26 @@ export function useLogout() {
     },
   })
 }
+
+// ── Hook: Actualizar el perfil (nombre y zona horaria) ────────
+export function useUpdateProfile() {
+  const { setUser } = useAuthStore()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (body: { name: string; timezone: string }) => {
+      const res = await fetch(`${API}/me`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const data = (await res.json()) as { data?: { user: AuthUser }; error?: string }
+      if (!res.ok || !data.data) throw new Error(data.error ?? 'No se pudo guardar')
+      return data.data.user
+    },
+    onSuccess: (user) => {
+      setUser(user)
+      void queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
+    },
+  })
+}

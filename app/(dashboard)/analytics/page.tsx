@@ -114,7 +114,7 @@ export default function AnalyticsPage() {
 
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {/* ── Gráfico: Tareas por Estado ───────────────────────── */}
-        <div className="rounded-xl border bg-white p-6 shadow-sm lg:col-span-2">
+        <div className="rounded-md border bg-card p-6 text-card-foreground lg:col-span-2">
           <div className="mb-6 flex items-center justify-between">
             <h3 className="flex items-center gap-2 text-lg font-semibold">
               <Activity className="h-5 w-5" /> Distribución por Estado
@@ -141,7 +141,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* ── Gráfico: Prioridades (Donut) ─────────────────────── */}
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
+        <div className="rounded-md border bg-card p-6 text-card-foreground">
           <h3 className="mb-6 flex items-center gap-2 text-lg font-semibold">
             <AlertCircle className="h-5 w-5" /> Prioridades
           </h3>
@@ -176,7 +176,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* ── Gráfico: Automatizaciones ───────────────────────── */}
-        <div className="rounded-xl border bg-white p-6 shadow-sm lg:col-span-3">
+        <div className="rounded-md border bg-card p-6 text-card-foreground lg:col-span-3">
           <h3 className="mb-6 text-lg font-semibold">Estado de Automatizaciones</h3>
           <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -226,7 +226,7 @@ function KpiCard({
   description: string
 }) {
   return (
-    <div className="space-y-2 rounded-xl border bg-white p-6 shadow-sm">
+    <div className="space-y-2 rounded-md border bg-card p-6 text-card-foreground">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-muted-foreground">{title}</span>
         {icon}

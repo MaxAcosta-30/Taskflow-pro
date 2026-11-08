@@ -49,25 +49,19 @@ export function useSocketConnection() {
 // ── Hook: sincronización de un tablero en tiempo real ─────────
 export function useBoardSocket(boardId: string) {
   const queryClient = useQueryClient()
-  const joinedRef = useRef(false)
 
-  // Unirse al room del tablero
+  // Unirse al room del tablero en CADA conexión: si el socket se reconecta (p. ej. al renovar la
+  // sesión), el servidor olvida los rooms; antes solo se unía una vez y dejaba de recibir cambios.
   useEffect(() => {
     const s = getSocket()
-
-    const join = () => {
-      if (!joinedRef.current) {
-        s.emit('board:join', boardId)
-        joinedRef.current = true
-      }
-    }
+    const join = () => s.emit('board:join', boardId)
 
     if (s.connected) join()
-    else s.once('connect', join)
+    s.on('connect', join)
 
     return () => {
+      s.off('connect', join)
       s.emit('board:leave', boardId)
-      joinedRef.current = false
     }
   }, [boardId])
 

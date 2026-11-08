@@ -30,7 +30,7 @@ export function KanbanColumn({ column, boardId }: Omit<Props, 'members'>) {
   const taskCount = column.tasks.length
 
   return (
-    <div className={`kanban-column ${isOver ? 'is-over' : ''}`}>
+    <div className={`kanban-column ${isOver ? 'is-over' : ''}`} data-column-name={column.name}>
       {/* Header de columna */}
       <div className="mb-3 flex items-center justify-between px-1">
         <div className="flex items-center gap-2">

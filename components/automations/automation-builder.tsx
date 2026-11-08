@@ -4,6 +4,7 @@ import { Loader2, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { useCreateAutomation, type AutomationAction } from '@/hooks/use-automations'
+import { useBoard, useBoards } from '@/hooks/use-board'
 
 import { ActionSelector } from './action-selector'
 import { TriggerSelector } from './trigger-selector'
@@ -62,6 +63,46 @@ function TriggerConfigForm({
   return null
 }
 
+// Asignar por nombre, no por ID: los miembros salen del equipo del tablero (las automatizaciones
+// son del mismo equipo). Antes había que teclear el cuid del usuario.
+function AssignUserField({
+  config,
+  onChange,
+}: {
+  config: Record<string, unknown>
+  onChange: (userId: string) => void
+}) {
+  const { data: boards } = useBoards()
+  const { data: board, isLoading } = useBoard(boards?.[0]?.id ?? '')
+  const members = board?.team.members ?? []
+  return (
+    <div className="mt-4 border-t border-indigo-100 pt-4 dark:border-indigo-900/30">
+      <label
+        htmlFor="assignee-id"
+        className="text-xs font-medium text-slate-500 dark:text-slate-400"
+      >
+        Asignar a
+      </label>
+      <select
+        id="assignee-id"
+        value={(config.userId as string) ?? ''}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={isLoading || members.length === 0}
+        className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900"
+      >
+        <option value="" disabled>
+          {isLoading ? 'Cargando equipo…' : 'Elige a una persona del equipo'}
+        </option>
+        {members.map(({ user }) => (
+          <option key={user.id} value={user.id}>
+            {user.name}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
 function ActionConfigForm({
   actionType,
   config,
@@ -73,22 +114,10 @@ function ActionConfigForm({
 }) {
   if (actionType === 'ASSIGN_USER') {
     return (
-      <div className="mt-4 border-t border-indigo-100 pt-4 dark:border-indigo-900/30">
-        <label
-          htmlFor="assignee-id"
-          className="text-xs font-medium text-slate-500 dark:text-slate-400"
-        >
-          ID del usuario a asignar
-        </label>
-        <input
-          id="assignee-id"
-          type="text"
-          placeholder="cuid del usuario..."
-          value={(config.userId as string) ?? ''}
-          onChange={(e) => onChange({ type: actionType, userId: e.target.value })}
-          className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900"
-        />
-      </div>
+      <AssignUserField
+        config={config}
+        onChange={(userId) => onChange({ type: actionType, userId })}
+      />
     )
   }
   if (actionType === 'WEBHOOK') {

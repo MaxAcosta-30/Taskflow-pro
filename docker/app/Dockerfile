@@ -12,13 +12,15 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm ci --omit=dev --ignore-scripts && \
-    npm install --save-dev tsx && \
+# Todas las dependencias: la build necesita TypeScript, Tailwind y el CLI de Prisma del proyecto.
+RUN npm ci --ignore-scripts && \
     npx prisma generate
 
 
 # ── Etapa 2: Build ────────────────────────────────────────────
 FROM node:20-alpine AS builder
+# Prisma detecta la versión de OpenSSL al cargar el cliente: sin openssl busca un motor que no existe.
+RUN apk add --no-cache libc6-compat openssl
 
 WORKDIR /app
 
@@ -36,7 +38,7 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl openssl
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1

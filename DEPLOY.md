@@ -7,12 +7,12 @@ Tiempo estimado: 30-45 minutos en un servidor nuevo.
 
 ## Requisitos del servidor
 
-| Recurso | Mínimo | Recomendado |
-|---|---|---|
-| CPU | 1 vCPU | 2 vCPU |
-| RAM | 2 GB | 4 GB |
-| Disco | 20 GB SSD | 40 GB SSD |
-| OS | Ubuntu 22.04 LTS | Ubuntu 22.04 LTS |
+| Recurso | Mínimo           | Recomendado      |
+| ------- | ---------------- | ---------------- |
+| CPU     | 1 vCPU           | 2 vCPU           |
+| RAM     | 2 GB             | 4 GB             |
+| Disco   | 20 GB SSD        | 40 GB SSD        |
+| OS      | Ubuntu 22.04 LTS | Ubuntu 22.04 LTS |
 
 Proveedores compatibles: DigitalOcean, Hetzner, Linode, AWS EC2, cualquier VPS con Ubuntu.
 
@@ -212,6 +212,7 @@ curl https://tudominio.com/api/health
 ```
 
 Respuesta esperada del health check:
+
 ```json
 {
   "status": "healthy",
@@ -272,10 +273,10 @@ docker compose exec backup /restore.sh /backups/taskflow_20260101_020000.sql.gz
 
 ## Monitoreo
 
-| Servicio | URL | Credenciales |
-|---|---|---|
-| Grafana | https://tudominio.com:3002 | admin / [GRAFANA_ADMIN_PASSWORD del .env] |
-| Prometheus | http://localhost:9090 | Solo accesible desde el servidor |
+| Servicio   | URL                        | Credenciales                              |
+| ---------- | -------------------------- | ----------------------------------------- |
+| Grafana    | https://tudominio.com:3002 | admin / [GRAFANA_ADMIN_PASSWORD del .env] |
+| Prometheus | http://localhost:9090      | Solo accesible desde el servidor          |
 
 ### Alertas configuradas
 
@@ -356,7 +357,7 @@ git checkout [commit-anterior]
 npm run build
 docker compose up -d --no-build
 
-# Si hubo migraciones de DB que necesitan revertirse, 
+# Si hubo migraciones de DB que necesitan revertirse,
 # restaurar desde el backup más reciente:
 docker compose exec backup /restore.sh /backups/[backup-antes-del-deploy].sql.gz
 ```

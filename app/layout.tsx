@@ -17,7 +17,8 @@ export const metadata: Metadata = {
     default: 'TaskFlow Pro',
     template: '%s | TaskFlow Pro',
   },
-  description: 'Tableros sincronizados en tiempo real y automatizaciones por horario, cambio de estado o webhook.',
+  description:
+    'Tableros sincronizados en tiempo real y automatizaciones por horario, cambio de estado o webhook.',
   keywords: ['productividad', 'kanban', 'automatización', 'equipos'],
 }
 

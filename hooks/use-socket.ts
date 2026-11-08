@@ -36,8 +36,6 @@ export function useSocketConnection() {
     const s = getSocket()
     if (!s.connected) s.connect()
 
-    s.on('connect', () => console.log('[Socket] Connected:', s.id))
-    s.on('disconnect', () => console.log('[Socket] Disconnected'))
     s.on('connect_error', (err) => console.warn('[Socket] Error:', err.message))
 
     return () => {

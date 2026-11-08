@@ -4,6 +4,7 @@
 // =============================================================
 
 import { NextRequest } from 'next/server'
+
 import { POST } from '@/app/api/columns/route'
 import { db } from '@/lib/db'
 
@@ -39,15 +40,15 @@ describe('Columns API Integration', () => {
     it('should create a column and publish to board', async () => {
       ;(db.board.findFirst as any).mockResolvedValue({ id: 'board-1' })
       ;(db.column.findFirst as any).mockResolvedValue({ position: 2 })
-      ;(db.column.create as any).mockResolvedValue({ 
-        id: 'col-1', 
+      ;(db.column.create as any).mockResolvedValue({
+        id: 'col-1',
         name: 'New Column',
-        position: 3
+        position: 3,
       })
 
       const req = makeRequest('http://localhost:3000/api/columns', {
         boardId: 'ckp1234567890123456789012', // Valid CUID for validation
-        name: 'New Column'
+        name: 'New Column',
       })
 
       const res = await POST(req)
@@ -63,7 +64,7 @@ describe('Columns API Integration', () => {
 
       const req = makeRequest('http://localhost:3000/api/columns', {
         boardId: 'ckp1234567890123456789012',
-        name: 'New Column'
+        name: 'New Column',
       })
 
       const res = await POST(req)

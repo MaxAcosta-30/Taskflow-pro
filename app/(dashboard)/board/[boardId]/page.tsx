@@ -55,7 +55,12 @@ export default function BoardPage() {
         {/* Avatares de miembros del equipo */}
         <div className="flex items-center -space-x-2">
           {board.team.members.slice(0, 5).map(({ user }) => (
-            <Avatar key={user.id} name={user.name} src={user.avatarUrl} className="border-2 border-white dark:border-slate-900" />
+            <Avatar
+              key={user.id}
+              name={user.name}
+              src={user.avatarUrl}
+              className="border-2 border-white dark:border-slate-900"
+            />
           ))}
           {board.team.members.length > 5 && (
             <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-slate-200 dark:border-slate-900 dark:bg-slate-700">

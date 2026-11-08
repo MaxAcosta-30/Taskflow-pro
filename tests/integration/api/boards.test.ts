@@ -4,6 +4,7 @@
 // =============================================================
 
 import { NextRequest } from 'next/server'
+
 import { GET, POST } from '@/app/api/boards/route'
 import { db } from '@/lib/db'
 
@@ -21,7 +22,9 @@ vi.mock('@/lib/redis', () => ({
 
 vi.mock('@/lib/auth/helpers', () => ({
   getAuthUser: vi.fn().mockResolvedValue({ sub: 'user-1' }),
-  unauthorized: vi.fn().mockReturnValue(Response.json({ success: false, error: 'No autorizado' }, { status: 401 })),
+  unauthorized: vi
+    .fn()
+    .mockReturnValue(Response.json({ success: false, error: 'No autorizado' }, { status: 401 })),
 }))
 
 function makeRequest(url: string, method: string = 'GET', body: any = null) {
@@ -40,12 +43,12 @@ describe('Boards API Integration', () => {
   describe('GET /api/boards', () => {
     it('should return boards list', async () => {
       const mockBoards = [
-        { 
-          id: 'board-1', 
-          name: 'Board 1', 
+        {
+          id: 'board-1',
+          name: 'Board 1',
           team: { id: 'team-1', name: 'Team A', slug: 'team-a' },
-          _count: { columns: 4 }
-        }
+          _count: { columns: 4 },
+        },
       ]
       ;(db.board.findMany as any).mockResolvedValue(mockBoards)
 
@@ -72,16 +75,16 @@ describe('Boards API Integration', () => {
     it('should create a board and default columns', async () => {
       ;(db.teamMember.findFirst as any).mockResolvedValue({ teamId: 'team-1' })
       ;(db.board.findFirst as any).mockResolvedValue({ position: 2 })
-      ;(db.board.create as any).mockResolvedValue({ 
-        id: 'board-2', 
+      ;(db.board.create as any).mockResolvedValue({
+        id: 'board-2',
         name: 'New Board',
         team: { id: 'team-1', name: 'Team A' },
-        _count: { columns: 0 }
+        _count: { columns: 0 },
       })
 
-      const req = makeRequest('http://localhost:3000/api/boards', 'POST', { 
+      const req = makeRequest('http://localhost:3000/api/boards', 'POST', {
         name: 'New Board',
-        color: '#3B82F6'
+        color: '#3B82F6',
       })
 
       const res = await POST(req)
@@ -94,9 +97,9 @@ describe('Boards API Integration', () => {
         expect.objectContaining({
           data: expect.objectContaining({
             position: 3,
-            teamId: 'team-1'
-          })
-        })
+            teamId: 'team-1',
+          }),
+        }),
       )
       expect(db.column.createMany).toHaveBeenCalled()
     })
@@ -104,8 +107,8 @@ describe('Boards API Integration', () => {
     it('should return 403 if user is not admin of any team', async () => {
       ;(db.teamMember.findFirst as any).mockResolvedValue(null)
 
-      const req = makeRequest('http://localhost:3000/api/boards', 'POST', { 
-        name: 'New Board'
+      const req = makeRequest('http://localhost:3000/api/boards', 'POST', {
+        name: 'New Board',
       })
 
       const res = await POST(req)
@@ -117,8 +120,8 @@ describe('Boards API Integration', () => {
     })
 
     it('should return 422 if validation fails', async () => {
-      const req = makeRequest('http://localhost:3000/api/boards', 'POST', { 
-        name: '' // Invalid name
+      const req = makeRequest('http://localhost:3000/api/boards', 'POST', {
+        name: '', // Invalid name
       })
 
       const res = await POST(req)

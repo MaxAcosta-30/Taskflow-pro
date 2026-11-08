@@ -4,6 +4,7 @@
 // =============================================================
 
 import { NextRequest } from 'next/server'
+
 import { GET, POST } from '@/app/api/automations/route'
 import { db } from '@/lib/db'
 
@@ -35,7 +36,7 @@ describe('Automations API Integration', () => {
     it('should return automations list', async () => {
       ;(db.teamMember.findFirst as any).mockResolvedValue({ teamId: 'team-1' })
       ;(db.automation.findMany as any).mockResolvedValue([
-        { id: 'auto-1', name: 'Auto 1', _count: { runs: 0, actions: 1 } }
+        { id: 'auto-1', name: 'Auto 1', _count: { runs: 0, actions: 1 } },
       ])
 
       const req = makeRequest('http://localhost:3000/api/automations')
@@ -51,9 +52,9 @@ describe('Automations API Integration', () => {
   describe('POST /api/automations', () => {
     it('should create an automation with actions', async () => {
       ;(db.teamMember.findFirst as any).mockResolvedValue({ teamId: 'team-1' })
-      ;(db.automation.create as any).mockResolvedValue({ 
-        id: 'auto-2', 
-        name: 'New Automation' 
+      ;(db.automation.create as any).mockResolvedValue({
+        id: 'auto-2',
+        name: 'New Automation',
       })
 
       const payload = {
@@ -64,9 +65,9 @@ describe('Automations API Integration', () => {
           {
             actionType: 'SEND_NOTIFICATION',
             config: { title: 'Moved', body: 'Task moved to col 1' },
-            position: 0
-          }
-        ]
+            position: 0,
+          },
+        ],
       }
 
       const req = makeRequest('http://localhost:3000/api/automations', 'POST', payload)
@@ -80,14 +81,14 @@ describe('Automations API Integration', () => {
           data: expect.objectContaining({
             name: 'New Automation',
             triggerType: 'TASK_MOVED',
-          })
-        })
+          }),
+        }),
       )
     })
 
     it('should return 400 for invalid data', async () => {
       const req = makeRequest('http://localhost:3000/api/automations', 'POST', {
-        name: 'Missing trigger'
+        name: 'Missing trigger',
       })
 
       const res = await POST(req)

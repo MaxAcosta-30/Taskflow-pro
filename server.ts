@@ -23,12 +23,12 @@ import { parse } from 'url'
 // ── Cargar variables de entorno ──────────────────────────────
 // tsx no carga .env automáticamente — lo hacemos antes de importar
 // cualquier módulo que lea process.env
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/consistent-type-imports -- se carga antes que Next a propósito
 const dotenv = require('dotenv') as typeof import('dotenv')
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
 dotenv.config({ path: path.resolve(process.cwd(), '.env') }) // fallback
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+/* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/consistent-type-imports -- next se requiere después de cargar .env */
 const next = require('next') as (opts: { dev: boolean; port: number }) => {
   prepare: () => Promise<void>
   getRequestHandler: () => (
@@ -37,6 +37,7 @@ const next = require('next') as (opts: { dev: boolean; port: number }) => {
     parsedUrl: import('url').UrlWithParsedQuery,
   ) => Promise<void>
 }
+/* eslint-enable @typescript-eslint/no-var-requires, @typescript-eslint/consistent-type-imports */
 
 import { initSocketServer } from './lib/socket/index'
 

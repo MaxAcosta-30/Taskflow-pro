@@ -4,7 +4,15 @@
 //  como un cambio que acaba de llegar a todo el equipo.
 // =============================================================
 
-export function Logo({ size = 28, withName = true, className = '' }: { size?: number; withName?: boolean; className?: string }) {
+export function Logo({
+  size = 28,
+  withName = true,
+  className = '',
+}: {
+  size?: number
+  withName?: boolean
+  className?: string
+}) {
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
       <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" focusable="false">

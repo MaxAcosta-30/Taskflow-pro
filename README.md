@@ -32,22 +32,22 @@ Plataforma empresarial de productividad y automatización de flujos de trabajo c
 
 ## Stack
 
-| Categoría | Tecnología | Versión |
-|---|---|---|
-| Framework | Next.js (App Router) | 14.2.5 |
-| Lenguaje | TypeScript | ^5 |
-| Base de datos | PostgreSQL (Prisma ORM) | ^5.17.0 |
-| Cache & Pub/Sub | Redis (ioredis) | ^5.4.1 |
-| Colas (Queues) | BullMQ | ^5.12.0 |
-| Tiempo real | Socket.io | ^4.7.5 |
-| Autenticación | JWT (jsonwebtoken) & bcryptjs | ^9.0.2 |
-| UI & Estilos | Tailwind CSS & Radix UI | ^3.4.1 |
-| Estado cliente | Zustand & TanStack React Query | ^4.5.4 |
-| Validación | Zod | ^3.23.8 |
-| Testing | Jest & Playwright | ^29.7.0 |
-| Métricas | Prometheus (prom-client) | ^15.1.3 |
-| Logging | Pino | ^9.3.2 |
-| Contenedores | Docker & Docker Compose | - |
+| Categoría       | Tecnología                     | Versión |
+| --------------- | ------------------------------ | ------- |
+| Framework       | Next.js (App Router)           | 14.2.5  |
+| Lenguaje        | TypeScript                     | ^5      |
+| Base de datos   | PostgreSQL (Prisma ORM)        | ^5.17.0 |
+| Cache & Pub/Sub | Redis (ioredis)                | ^5.4.1  |
+| Colas (Queues)  | BullMQ                         | ^5.12.0 |
+| Tiempo real     | Socket.io                      | ^4.7.5  |
+| Autenticación   | JWT (jsonwebtoken) & bcryptjs  | ^9.0.2  |
+| UI & Estilos    | Tailwind CSS & Radix UI        | ^3.4.1  |
+| Estado cliente  | Zustand & TanStack React Query | ^4.5.4  |
+| Validación      | Zod                            | ^3.23.8 |
+| Testing         | Jest & Playwright              | ^29.7.0 |
+| Métricas        | Prometheus (prom-client)       | ^15.1.3 |
+| Logging         | Pino                           | ^9.3.2  |
+| Contenedores    | Docker & Docker Compose        | -       |
 
 ---
 
@@ -127,10 +127,10 @@ La aplicación estará disponible en http://localhost:3000
 
 ### Credenciales del seed
 
-| Usuario | Email | Contraseña | Rol |
-|---|---|---|---|
-| Alice Admin | alice@taskflow.pro | password123 | Admin |
-| Bob Developer | bob@taskflow.pro | password123 | Member |
+| Usuario       | Email               | Contraseña  | Rol    |
+| ------------- | ------------------- | ----------- | ------ |
+| Alice Admin   | alice@taskflow.pro  | password123 | Admin  |
+| Bob Developer | bob@taskflow.pro    | password123 | Member |
 | Carlos Viewer | carlos@taskflow.pro | password123 | Member |
 
 ---
@@ -139,22 +139,22 @@ La aplicación estará disponible en http://localhost:3000
 
 ### Requeridas
 
-| Variable | Descripción | Ejemplo |
-|---|---|---|
-| DATABASE_URL | Conexión a PostgreSQL | postgresql://taskflow:taskflow_password@localhost:5432/taskflow_db |
-| REDIS_URL | Conexión a Redis | redis://localhost:6379 |
-| JWT_SECRET | Secreto para access tokens (min 32 chars) | [generado con openssl rand -base64 64] |
-| JWT_REFRESH_SECRET | Secreto para refresh tokens (diferente al anterior) | [generado con openssl rand -base64 64] |
+| Variable           | Descripción                                         | Ejemplo                                                            |
+| ------------------ | --------------------------------------------------- | ------------------------------------------------------------------ |
+| DATABASE_URL       | Conexión a PostgreSQL                               | postgresql://taskflow:taskflow_password@localhost:5432/taskflow_db |
+| REDIS_URL          | Conexión a Redis                                    | redis://localhost:6379                                             |
+| JWT_SECRET         | Secreto para access tokens (min 32 chars)           | [generado con openssl rand -base64 64]                             |
+| JWT_REFRESH_SECRET | Secreto para refresh tokens (diferente al anterior) | [generado con openssl rand -base64 64]                             |
 
 ### Opcionales (APIs externas gratuitas)
 
-| Variable | Descripción | Cómo obtenerla |
-|---|---|---|
-| GITHUB_CLIENT_ID | OAuth GitHub | github.com/settings/apps |
-| NEWS_API_KEY | Noticias en dashboard | newsapi.org (free tier) |
-| EXCHANGE_RATE_API_KEY | Conversión de moneda | exchangerate-api.com (free) |
-| IPINFO_TOKEN | Geolocalización de sesiones | ipinfo.io (50k req/mes gratis) |
-| SENTRY_DSN | Monitoreo de errores | sentry.io (free tier) |
+| Variable              | Descripción                 | Cómo obtenerla                 |
+| --------------------- | --------------------------- | ------------------------------ |
+| GITHUB_CLIENT_ID      | OAuth GitHub                | github.com/settings/apps       |
+| NEWS_API_KEY          | Noticias en dashboard       | newsapi.org (free tier)        |
+| EXCHANGE_RATE_API_KEY | Conversión de moneda        | exchangerate-api.com (free)    |
+| IPINFO_TOKEN          | Geolocalización de sesiones | ipinfo.io (50k req/mes gratis) |
+| SENTRY_DSN            | Monitoreo de errores        | sentry.io (free tier)          |
 
 ### Generación de secretos JWT
 
@@ -167,33 +167,33 @@ openssl rand -base64 64
 
 ## Scripts disponibles
 
-| Script | Descripción |
-|---|---|
-| npm run dev | Inicia Next.js + Socket.io en desarrollo mediante `tsx` |
-| npm run build | Construye la aplicación Next.js de producción |
-| npm run start | Inicia el servidor `server.ts` compilado para producción |
-| npm run lint | Ejecuta verificaciones de código ESLint |
-| npm run format | Aplica auto-formateo en todo el código con Prettier |
-| npm run type-check | Verifica la compilación de TypeScript sin emitir binarios |
-| npm run db:migrate | Aplica migraciones de desarrollo a Prisma y a PostgreSQL |
-| npm run db:seed | Siembra datos de prueba en la base de datos |
-| npm run db:studio | Inicia la interfaz web de Prisma Studio |
-| npm run worker:dev | Ejecuta los procesos workers de BullMQ en entorno de desarrollo |
-| npm run test | Ejecuta tests unitarios con Jest |
-| npm run test:coverage | Genera reporte de cobertura de código para tests unitarios |
-| npm run test:e2e | Ejecuta el conjunto de tests End-to-End con Playwright |
+| Script                | Descripción                                                     |
+| --------------------- | --------------------------------------------------------------- |
+| npm run dev           | Inicia Next.js + Socket.io en desarrollo mediante `tsx`         |
+| npm run build         | Construye la aplicación Next.js de producción                   |
+| npm run start         | Inicia el servidor `server.ts` compilado para producción        |
+| npm run lint          | Ejecuta verificaciones de código ESLint                         |
+| npm run format        | Aplica auto-formateo en todo el código con Prettier             |
+| npm run type-check    | Verifica la compilación de TypeScript sin emitir binarios       |
+| npm run db:migrate    | Aplica migraciones de desarrollo a Prisma y a PostgreSQL        |
+| npm run db:seed       | Siembra datos de prueba en la base de datos                     |
+| npm run db:studio     | Inicia la interfaz web de Prisma Studio                         |
+| npm run worker:dev    | Ejecuta los procesos workers de BullMQ en entorno de desarrollo |
+| npm run test          | Ejecuta tests unitarios con Jest                                |
+| npm run test:coverage | Genera reporte de cobertura de código para tests unitarios      |
+| npm run test:e2e      | Ejecuta el conjunto de tests End-to-End con Playwright          |
 
 ---
 
 ## Servicios en desarrollo
 
-| Servicio | URL | Descripción |
-|---|---|---|
-| Aplicación | http://localhost:3000 | Next.js + Socket.io |
-| Grafana | http://localhost:3002 | Dashboards (admin/admin123) |
-| Prometheus | http://localhost:9090 | Métricas |
-| Redis Commander | http://localhost:8081 | UI de Redis |
-| Prisma Studio | http://localhost:5555 | GUI de base de datos |
+| Servicio        | URL                   | Descripción                 |
+| --------------- | --------------------- | --------------------------- |
+| Aplicación      | http://localhost:3000 | Next.js + Socket.io         |
+| Grafana         | http://localhost:3002 | Dashboards (admin/admin123) |
+| Prometheus      | http://localhost:9090 | Métricas                    |
+| Redis Commander | http://localhost:8081 | UI de Redis                 |
+| Prisma Studio   | http://localhost:5555 | GUI de base de datos        |
 
 ---
 
@@ -201,26 +201,26 @@ openssl rand -base64 64
 
 ### Tipos de Trigger
 
-| Trigger | Descripción | Ejemplo Config |
-|---|---|---|
-| TASK_STALE | Tarea permanece inactiva por X días | `{ "daysStale": 3, "columnName": "In Review" }` |
-| TASK_MOVED | Tarea se mueve a una columna específica | `{ "toColumnName": "In Progress" }` |
-| TASK_ASSIGNED | Se asigna tarea a un usuario | `{}` |
-| TASK_DUE_SOON | Tarea próxima a su fecha de expiración | `{ "hoursBefore": 24 }` |
-| SCHEDULE | Ejecución periódica basada en tiempo | `{ "cronExpression": "0 9 * * 1" }` |
-| WEATHER | Condiciones de temperatura o precipitación | `{ "weatherCondition": "rain", "latitude": 40.71, "longitude": -74.00 }` |
-| WEBHOOK | Eventos desde una API externa mediante JSON | `{}` |
+| Trigger       | Descripción                                 | Ejemplo Config                                                           |
+| ------------- | ------------------------------------------- | ------------------------------------------------------------------------ |
+| TASK_STALE    | Tarea permanece inactiva por X días         | `{ "daysStale": 3, "columnName": "In Review" }`                          |
+| TASK_MOVED    | Tarea se mueve a una columna específica     | `{ "toColumnName": "In Progress" }`                                      |
+| TASK_ASSIGNED | Se asigna tarea a un usuario                | `{}`                                                                     |
+| TASK_DUE_SOON | Tarea próxima a su fecha de expiración      | `{ "hoursBefore": 24 }`                                                  |
+| SCHEDULE      | Ejecución periódica basada en tiempo        | `{ "cronExpression": "0 9 * * 1" }`                                      |
+| WEATHER       | Condiciones de temperatura o precipitación  | `{ "weatherCondition": "rain", "latitude": 40.71, "longitude": -74.00 }` |
+| WEBHOOK       | Eventos desde una API externa mediante JSON | `{}`                                                                     |
 
 ### Tipos de Acción
 
-| Acción | Descripción | Ejemplo Config |
-|---|---|---|
-| MOVE_TASK | Mueve tarea a columna designada | `{ "toColumnId": "cm1ab2cd" }` |
-| ASSIGN_USER | Asigna usuario destino a una tarea | `{ "userId": "cm1ab2cd" }` |
-| ADD_LABEL | Añade etiqueta descriptiva | `{ "labelId": "cm1ab2cd" }` |
+| Acción            | Descripción                                 | Ejemplo Config                                                          |
+| ----------------- | ------------------------------------------- | ----------------------------------------------------------------------- |
+| MOVE_TASK         | Mueve tarea a columna designada             | `{ "toColumnId": "cm1ab2cd" }`                                          |
+| ASSIGN_USER       | Asigna usuario destino a una tarea          | `{ "userId": "cm1ab2cd" }`                                              |
+| ADD_LABEL         | Añade etiqueta descriptiva                  | `{ "labelId": "cm1ab2cd" }`                                             |
 | SEND_NOTIFICATION | Emite push/in-app notification a un usuario | `{ "userId": "cm1ab2cd", "title": "¡Aviso!", "body": "Revisar tarea" }` |
-| WEBHOOK | Llama API remota via POST/GET HTTP | `{ "url": "https://api.example.com", "method": "POST" }` |
-| CREATE_TASK | Produce una nueva subtarea en el tablero | `{ "title": "Revisión final", "columnId": "cm1ab2cd" }` |
+| WEBHOOK           | Llama API remota via POST/GET HTTP          | `{ "url": "https://api.example.com", "method": "POST" }`                |
+| CREATE_TASK       | Produce una nueva subtarea en el tablero    | `{ "title": "Revisión final", "columnId": "cm1ab2cd" }`                 |
 
 ### Ejemplo de automatización
 
@@ -248,9 +248,9 @@ npm run test:e2e
 npm run test:e2e:ui
 ```
 
-| Módulo | Cobertura (Líneas) |
-|---|---|
-| Unit Tests Global | ~25.02% |
+| Módulo            | Cobertura (Líneas) |
+| ----------------- | ------------------ |
+| Unit Tests Global | ~25.02%            |
 
 ---
 

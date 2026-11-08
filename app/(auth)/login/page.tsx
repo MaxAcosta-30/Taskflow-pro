@@ -67,7 +67,9 @@ function LoginForm() {
         <div className="mb-6 lg:hidden">
           <Logo />
         </div>
-        <h2 className="font-wide text-2xl font-extrabold uppercase tracking-[-0.01em] text-slate-900 dark:text-white">Qué bueno verte</h2>
+        <h2 className="font-wide text-2xl font-extrabold uppercase tracking-[-0.01em] text-slate-900 dark:text-white">
+          Qué bueno verte
+        </h2>
         <p className="text-slate-500 dark:text-slate-400">Entra para ver tus tableros al día.</p>
       </div>
 

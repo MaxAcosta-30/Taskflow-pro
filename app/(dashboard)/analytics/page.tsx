@@ -69,7 +69,10 @@ export default function AnalyticsPage() {
   if (error || !data) return <div className="p-8 text-red-500">Error al cargar el dashboard.</div>
 
   const statusData = data.tasksByStatus.map((s) => ({ name: etiqueta(s.status), total: s._count }))
-  const priorityData = data.tasksByPriority.map((p) => ({ name: etiqueta(p.priority), value: p._count }))
+  const priorityData = data.tasksByPriority.map((p) => ({
+    name: etiqueta(p.priority),
+    value: p._count,
+  }))
   const automationData = data.automationPerformance.map((a) => ({
     name: etiqueta(a.status),
     total: a._count,
@@ -78,7 +81,9 @@ export default function AnalyticsPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-8">
       <div>
-        <h1 className="font-wide text-3xl font-extrabold uppercase tracking-[-0.01em]">Analítica del equipo</h1>
+        <h1 className="font-wide text-3xl font-extrabold uppercase tracking-[-0.01em]">
+          Analítica del equipo
+        </h1>
         <p className="text-muted-foreground">
           Cuánto se termina, cuánto tarda y cómo van las automatizaciones.
         </p>
@@ -168,7 +173,9 @@ export default function AnalyticsPage() {
                 <Legend
                   verticalAlign="bottom"
                   height={36}
-                  formatter={(value: string) => <span className="text-sm text-foreground">{value}</span>}
+                  formatter={(value: string) => (
+                    <span className="text-sm text-foreground">{value}</span>
+                  )}
                 />
               </PieChart>
             </ResponsiveContainer>

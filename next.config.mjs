@@ -1,4 +1,4 @@
-import { withSentryConfig } from "@sentry/nextjs";
+import { withSentryConfig } from '@sentry/nextjs'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -45,10 +45,10 @@ const sentryConfig = {
   project: process.env.SENTRY_PROJECT,
   widenClientFileUpload: true,
   transpileClientSDK: true,
-  tunnelRoute: "/monitoring",
+  tunnelRoute: '/monitoring',
   hideSourceMaps: true,
   disableLogger: true,
   automaticVercelMonitors: true,
-};
+}
 
-export default withSentryConfig(nextConfig, sentryConfig);
+export default withSentryConfig(nextConfig, sentryConfig)

@@ -10,9 +10,19 @@
   },
   "plugins": ["@typescript-eslint", "import"],
   "rules": {
-    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ],
     "@typescript-eslint/no-explicit-any": "error",
-    "@typescript-eslint/consistent-type-imports": ["error", { "prefer": "type-imports" }],
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports"
+      }
+    ],
     "@typescript-eslint/no-floating-promises": "error",
     "@typescript-eslint/await-thenable": "error",
     "import/order": [
@@ -20,10 +30,17 @@
       {
         "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
         "newlines-between": "always",
-        "alphabetize": { "order": "asc" }
+        "alphabetize": {
+          "order": "asc"
+        }
       }
     ],
-    "no-console": ["warn", { "allow": ["warn", "error"] }]
+    "no-console": [
+      "warn",
+      {
+        "allow": ["warn", "error"]
+      }
+    ]
   },
   "ignorePatterns": [
     "node_modules/",
@@ -32,5 +49,13 @@
     "prisma/migrations/",
     "*.config.js",
     "*.config.mjs"
+  ],
+  "overrides": [
+    {
+      "files": ["server.ts", "prisma/**/*.ts", "workers/**/*.ts"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
   ]
 }

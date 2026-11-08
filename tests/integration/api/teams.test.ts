@@ -4,6 +4,7 @@
 // =============================================================
 
 import { NextRequest } from 'next/server'
+
 import { POST } from '@/app/api/teams/route'
 import { db } from '@/lib/db'
 
@@ -32,14 +33,14 @@ describe('Teams API Integration', () => {
 
   describe('POST /api/teams', () => {
     it('should create a team and assign owner', async () => {
-      ;(db.team.create as any).mockResolvedValue({ 
-        id: 'team-1', 
+      ;(db.team.create as any).mockResolvedValue({
+        id: 'team-1',
         name: 'New Team',
-        slug: 'new-team-abcde'
+        slug: 'new-team-abcde',
       })
 
       const req = makeRequest('http://localhost:3000/api/teams', {
-        name: 'New Team'
+        name: 'New Team',
       })
 
       const res = await POST(req)
@@ -54,11 +55,11 @@ describe('Teams API Integration', () => {
             members: expect.objectContaining({
               create: expect.objectContaining({
                 userId: 'user-1',
-                teamRole: 'OWNER'
-              })
-            })
-          })
-        })
+                teamRole: 'OWNER',
+              }),
+            }),
+          }),
+        }),
       )
     })
   })

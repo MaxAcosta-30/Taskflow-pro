@@ -124,6 +124,8 @@ jobs:
         run: |
           npx prisma generate
           npx prisma migrate deploy
+          # Datos de ejemplo: los e2e inician sesión con los usuarios del seed
+          npx tsx prisma/seed.ts
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium

@@ -40,7 +40,12 @@ const PRIORITY_CONFIG = {
     bg: 'bg-slate-100 dark:bg-slate-700/60',
     label: 'Media',
   },
-  LOW: { icon: Minus, color: 'text-slate-500 dark:text-slate-400', bg: 'bg-transparent', label: 'Baja' },
+  LOW: {
+    icon: Minus,
+    color: 'text-slate-500 dark:text-slate-400',
+    bg: 'bg-transparent',
+    label: 'Baja',
+  },
 }
 
 export function TaskCard({ task, boardId, isDragging = false }: Props) {
@@ -138,7 +143,9 @@ export function TaskCard({ task, boardId, isDragging = false }: Props) {
             )}
 
             {/* Avatar del asignado */}
-            {task.assignee && <Avatar name={task.assignee.name} src={task.assignee.avatarUrl} size={20} />}
+            {task.assignee && (
+              <Avatar name={task.assignee.name} src={task.assignee.avatarUrl} size={20} />
+            )}
           </div>
         </div>
       </div>

@@ -59,7 +59,12 @@ describe('notificationProcessor', () => {
       inApp: true,
       push: false,
     })
-    ;(db.notification.create as any).mockResolvedValue({ id: 'notif-1', title: 'New Task' })
+    ;(db.notification.create as any).mockResolvedValue({
+      id: 'notif-1',
+      title: 'New Task',
+      data: null,
+      createdAt: new Date('2026-11-08T12:00:00Z'),
+    })
 
     await notificationProcessor(mockJob)
 

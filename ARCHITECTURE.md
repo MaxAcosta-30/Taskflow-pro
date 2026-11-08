@@ -86,6 +86,7 @@ subscriber.on('pmessage', (pattern, channel, message) => {
 ### BullMQ sobre otras opciones de colas
 
 BullMQ fue seleccionado frente a alternativas como pg-boss (PostgreSQL-based) o AWS SQS porque:
+
 - Utiliza Redis, el cual ya está incluido en el stack para caching y pub/sub, evitando así añadir otra dependencia de infraestructura.
 - Su API nativa de TypeScript provee genéricos para asegurar fuertemente el tipado del payload a través de toda la tubería.
 - Posibilita integrar de manera sencilla un dashboard externo (Bull Board) y monitorizar jobs caídos.
@@ -142,6 +143,7 @@ Todos los logs son JSON con campos consistentes: `module`, `userId`, `jobId`, et
 
 **Capa 2 — Métricas de sistema y negocio** (Prometheus + prom-client)
 Dos tipos de métricas:
+
 - Infraestructura: latencia HTTP p95, jobs en cola, conexiones WebSocket activas
 - Negocio: automatizaciones ejecutadas por tipo, tareas completadas, usuarios activos
 
@@ -158,7 +160,7 @@ User ─────────── TeamMember ──────────
   │                                    Board ── Column ── Task ── TaskLabel ── Label
   │                                                          │
 Session                                                   TaskComment
-OAuthAccount                                           
+OAuthAccount
 Notification                            Automation ── AutomationAction
 AuditLog                                           └── AutomationRun
 ```
@@ -177,32 +179,36 @@ AuditLog                                           └── AutomationRun
 
 ## APIs externas
 
-| API | Propósito | Auth | Cache | Límite free |
-|---|---|---|---|---|
-| Open-Meteo | Clima para triggers y widget | Sin key | 30 min Redis | Sin límite |
-| NewsAPI | Widget de noticias en dashboard | API key | 1 hora Redis | 100 req/día |
-| ExchangeRate API | Conversión de moneda | API key | 1 min Redis | 1500 req/mes |
-| IPInfo | Geolocalización de sesiones | Token (opcional) | 1 hora Redis | 50k req/mes |
-| GitHub API | OAuth login, datos de usuario | OAuth token | 1 hora Redis | 5000 req/hora |
+| API              | Propósito                       | Auth             | Cache        | Límite free   |
+| ---------------- | ------------------------------- | ---------------- | ------------ | ------------- |
+| Open-Meteo       | Clima para triggers y widget    | Sin key          | 30 min Redis | Sin límite    |
+| NewsAPI          | Widget de noticias en dashboard | API key          | 1 hora Redis | 100 req/día   |
+| ExchangeRate API | Conversión de moneda            | API key          | 1 min Redis  | 1500 req/mes  |
+| IPInfo           | Geolocalización de sesiones     | Token (opcional) | 1 hora Redis | 50k req/mes   |
+| GitHub API       | OAuth login, datos de usuario   | OAuth token      | 1 hora Redis | 5000 req/hora |
 
 ---
 
 ## Seguridad
 
 **Autenticación:**
+
 - Access tokens: JWT con expiración de 15 minutos
 - Refresh tokens: rotación en cada uso, almacenados en DB con estado `isRevoked`
 - Cookies httpOnly, Secure, SameSite=Lax — inaccesibles desde JavaScript del cliente
 - Blacklist de tokens revocados en Redis
 
 **Rate limiting:**
+
 - Login: 10 intentos por IP cada 15 minutos (Redis)
 - API general: configurado en Nginx (30 req/min por IP)
 
 **Webhooks entrantes:**
+
 - Verificación HMAC-SHA256 con `crypto.timingSafeEqual` (previene timing attacks)
 
 **Datos:**
+
 - Passwords hasheados con bcrypt (12 salt rounds)
 - Secrets JWT y passwords jamás aparecen en logs (Pino `redact`)
 - Variables de entorno validadas al inicio

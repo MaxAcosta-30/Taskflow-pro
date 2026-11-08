@@ -247,6 +247,7 @@ export function AutomationBuilder({ automationName }: { automationName: string }
                   onClick={() => handleRemoveAction(index)}
                   className="absolute right-3 top-3 rounded-lg p-1.5 text-slate-300 opacity-0 transition-colors hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-red-900/20"
                   title="Eliminar acción"
+                  aria-label="Eliminar acción"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -260,6 +261,7 @@ export function AutomationBuilder({ automationName }: { automationName: string }
             onClick={handleAddAction}
             className="z-10 flex h-14 w-14 items-center justify-center rounded-full border-2 border-dashed border-slate-300 bg-white text-slate-400 shadow-sm transition-all hover:scale-110 hover:border-indigo-500 hover:bg-indigo-50 hover:text-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:hover:bg-indigo-900/20"
             title="Añadir paso"
+            aria-label="Añadir paso"
           >
             <Plus className="h-6 w-6" />
           </button>

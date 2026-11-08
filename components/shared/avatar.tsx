@@ -8,7 +8,17 @@
 import Image from 'next/image'
 import { useState } from 'react'
 
-export function Avatar({ name, src, size = 28, className = '' }: { name: string; src?: string | null; size?: number; className?: string }) {
+export function Avatar({
+  name,
+  src,
+  size = 28,
+  className = '',
+}: {
+  name: string
+  src?: string | null
+  size?: number
+  className?: string
+}) {
   const [failed, setFailed] = useState(false)
   const initials = name
     .split(' ')
@@ -23,9 +33,21 @@ export function Avatar({ name, src, size = 28, className = '' }: { name: string;
       style={{ width: size, height: size }}
     >
       {src && !failed ? (
-        <Image src={src} alt="" fill unoptimized sizes={`${size}px`} className="object-cover" onError={() => setFailed(true)} />
+        <Image
+          src={src}
+          alt=""
+          fill
+          unoptimized
+          sizes={`${size}px`}
+          className="object-cover"
+          onError={() => setFailed(true)}
+        />
       ) : (
-        <span className="font-semibold" style={{ fontSize: Math.max(9, size * 0.38) }} aria-hidden="true">
+        <span
+          className="font-semibold"
+          style={{ fontSize: Math.max(9, size * 0.38) }}
+          aria-hidden="true"
+        >
           {initials}
         </span>
       )}

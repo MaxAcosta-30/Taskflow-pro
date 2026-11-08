@@ -27,15 +27,24 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <div>
-        <h1 className="font-wide text-3xl font-extrabold uppercase tracking-[-0.01em] text-slate-900 dark:text-slate-50">Configuración</h1>
-        <p className="mt-2 text-slate-500 dark:text-slate-400">Tu nombre es el que ve tu equipo en las tarjetas y los comentarios.</p>
+        <h1 className="font-wide text-3xl font-extrabold uppercase tracking-[-0.01em] text-slate-900 dark:text-slate-50">
+          Configuración
+        </h1>
+        <p className="mt-2 text-slate-500 dark:text-slate-400">
+          Tu nombre es el que ve tu equipo en las tarjetas y los comentarios.
+        </p>
       </div>
 
-      <section className="rounded-md border border-slate-200 bg-card p-6 dark:border-slate-800" aria-labelledby="perfil">
+      <section
+        className="rounded-md border border-slate-200 bg-card p-6 dark:border-slate-800"
+        aria-labelledby="perfil"
+      >
         <div className="mb-6 flex items-center gap-4">
           <Avatar name={user?.name ?? ''} src={user?.avatarUrl} size={56} />
           <div>
-            <h2 id="perfil" className="text-lg font-semibold text-slate-900 dark:text-slate-50">Perfil</h2>
+            <h2 id="perfil" className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+              Perfil
+            </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400">{user?.email}</p>
           </div>
         </div>
@@ -48,7 +57,12 @@ export default function SettingsPage() {
           }}
         >
           <div className="space-y-1.5">
-            <label htmlFor="nombre" className="text-sm font-medium text-slate-700 dark:text-slate-300">Nombre completo</label>
+            <label
+              htmlFor="nombre"
+              className="text-sm font-medium text-slate-700 dark:text-slate-300"
+            >
+              Nombre completo
+            </label>
             <input
               id="nombre"
               type="text"
@@ -62,17 +76,32 @@ export default function SettingsPage() {
               aria-describedby={!valido ? 'nombre-error' : undefined}
               className="w-full rounded-md border border-slate-300 bg-transparent px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring dark:border-slate-700"
             />
-            {!valido && <p id="nombre-error" className="text-xs text-red-700 dark:text-red-400">Escribe al menos 2 letras.</p>}
+            {!valido && (
+              <p id="nombre-error" className="text-xs text-red-700 dark:text-red-400">
+                Escribe al menos 2 letras.
+              </p>
+            )}
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Correo electrónico</p>
-            <p className="rounded-md bg-slate-100 px-3 py-2.5 font-mono text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-300">{user?.email}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Es tu usuario para entrar; por ahora no se puede cambiar.</p>
+            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Correo electrónico
+            </p>
+            <p className="rounded-md bg-slate-100 px-3 py-2.5 font-mono text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+              {user?.email}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Es tu usuario para entrar; por ahora no se puede cambiar.
+            </p>
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="zona" className="text-sm font-medium text-slate-700 dark:text-slate-300">Zona horaria</label>
+            <label
+              htmlFor="zona"
+              className="text-sm font-medium text-slate-700 dark:text-slate-300"
+            >
+              Zona horaria
+            </label>
             <select
               id="zona"
               value={zona}
@@ -83,10 +112,14 @@ export default function SettingsPage() {
               className="w-full rounded-md border border-slate-300 bg-card px-3 py-2.5 text-sm dark:border-slate-700"
             >
               {ZONAS.map((z) => (
-                <option key={z.value} value={z.value}>{z.label}</option>
+                <option key={z.value} value={z.value}>
+                  {z.label}
+                </option>
               ))}
             </select>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Las automatizaciones por horario usan esta zona.</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Las automatizaciones por horario usan esta zona.
+            </p>
           </div>
 
           <div className="flex items-center gap-4 pt-2">

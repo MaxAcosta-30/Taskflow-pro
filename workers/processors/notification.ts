@@ -1,4 +1,5 @@
 import type { NotificationType } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 import type { Job } from 'bullmq'
 import webpush from 'web-push'
 
@@ -44,7 +45,7 @@ export async function notificationProcessor(job: Job<NotificationJobData>) {
           type,
           title,
           body,
-          data: data ?? {},
+          data: (data ?? {}) as Prisma.InputJsonValue,
         },
       })
       await publishToUser(userId, 'notification:new', {

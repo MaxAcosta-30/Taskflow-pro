@@ -18,25 +18,65 @@ const prisma = new PrismaClient()
 // Tareas de ejemplo realistas por tablero y columna (sin datos de clientes reales).
 const TITULOS: Record<string, Record<string, string[]>> = {
   Lanzamiento: {
-    Pendiente: ['Exportar tablero a CSV', 'Plantillas de tablero por equipo', 'Atajos de teclado en el tablero'],
+    Pendiente: [
+      'Exportar tablero a CSV',
+      'Plantillas de tablero por equipo',
+      'Atajos de teclado en el tablero',
+    ],
     'Por hacer': ['Página de precios', 'Invitar miembros por enlace', 'Onboarding de tres pasos'],
-    'En curso': ['Reintentos de webhooks fallidos', 'Notificaciones en el navegador', 'Filtro por responsable'],
+    'En curso': [
+      'Reintentos de webhooks fallidos',
+      'Notificaciones en el navegador',
+      'Filtro por responsable',
+    ],
     'En revisión': ['Historial de cambios por tarea', 'Modo oscuro en Analytics'],
-    Hecho: ['Login con GitHub', 'Tablero sincronizado con Socket.io', 'Rotación de refresh tokens', 'Automatizaciones por horario', 'Arrastrar y soltar entre columnas', 'Comentarios en tareas', 'Panel de Analytics', 'Etiquetas por equipo'],
+    Hecho: [
+      'Login con GitHub',
+      'Tablero sincronizado con Socket.io',
+      'Rotación de refresh tokens',
+      'Automatizaciones por horario',
+      'Arrastrar y soltar entre columnas',
+      'Comentarios en tareas',
+      'Panel de Analytics',
+      'Etiquetas por equipo',
+    ],
   },
   'Marketing y diseño': {
     Pendiente: ['Guía de voz de la marca', 'Casos de uso para agencias'],
-    'Por hacer': ['Capturas para la landing', 'Video corto del tablero en vivo', 'Artículo: automatizar sin código'],
+    'Por hacer': [
+      'Capturas para la landing',
+      'Video corto del tablero en vivo',
+      'Artículo: automatizar sin código',
+    ],
     'En curso': ['Rediseño de la landing', 'Ilustraciones de onboarding'],
     'En revisión': ['Correo de bienvenida', 'Tabla comparativa de planes'],
-    Hecho: ['Logo y paleta', 'Plantilla de presentación', 'Íconos del producto', 'Kit para redes', 'Guía de componentes', 'Banner de lanzamiento'],
+    Hecho: [
+      'Logo y paleta',
+      'Plantilla de presentación',
+      'Íconos del producto',
+      'Kit para redes',
+      'Guía de componentes',
+      'Banner de lanzamiento',
+    ],
   },
   Infraestructura: {
     Pendiente: ['Réplica de lectura de PostgreSQL', 'Pruebas de carga del WebSocket'],
-    'Por hacer': ['Alertas de Grafana por latencia', 'Backups diarios verificados', 'Límite de peticiones por IP'],
+    'Por hacer': [
+      'Alertas de Grafana por latencia',
+      'Backups diarios verificados',
+      'Límite de peticiones por IP',
+    ],
     'En curso': ['Worker de BullMQ en contenedor propio', 'Dashboard de colas en Grafana'],
     'En revisión': ['Migrar Nginx a HTTP/2', 'Logs estructurados con Pino'],
-    Hecho: ['Docker Compose de desarrollo', 'Adaptador Redis para Socket.io', 'Métricas con Prometheus', 'Sentry en cliente y servidor', 'CI con lint, tipos y pruebas', 'Healthcheck de la API', 'Rotación de logs'],
+    Hecho: [
+      'Docker Compose de desarrollo',
+      'Adaptador Redis para Socket.io',
+      'Métricas con Prometheus',
+      'Sentry en cliente y servidor',
+      'CI con lint, tipos y pruebas',
+      'Healthcheck de la API',
+      'Rotación de logs',
+    ],
   },
 }
 
@@ -161,7 +201,8 @@ async function main() {
         await prisma.task.create({
           data: {
             title: titulos[i]!,
-            description: 'Tarea de ejemplo del seed: muévela, comenta o asígnala para ver la sincronización.',
+            description:
+              'Tarea de ejemplo del seed: muévela, comenta o asígnala para ver la sincronización.',
             columnId: col.id,
             creatorId: alice.id,
             assigneeId: Math.random() > 0.3 ? bob.id : null,
@@ -180,7 +221,8 @@ async function main() {
               col.name !== 'Hecho' ? addDays(new Date(), Math.floor(Math.random() * 15) - 2) : null,
             // Las terminadas llevan inicio y fin: así Analytics calcula completadas y tiempo de entrega.
             startedAt: col.name === 'Hecho' || col.name === 'En curso' ? date : null,
-            completedAt: col.name === 'Hecho' ? addDays(date, 1 + Math.floor(Math.random() * 4)) : null,
+            completedAt:
+              col.name === 'Hecho' ? addDays(date, 1 + Math.floor(Math.random() * 4)) : null,
             labels: {
               create:
                 Math.random() > 0.5 && labels.length > 0

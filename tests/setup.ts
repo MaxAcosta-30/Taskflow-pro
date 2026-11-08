@@ -20,7 +20,7 @@ const patchMock = (fn: any) => {
 }
 
 const originalFn = vi.fn
-// @ts-expect-error - overriding vi.fn
+// vi.fn se reemplaza para parchear los mocks (su tipo ya lo admite)
 vi.fn = (...args: any[]) => {
   return patchMock(originalFn(...args))
 }

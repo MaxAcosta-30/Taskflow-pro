@@ -48,12 +48,20 @@ export default function HomePage() {
               >
                 {/* El color del tablero es un punto, igual que en la barra lateral */}
                 <div className="flex items-center gap-2.5">
-                  <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ backgroundColor: board.color }} aria-hidden="true" />
-                  <h3 className="truncate text-base font-bold text-slate-900 dark:text-white">{board.name}</h3>
+                  <span
+                    className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
+                    style={{ backgroundColor: board.color }}
+                    aria-hidden="true"
+                  />
+                  <h3 className="truncate text-base font-bold text-slate-900 dark:text-white">
+                    {board.name}
+                  </h3>
                 </div>
                 <p className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
                   <span>{board._count.columns} columnas</span>
-                  <span className="font-medium text-slate-700 group-hover:text-primary dark:text-slate-300">Abrir tablero</span>
+                  <span className="font-medium text-slate-700 group-hover:text-primary dark:text-slate-300">
+                    Abrir tablero
+                  </span>
                 </p>
               </Link>
             ))}

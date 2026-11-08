@@ -14,7 +14,7 @@ contactPoints:
         settings:
           url: ${GRAFANA_WEBHOOK_URL:-http://localhost:3000/api/webhooks/grafana}
           httpMethod: POST
-          title: "TaskFlow Alert: {{ .GroupLabels.alertname }}"
+          title: 'TaskFlow Alert: {{ .GroupLabels.alertname }}'
           message: |
             Status: {{ .Status }}
             Summary: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}

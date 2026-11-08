@@ -7,9 +7,20 @@
 import { Logo } from '@/components/shared/logo'
 
 const HECHOS = [
-  { titulo: 'Sincronizado', texto: 'Socket.io con adaptador de Redis: si alguien mueve una tarea, todo el equipo lo ve sin recargar.' },
-  { titulo: 'Automático', texto: 'Reglas por horario, cambio de estado o webhook, procesadas en segundo plano con BullMQ.' },
-  { titulo: 'Medible', texto: 'Métricas con Prometheus y Grafana, errores con Sentry y logs estructurados.' },
+  {
+    titulo: 'Sincronizado',
+    texto:
+      'Socket.io con adaptador de Redis: si alguien mueve una tarea, todo el equipo lo ve sin recargar.',
+  },
+  {
+    titulo: 'Automático',
+    texto:
+      'Reglas por horario, cambio de estado o webhook, procesadas en segundo plano con BullMQ.',
+  },
+  {
+    titulo: 'Medible',
+    texto: 'Métricas con Prometheus y Grafana, errores con Sentry y logs estructurados.',
+  },
 ]
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -42,15 +53,22 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
           <dl className="grid max-w-md gap-5">
             {HECHOS.map((hecho) => (
-              <div key={hecho.titulo} className="grid grid-cols-[150px_1fr] gap-4 border-t border-slate-800 pt-4">
-                <dt className="font-wide text-xs font-bold uppercase tracking-[0.08em] text-[#FFC931]">{hecho.titulo}</dt>
+              <div
+                key={hecho.titulo}
+                className="grid grid-cols-[150px_1fr] gap-4 border-t border-slate-800 pt-4"
+              >
+                <dt className="font-wide text-xs font-bold uppercase tracking-[0.08em] text-[#FFC931]">
+                  {hecho.titulo}
+                </dt>
                 <dd className="text-sm leading-relaxed text-slate-300">{hecho.texto}</dd>
               </div>
             ))}
           </dl>
         </div>
 
-        <p className="relative z-10 text-sm text-slate-400">Proyecto de portafolio de Max Acosta · código abierto</p>
+        <p className="relative z-10 text-sm text-slate-400">
+          Proyecto de portafolio de Max Acosta · código abierto
+        </p>
       </div>
 
       <div className="flex flex-1 items-center justify-center bg-background p-8">

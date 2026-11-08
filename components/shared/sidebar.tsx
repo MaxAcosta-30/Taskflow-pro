@@ -14,11 +14,12 @@ import {
   ChevronRight,
   Loader2,
 } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
+import { Avatar } from '@/components/shared/avatar'
+import { Logo } from '@/components/shared/logo'
 import { useBoards, useCreateBoard } from '@/hooks/use-board'
 import { useAuthStore } from '@/stores/auth.store'
 
@@ -39,18 +40,8 @@ export function Sidebar() {
   return (
     <aside className="flex h-full w-60 flex-shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
       {/* Logo */}
-      <div className="flex h-14 items-center gap-2.5 border-b border-slate-200 px-4 dark:border-slate-800">
-        <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-blue-600">
-          <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 10V3L4 14h7v7l9-11h-7z"
-            />
-          </svg>
-        </div>
-        <span className="text-sm font-semibold text-slate-900 dark:text-white">TaskFlow Pro</span>
+      <div className="flex h-14 items-center border-b border-slate-200 px-4 text-slate-900 dark:border-slate-800 dark:text-white">
+        <Logo />
       </div>
 
       {/* Navegación principal */}
@@ -119,7 +110,7 @@ export function Sidebar() {
 
               {/* Crear nuevo tablero */}
               <button
-                onClick={() => createBoard({ name: 'Nuevo tablero', color: '#3B82F6' })}
+                onClick={() => createBoard({ name: 'Nuevo tablero', color: '#FFC931' })}
                 disabled={creating}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-800/50 dark:hover:text-slate-300"
               >
@@ -138,21 +129,7 @@ export function Sidebar() {
       {/* Usuario */}
       <div className="border-t border-slate-200 p-3 dark:border-slate-800">
         <div className="flex items-center gap-2.5 rounded-md px-2 py-1.5">
-          <div className="relative h-7 w-7 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-100 dark:bg-blue-900">
-            {user?.avatarUrl ? (
-              <Image
-                src={user.avatarUrl}
-                alt={user.name || 'User avatar'}
-                fill
-                className="object-cover"
-                sizes="28px"
-              />
-            ) : (
-              <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">
-                {user?.name?.charAt(0).toUpperCase()}
-              </span>
-            )}
-          </div>
+          <Avatar name={user?.name ?? ''} src={user?.avatarUrl} />
           <div className="min-w-0">
             <p className="truncate text-xs font-medium text-slate-900 dark:text-white">
               {user?.name}

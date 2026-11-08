@@ -286,7 +286,7 @@ export function AutomationBuilder({ automationName }: { automationName: string }
           <button
             onClick={handleSave}
             disabled={isPending}
-            className="flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 font-semibold text-white shadow-xl transition-all hover:bg-blue-700 hover:shadow-blue-500/30 disabled:opacity-60"
+            className="flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-xl transition-all hover:bg-primary/85 hover:shadow-blue-500/30 disabled:opacity-60"
           >
             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {isPending ? 'Guardando...' : 'Guardar automatización'}

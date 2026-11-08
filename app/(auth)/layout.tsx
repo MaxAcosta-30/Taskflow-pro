@@ -1,79 +1,59 @@
 // =============================================================
 //  app/(auth)/layout.tsx
+//  Panel de marca: lo que el producto hace de verdad (sin métricas inventadas)
+//  y una muestra del tablero sincronizado.
 // =============================================================
+
+import { Logo } from '@/components/shared/logo'
+
+const HECHOS = [
+  { titulo: 'Sincronizado', texto: 'Socket.io con adaptador de Redis: si alguien mueve una tarea, todo el equipo lo ve sin recargar.' },
+  { titulo: 'Automático', texto: 'Reglas por horario, cambio de estado o webhook, procesadas en segundo plano con BullMQ.' },
+  { titulo: 'Medible', texto: 'Métricas con Prometheus y Grafana, errores con Sentry y logs estructurados.' },
+]
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen">
-      {/* Panel izquierdo — branding */}
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-slate-900 p-12 lg:flex lg:w-1/2">
-        {/* Fondo con patrón */}
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-            backgroundSize: '32px 32px',
-          }}
-        />
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-slate-950 p-12 text-slate-100 lg:flex lg:w-1/2">
+        <Logo className="relative z-10" />
 
-        {/* Glow effect */}
-        <div className="absolute left-1/3 top-1/3 h-64 w-64 rounded-full bg-blue-500 opacity-20 blur-3xl" />
-
-        {/* Logo */}
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500">
-            <svg
-              className="h-5 w-5 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-          </div>
-          <span className="text-lg font-semibold text-white">TaskFlow Pro</span>
-        </div>
-
-        {/* Mensaje central */}
-        <div className="relative z-10 space-y-6">
-          <h1 className="text-4xl font-bold leading-tight text-white">
-            Automatiza tu equipo.
+        <div className="relative z-10 space-y-10">
+          <h1 className="font-wide max-w-md text-[40px] font-extrabold uppercase leading-[0.98] tracking-[-0.01em]">
+            Un tablero.
             <br />
-            <span className="text-blue-400">Multiplica tu productividad.</span>
+            Todo el equipo.
+            <br />
+            <span className="text-[#FFC931]">Al instante.</span>
           </h1>
-          <p className="max-w-sm text-lg text-slate-400">
-            Tableros Kanban en tiempo real, automatizaciones inteligentes y métricas de equipo en un
-            solo lugar.
-          </p>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-6 pt-4">
-            {[
-              { value: '10k+', label: 'Tareas automatizadas' },
-              { value: '99.9%', label: 'Uptime garantizado' },
-              { value: '<50ms', label: 'Latencia promedio' },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <div className="text-sm text-slate-500">{stat.label}</div>
+          {/* Muestra: la tarjeta de Ana avanza de columna y "llega" al tablero de Luis */}
+          <div className="tablero-muestra" aria-hidden="true">
+            {['Pendiente', 'En curso', 'Hecho'].map((columna) => (
+              <div key={columna} className="muestra-columna">
+                <span>{columna}</span>
               </div>
             ))}
+            <div className="muestra-tarjeta">
+              Publicar sitio
+              <small>Ana la movió</small>
+            </div>
           </div>
+
+          <dl className="grid max-w-md gap-5">
+            {HECHOS.map((hecho) => (
+              <div key={hecho.titulo} className="grid grid-cols-[150px_1fr] gap-4 border-t border-slate-800 pt-4">
+                <dt className="font-wide text-xs font-bold uppercase tracking-[0.08em] text-[#FFC931]">{hecho.titulo}</dt>
+                <dd className="text-sm leading-relaxed text-slate-300">{hecho.texto}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
 
-        {/* Footer */}
-        <div className="relative z-10 text-sm text-slate-600">
-          © 2024 TaskFlow Pro. Todos los derechos reservados.
-        </div>
+        <p className="relative z-10 text-sm text-slate-400">Proyecto de portafolio de Max Acosta · código abierto</p>
       </div>
 
-      {/* Panel derecho — formulario */}
-      <div className="flex flex-1 items-center justify-center bg-white p-8 dark:bg-slate-950">
+      <div className="flex flex-1 items-center justify-center bg-background p-8">
         <div className="w-full max-w-md">{children}</div>
       </div>
     </div>

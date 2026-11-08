@@ -35,11 +35,9 @@ export function KanbanColumn({ column, boardId }: Omit<Props, 'members'>) {
       <div className="mb-3 flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: column.color }} />
-          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-            {column.name}
-          </h3>
-          <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-slate-200/80 px-1.5 text-xs font-semibold text-slate-400 dark:bg-slate-700">
-            {taskCount}
+          <h3 className="column-title text-slate-700 dark:text-slate-200">{column.name}</h3>
+          <span className="column-count rounded-[3px] bg-slate-900 px-1.5 py-0.5 text-[#FFC931] dark:bg-black">
+            {String(taskCount).padStart(2, '0')}
           </span>
         </div>
 

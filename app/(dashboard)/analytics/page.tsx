@@ -25,12 +25,30 @@ type AnalyticsData = {
   totalCompleted: number
 }
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+// Color solo para lo que pide atención (Urgente y Alta); el resto en grafito.
+// Las variables cambian con el tema (definidas en globals.css).
+const COLORS = ['var(--chart-ink)', 'var(--chart-soft)']
+const ETIQUETAS: Record<string, string> = {
+  TODO: 'Por hacer',
+  IN_PROGRESS: 'En curso',
+  IN_REVIEW: 'En revisión',
+  DONE: 'Hecho',
+  CANCELLED: 'Cancelada',
+  URGENT: 'Urgente',
+  HIGH: 'Alta',
+  MEDIUM: 'Media',
+  LOW: 'Baja',
+  SUCCESS: 'Exitosas',
+  FAILED: 'Fallidas',
+  RUNNING: 'En curso',
+  PENDING: 'Pendientes',
+}
+const etiqueta = (clave: string) => ETIQUETAS[clave] ?? clave
 const PRIORITY_COLORS: Record<string, string> = {
-  LOW: '#10B981',
-  MEDIUM: '#3B82F6',
-  HIGH: '#F59E0B',
-  URGENT: '#EF4444',
+  Baja: 'var(--chart-soft)',
+  Media: 'var(--chart-mid)',
+  Alta: '#EA580C',
+  Urgente: '#DC2626',
 }
 
 export default function AnalyticsPage() {
@@ -50,19 +68,19 @@ export default function AnalyticsPage() {
     )
   if (error || !data) return <div className="p-8 text-red-500">Error al cargar el dashboard.</div>
 
-  const statusData = data.tasksByStatus.map((s) => ({ name: s.status, total: s._count }))
-  const priorityData = data.tasksByPriority.map((p) => ({ name: p.priority, value: p._count }))
+  const statusData = data.tasksByStatus.map((s) => ({ name: etiqueta(s.status), total: s._count }))
+  const priorityData = data.tasksByPriority.map((p) => ({ name: etiqueta(p.priority), value: p._count }))
   const automationData = data.automationPerformance.map((a) => ({
-    name: a.status,
+    name: etiqueta(a.status),
     total: a._count,
   }))
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Analytics & Rendimiento</h1>
+        <h1 className="font-wide text-3xl font-extrabold uppercase tracking-[-0.01em]">Analítica del equipo</h1>
         <p className="text-muted-foreground">
-          Monitorea la eficiencia de tu equipo y flujos de trabajo.
+          Cuánto se termina, cuánto tarda y cómo van las automatizaciones.
         </p>
       </div>
 
@@ -109,14 +127,14 @@ export default function AnalyticsPage() {
                 <XAxis dataKey="name" axisLine={false} tickLine={false} />
                 <YAxis axisLine={false} tickLine={false} />
                 <Tooltip
-                  cursor={{ fill: '#f3f4f6' }}
+                  cursor={{ fill: 'hsl(var(--muted))' }}
                   contentStyle={{
                     borderRadius: '8px',
                     border: 'none',
                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                   }}
                 />
-                <Bar dataKey="total" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="total" fill="var(--chart-ink)" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -147,7 +165,11 @@ export default function AnalyticsPage() {
                   ))}
                 </Pie>
                 <Tooltip />
-                <Legend verticalAlign="bottom" height={36} />
+                <Legend
+                  verticalAlign="bottom"
+                  height={36}
+                  formatter={(value: string) => <span className="text-sm text-foreground">{value}</span>}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -174,11 +196,11 @@ export default function AnalyticsPage() {
                     <Cell
                       key={`cell-${index}`}
                       fill={
-                        entry.name === 'SUCCESS'
-                          ? '#10B981'
-                          : entry.name === 'FAILED'
-                            ? '#EF4444'
-                            : '#6B7280'
+                        entry.name === 'Exitosas'
+                          ? 'var(--chart-ink)'
+                          : entry.name === 'Fallidas'
+                            ? '#DC2626'
+                            : 'var(--chart-soft)'
                       }
                     />
                   ))}

@@ -26,9 +26,11 @@ export async function GET(req: NextRequest, { params }: Params) {
               team: { members: { some: { userId: user.sub } } },
             },
             include: {
+              // Prisma no admite select e include juntos en la misma relación (lanzaba y el tablero respondía 500).
               team: {
-                select: { id: true, name: true },
-                include: {
+                select: {
+                  id: true,
+                  name: true,
                   members: {
                     select: {
                       teamRole: true,

@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { Logo } from '@/components/shared/logo'
 import { useRegister } from '@/hooks/use-auth'
 import { registerSchema, type RegisterInput } from '@/lib/validations'
 
@@ -55,25 +56,10 @@ export default function RegisterPage() {
     <div className="space-y-8">
       {/* Header */}
       <div className="space-y-2">
-        <div className="mb-6 flex items-center gap-2 lg:hidden">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500">
-            <svg
-              className="h-4 w-4 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-          </div>
-          <span className="font-semibold text-slate-900 dark:text-white">TaskFlow Pro</span>
+        <div className="mb-6 lg:hidden">
+          <Logo />
         </div>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Crea tu cuenta gratis</h2>
+        <h2 className="font-wide text-2xl font-extrabold uppercase tracking-[-0.01em] text-slate-900 dark:text-white">Crea tu cuenta</h2>
         <p className="text-slate-500 dark:text-slate-400">
           Empieza a automatizar tu equipo hoy mismo
         </p>
@@ -128,7 +114,7 @@ export default function RegisterPage() {
             autoComplete="name"
             placeholder="Juan García"
             {...register('name')}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 transition-colors placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 transition-colors placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
             disabled={isPending}
           />
           {errors.name && (
@@ -150,7 +136,7 @@ export default function RegisterPage() {
             autoComplete="email"
             placeholder="tu@email.com"
             {...register('email')}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 transition-colors placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 transition-colors placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
             disabled={isPending}
           />
           {errors.email && (
@@ -173,7 +159,7 @@ export default function RegisterPage() {
               autoComplete="new-password"
               placeholder="••••••••"
               {...register('password')}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-10 text-sm text-slate-900 transition-colors placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 pr-10 text-sm text-slate-900 transition-colors placeholder:text-slate-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
               disabled={isPending}
             />
             <button
@@ -202,7 +188,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={isPending}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/85 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-60"
         >
           {isPending ? (
             <>

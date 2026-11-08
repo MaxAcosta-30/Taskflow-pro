@@ -5,9 +5,9 @@
 'use client'
 
 import { X, Trash2, MessageSquare, Calendar, User, Flag, Loader2, Send } from 'lucide-react'
-import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 
+import { Avatar } from '@/components/shared/avatar'
 import { useDeleteTask, useComments, useCreateComment } from '@/hooks/use-board'
 import type { Task } from '@/hooks/use-board'
 
@@ -17,7 +17,7 @@ const PRIORITY_LABELS = { URGENT: 'Urgente', HIGH: 'Alta', MEDIUM: 'Media', LOW:
 const PRIORITY_COLORS = {
   URGENT: 'text-red-500',
   HIGH: 'text-orange-500',
-  MEDIUM: 'text-yellow-500',
+  MEDIUM: 'text-slate-600 dark:text-slate-300',
   LOW: 'text-slate-400',
 }
 
@@ -174,23 +174,7 @@ export function TaskModal({ task, boardId, onClose }: Props) {
 
                 {comments?.map((comment) => (
                   <div key={comment.id} className="flex gap-2.5">
-                    <div className="relative h-7 w-7 flex-shrink-0 overflow-hidden rounded-full bg-blue-100 dark:bg-blue-900">
-                      {comment.author.avatarUrl ? (
-                        <Image
-                          src={comment.author.avatarUrl}
-                          alt={comment.author.name}
-                          fill
-                          className="object-cover"
-                          sizes="28px"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center">
-                          <span className="text-xs font-bold text-blue-700 dark:text-blue-300">
-                            {comment.author.name.charAt(0)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                    <Avatar name={comment.author.name} src={comment.author.avatarUrl} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-baseline gap-2">
                         <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
@@ -225,7 +209,7 @@ export function TaskModal({ task, boardId, onClose }: Props) {
                 <button
                   onClick={handleComment}
                   disabled={commenting || !commentText.trim()}
-                  className="rounded-lg bg-blue-600 p-2 text-white transition-colors hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 dark:disabled:bg-slate-700"
+                  className="rounded-lg bg-primary p-2 text-primary-foreground transition-colors hover:bg-primary/85 disabled:bg-slate-200 disabled:text-slate-400 dark:disabled:bg-slate-700"
                 >
                   {commenting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

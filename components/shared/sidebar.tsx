@@ -16,12 +16,13 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Avatar } from '@/components/shared/avatar'
 import { Logo } from '@/components/shared/logo'
 import { useBoards, useCreateBoard } from '@/hooks/use-board'
 import { useAuthStore } from '@/stores/auth.store'
+import { useUIStore } from '@/stores/ui.store'
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: 'Inicio', href: '/' },
@@ -36,9 +37,30 @@ export function Sidebar() {
   const { data: boards, isLoading } = useBoards()
   const { mutate: createBoard, isPending: creating } = useCreateBoard()
   const [boardsOpen, setBoardsOpen] = useState(true)
+  const { menuAbierto, abrirMenu } = useUIStore()
+
+  // En pantallas chicas el menú es un cajón: se cierra al navegar y con Escape.
+  useEffect(() => abrirMenu(false), [pathname, abrirMenu])
+  useEffect(() => {
+    if (!menuAbierto) return
+    const cerrar = (e: KeyboardEvent) => e.key === 'Escape' && abrirMenu(false)
+    window.addEventListener('keydown', cerrar)
+    return () => window.removeEventListener('keydown', cerrar)
+  }, [menuAbierto, abrirMenu])
 
   return (
-    <aside className="flex h-full w-60 flex-shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+    <>
+    {menuAbierto && (
+      <button
+        aria-label="Cerrar menú"
+        onClick={() => abrirMenu(false)}
+        className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+      />
+    )}
+    <aside
+      id="menu-lateral"
+      className={`fixed inset-y-0 left-0 z-40 flex h-full w-64 flex-shrink-0 flex-col border-r border-slate-200 bg-white transition-transform duration-200 ease-out dark:border-slate-800 dark:bg-slate-900 lg:static lg:w-60 lg:translate-x-0 ${menuAbierto ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`}
+    >
       {/* Logo */}
       <div className="flex h-14 items-center border-b border-slate-200 px-4 text-slate-900 dark:border-slate-800 dark:text-white">
         <Logo />
@@ -139,5 +161,6 @@ export function Sidebar() {
         </div>
       </div>
     </aside>
+    </>
   )
 }

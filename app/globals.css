@@ -308,3 +308,15 @@
     transform: translateX(0);
   }
 }
+
+/* En el celular el tablero se recorre columna por columna, con encaje */
+@media (max-width: 767px) {
+  .kanban-board {
+    scroll-snap-type: x mandatory;
+    padding-right: 16px;
+  }
+  .kanban-column {
+    width: 84vw;
+    scroll-snap-align: start;
+  }
+}

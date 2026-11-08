@@ -14,7 +14,7 @@ export function Logo({ size = 28, withName = true, className = '' }: { size?: nu
         <rect x="7" y="20" width="9" height="4" rx="1" fill="#16181D" opacity="0.45" />
       </svg>
       {withName && (
-        <span className="font-wide text-[15px] font-bold uppercase tracking-[0.04em]">
+        <span className="font-wide whitespace-nowrap text-[15px] font-bold uppercase tracking-[0.04em]">
           TaskFlow<span className="text-primary"> Pro</span>
         </span>
       )}
